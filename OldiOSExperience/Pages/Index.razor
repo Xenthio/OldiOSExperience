@@ -47,8 +47,11 @@
         }
     }
     
-    private void HandleHomeButtonClick()
+    private async Task HandleHomeButtonClick()
     {
-        springboard?.HandleHomeButtonPress();
+        if (springboard != null)
+        {
+            await springboard.HandleHomeButtonPress();
+        }
     }
 }

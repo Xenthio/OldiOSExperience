@@ -1,4 +1,13 @@
-﻿<div class="app-icon" @onclick="HandleClick">
+﻿@using OldiOSExperience.Data
+@using OldiOSExperience.Services
+@inject AnimationService AnimationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<div class="app-icon @GetAnimationClass()" 
+     style="@GetAnimationStyle()"
+     @ref="iconElement"
+     @onclick="HandleClick">
     <img src="@App.IconPath" alt="@App.Name" />
     <span>@App.Name</span>
 </div>
@@ -10,8 +19,103 @@
     [Parameter]
     public EventCallback<AppInfo> OnAppClick { get; set; }
     
+    [Parameter]
+    public bool IsInDock { get; set; } = false;
+    
+    private ElementReference iconElement;
+    private double iconCenterX = 0;
+    private double iconCenterY = 0;
+    
+    protected override void OnInitialized()
+    {
+        AnimationService.OnAnimationStateChanged += HandleAnimationStateChanged;
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await CaptureIconPosition();
+        }
+    }
+    
+    private async Task CaptureIconPosition()
+    {
+        try
+        {
+            var rect = await JSRuntime.InvokeAsync<BoundingRect>("getElementBoundingRect", iconElement);
+            iconCenterX = rect.Left + rect.Width / 2;
+            iconCenterY = rect.Top + rect.Height / 2;
+        }
+        catch
+        {
+            // Handle case where element not yet rendered
+        }
+    }
+    
     private async Task HandleClick()
     {
+        // Capture the center position before triggering animation
+        await CaptureIconPosition();
         await OnAppClick.InvokeAsync(App);
+    }
+    
+    private void HandleAnimationStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private string GetAnimationClass()
+    {
+        if (!AnimationService.IsAnimating) return "";
+        
+        return AnimationService.CurrentState switch
+        {
+            AnimationState.Opening => "fly-away",
+            AnimationState.Closing => "fly-back",
+            _ => ""
+        };
+    }
+    
+    private string GetAnimationStyle()
+    {
+        if (!AnimationService.IsAnimating || iconCenterX == 0) return "";
+        
+        // Calculate distance and direction from the animation center point
+        double deltaX = iconCenterX - AnimationService.CenterX;
+        double deltaY = iconCenterY - AnimationService.CenterY;
+        double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Normalize to get direction
+        double directionX = distance > 0 ? deltaX / distance : 0;
+        double directionY = distance > 0 ? deltaY / distance : 0;
+        
+        // Fly away distance increases with distance from center
+        double flyDistance = Math.Min(distance * 2, 800);
+        
+        if (AnimationService.CurrentState == AnimationState.Opening)
+        {
+            return $"--fly-x: {flyDistance * directionX}px; --fly-y: {flyDistance * directionY}px;";
+        }
+        else if (AnimationService.CurrentState == AnimationState.Closing)
+        {
+            return $"--fly-x: {flyDistance * directionX}px; --fly-y: {flyDistance * directionY}px;";
+        }
+        
+        return "";
+    }
+    
+    public void Dispose()
+    {
+        AnimationService.OnAnimationStateChanged -= HandleAnimationStateChanged;
+    }
+    
+    // Helper class for JS interop
+    public class BoundingRect
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
     }
 }

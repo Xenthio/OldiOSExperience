@@ -1,8 +1,11 @@
 @using OldiOSExperience.Data
+@using OldiOSExperience.Services
+@inject AnimationService AnimationService
 
 @* App Container - handles app launching and closing animations *@
 
 <div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
+     style="@GetContainerStyle()"
      @onclick:stopPropagation="true">
     @if (CurrentApp != null || isAnimating)
     {
@@ -77,5 +80,15 @@
         }
         
         previousApp = CurrentApp;
+    }
+    
+    private string GetContainerStyle()
+    {
+        // Use animation service center point for transform origin
+        if (AnimationService.CenterX > 0 && AnimationService.CenterY > 0)
+        {
+            return $"transform-origin: {AnimationService.CenterX}px {AnimationService.CenterY}px;";
+        }
+        return "transform-origin: center center;";
     }
 }

@@ -1,6 +1,9 @@
 ﻿@using OldiOSExperience.Data
+@using OldiOSExperience.Services
+@inject AnimationService AnimationService
+@inject IJSRuntime JSRuntime
 
-<div class="springboard-container">
+<div class="springboard-container @GetAnimationClass()" style="@GetSpringboardStyle()">
     <!-- Wallpaper -->
     <img src="images/wallpaper.png" class="wallpaper" alt="Wallpaper"/>
 
@@ -47,12 +50,12 @@
     </div>
 
     <!-- The Dock -->
-    <div class="dock">
+    <div class="dock @GetDockAnimationClass()">
         <div class="dock-background"></div>
         <div class="dock-icons">
             @foreach (var app in DockApps)
             {
-                <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
+                <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" IsInDock="true" />
             }
         </div>
     </div>
@@ -124,22 +127,92 @@
     }
     
     // --- APP LAUNCHING ---
-    private void HandleAppClick(AppInfo app)
+    private async Task HandleAppClick(AppInfo app)
     {
+        // Get the center position from the clicked app icon via JS
+        // Note: The AppIcon component already captures its position
+        // We'll use a simple center point for now
+        try
+        {
+            var rect = await JSRuntime.InvokeAsync<BoundingRect>("getElementBoundingRect", 
+                new object[] { });
+            // Use center of viewport as fallback
+            AnimationService.StartOpeningAnimation(320, 480); // Approximate center for 640x960
+        }
+        catch
+        {
+            AnimationService.StartOpeningAnimation(320, 480);
+        }
+        
+        // Wait a bit for the animation to start
+        await Task.Delay(50);
         openedApp = app;
+        
+        // Complete the animation after the app opens
+        await Task.Delay(400);
+        AnimationService.CompleteAnimation();
     }
     
-    private void CloseApp()
+    private async Task CloseApp()
     {
+        AnimationService.StartClosingAnimation();
+        
+        // Wait for animation to complete
+        await Task.Delay(400);
         openedApp = null;
+        
+        AnimationService.CompleteAnimation();
+    }
+    
+    private string GetAnimationClass()
+    {
+        if (!AnimationService.IsAnimating) return "";
+        
+        return AnimationService.CurrentState switch
+        {
+            AnimationState.Opening => "opening-app",
+            AnimationState.Closing => "closing-app",
+            _ => ""
+        };
+    }
+    
+    private string GetSpringboardStyle()
+    {
+        // Add a fade to black effect during animations
+        if (AnimationService.IsAnimating && AnimationService.CurrentState == AnimationState.Opening)
+        {
+            return "opacity: 0; transition: opacity 0.4s ease-out;";
+        }
+        return "";
+    }
+    
+    private string GetDockAnimationClass()
+    {
+        if (!AnimationService.IsAnimating) return "";
+        
+        return AnimationService.CurrentState switch
+        {
+            AnimationState.Opening => "dock-lowering",
+            AnimationState.Closing => "dock-rising",
+            _ => ""
+        };
+    }
+    
+    // Helper class for JS interop
+    public class BoundingRect
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
     }
     
     // Public method to handle home button press from parent
-    public void HandleHomeButtonPress()
+    public async Task HandleHomeButtonPress()
     {
         if (openedApp != null)
         {
-            CloseApp();
+            await CloseApp();
             StateHasChanged(); // Force re-render
         }
         // In real iOS, if no app is open, home button does nothing on springboard

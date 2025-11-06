@@ -6,6 +6,32 @@
     flex-direction: column;
 }
 
+.springboard-container.opening-app {
+    animation: fadeToBlack 0.4s ease-out forwards;
+}
+
+.springboard-container.closing-app {
+    animation: fadeFromBlack 0.4s ease-out forwards;
+}
+
+@keyframes fadeToBlack {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeFromBlack {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 .wallpaper {
     position: absolute;
     top: 0;
@@ -88,6 +114,37 @@
     width: 100%;
     z-index: 10;
     position: relative;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease-out;
+}
+
+.dock.dock-lowering {
+    animation: dockLower 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.dock.dock-rising {
+    animation: dockRise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes dockLower {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+}
+
+@keyframes dockRise {
+    0% {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .dock-background {

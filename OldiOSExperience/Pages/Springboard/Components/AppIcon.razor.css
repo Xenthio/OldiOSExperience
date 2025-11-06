@@ -5,6 +5,7 @@
     gap: 8px; /* 8px gap between icon and text */
     text-align: center;
     width: 120px; /* Give it a fixed width for alignment */
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease-out;
 }
 
     .app-icon img {
@@ -20,3 +21,35 @@
         font-size: 22px; /* 11pt @2x = 22px */
         text-shadow: 0 1px 1px rgba(0,0,0,0.5);
     }
+
+/* Fly away animation - apps move away from center */
+.app-icon.fly-away {
+    animation: flyAway 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes flyAway {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* Fly back animation - apps return to their positions */
+.app-icon.fly-back {
+    animation: flyBack 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes flyBack {
+    0% {
+        transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.3);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+}
