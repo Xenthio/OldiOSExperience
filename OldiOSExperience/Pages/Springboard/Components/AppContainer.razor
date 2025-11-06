@@ -85,7 +85,8 @@
     private string GetContainerStyle()
     {
         // Use animation service center point for transform origin
-        if (AnimationService.CenterX > 0 && AnimationService.CenterY > 0)
+        // Check if coordinates have been set (both won't be exactly 0 unless uninitialized)
+        if (AnimationService.CenterX != 0 || AnimationService.CenterY != 0)
         {
             return $"transform-origin: {AnimationService.CenterX}px {AnimationService.CenterY}px;";
         }

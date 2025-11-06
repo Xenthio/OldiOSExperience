@@ -27,6 +27,9 @@
     private double iconCenterX = 0;
     private double iconCenterY = 0;
     
+    // Cached animation style to avoid recalculating on every render
+    private string cachedAnimationStyle = "";
+    
     protected override void OnInitialized()
     {
         AnimationService.OnAnimationStateChanged += HandleAnimationStateChanged;
@@ -68,14 +71,20 @@
         // Capture the center position before triggering animation
         await CaptureIconPosition();
         
+        // Use center of screen as fallback if position capture failed
+        var centerX = iconCenterX != 0 ? iconCenterX : 320;
+        var centerY = iconCenterY != 0 ? iconCenterY : 480;
+        
         // Pass the center coordinates to the animation service
-        AnimationService.StartOpeningAnimation(iconCenterX, iconCenterY);
+        AnimationService.StartOpeningAnimation(centerX, centerY);
         
         await OnAppClick.InvokeAsync(App);
     }
     
     private void HandleAnimationStateChanged()
     {
+        // Recalculate animation style when animation state changes
+        cachedAnimationStyle = CalculateAnimationStyle();
         StateHasChanged();
     }
     
@@ -92,6 +101,12 @@
     }
     
     private string GetAnimationStyle()
+    {
+        // Return cached style to avoid recalculating on every render
+        return cachedAnimationStyle;
+    }
+    
+    private string CalculateAnimationStyle()
     {
         if (!AnimationService.IsAnimating || iconCenterX == 0) return "";
         
