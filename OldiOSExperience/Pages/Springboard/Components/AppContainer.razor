@@ -1,0 +1,81 @@
+@using OldiOSExperience.Data
+
+@* App Container - handles app launching and closing animations *@
+
+<div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
+     @onclick:stopPropagation="true">
+    @if (CurrentApp != null || isAnimating)
+    {
+        <!-- Status Bar - shown in all apps -->
+        <div class="status-bar">
+            <!-- Add status bar elements here later -->
+        </div>
+        
+        <div class="app-content">
+            @if (displayedApp != null && displayedApp.Id == 16) @* Settings app *@
+            {
+                <OldiOSExperience.Apps.Settings.SettingsApp />
+            }
+            else if (displayedApp != null)
+            {
+                <div style="padding: 40px; color: white; font-size: 32px;">
+                    @displayedApp.Name app coming soon...
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public AppInfo? CurrentApp { get; set; }
+    
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    
+    private bool isVisible = false;
+    private bool isAnimating = false;
+    private string animationClass = "";
+    private AppInfo? previousApp = null;
+    private AppInfo? displayedApp = null; // The app to display during animations
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        // Check if app changed from something to null (closing)
+        if (previousApp != null && CurrentApp == null && isVisible)
+        {
+            // Closing animation - keep displaying the previous app
+            displayedApp = previousApp;
+            isAnimating = true;
+            animationClass = "app-closing";
+            StateHasChanged();
+            
+            await Task.Delay(300);
+            isVisible = false;
+            isAnimating = false;
+            displayedApp = null;
+            StateHasChanged();
+        }
+        // Check if app changed from null to something (opening)
+        else if (CurrentApp != null && !isVisible)
+        {
+            // Opening animation
+            displayedApp = CurrentApp;
+            isVisible = true;
+            isAnimating = true;
+            animationClass = "app-opening";
+            StateHasChanged();
+            
+            await Task.Delay(300);
+            isAnimating = false;
+            StateHasChanged();
+        }
+        else if (CurrentApp != null)
+        {
+            // Update displayed app when it changes
+            displayedApp = CurrentApp;
+        }
+        
+        previousApp = CurrentApp;
+    }
+}

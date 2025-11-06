@@ -1,0 +1,148 @@
+.ios-table-cell {
+    display: flex;
+    align-items: center;
+    padding: 24px 30px;
+    border-bottom: 1px solid #d1d5db;
+    background-color: white;
+    cursor: pointer;
+    min-height: 88px;
+}
+
+.ios-table-cell.last {
+    border-bottom: none;
+}
+
+.ios-table-cell:active {
+    background-color: #d0d3d9;
+}
+
+.cell-icon {
+    margin-right: 20px;
+}
+
+.cell-icon img {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+}
+
+.cell-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cell-text {
+    color: #000;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 34px;
+}
+
+.cell-detail {
+    color: #4c5c6c;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    margin-top: 4px;
+}
+
+.cell-accessory {
+    color: #b4b8bd;
+    font-size: 56px;
+    font-weight: 300;
+    margin-left: 20px;
+}
+
+.cell-toggle {
+    margin-left: 20px;
+}
+
+/* iOS Style Toggle Switch */
+.ios-switch {
+    position: relative;
+    display: inline-block;
+    width: 100px;
+    height: 56px;
+}
+
+.ios-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e5ea;
+    border: 1px solid #c7c7cc;
+    transition: .3s;
+    border-radius: 56px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* OFF text */
+.slider:after {
+    content: "OFF";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8e8e93;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: opacity 0.3s;
+}
+
+/* ON text */
+.slider:before {
+    content: "ON";
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+}
+
+/* The sliding knob */
+.slider .slider-knob {
+    position: absolute;
+    content: "";
+    height: 50px;
+    width: 50px;
+    left: 2px;
+    top: 2px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+input:checked + .slider {
+    background: linear-gradient(to bottom, #4cd964 0%, #3ec954 100%);
+    border-color: #3ec954;
+}
+
+input:checked + .slider:before {
+    opacity: 1;
+}
+
+input:checked + .slider:after {
+    opacity: 0;
+}
+
+input:checked + .slider .slider-knob {
+    transform: translateX(44px);
+}

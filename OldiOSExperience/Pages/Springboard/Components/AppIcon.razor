@@ -1,9 +1,17 @@
-﻿<div class="app-icon">
+﻿<div class="app-icon" @onclick="HandleClick">
     <img src="@App.IconPath" alt="@App.Name" />
     <span>@App.Name</span>
 </div>
 
 @code {
     [Parameter]
-    public AppInfo App { get; set; }
+    public required AppInfo App { get; set; }
+    
+    [Parameter]
+    public EventCallback<AppInfo> OnAppClick { get; set; }
+    
+    private async Task HandleClick()
+    {
+        await OnAppClick.InvokeAsync(App);
+    }
 }

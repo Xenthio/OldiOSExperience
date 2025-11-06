@@ -7,11 +7,11 @@
 
         <!-- This is the fixed-size content that gets scaled. -->
         <div class="screen-content" style="@screenContentStyle">
-            <OldiOSExperience.Pages.Springboard.Springboard/>
+            <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
         </div>
 
     </div>
-    <div class="home-button">
+    <div class="home-button" @onclick="HandleHomeButtonClick">
         <div class="home-button-square"></div>
     </div>
 </div>
@@ -20,6 +20,7 @@
     private ElementReference screenViewportElement;
     private double scaleFactor = 1.0;
     private string screenContentStyle => $"transform: scale({scaleFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)});";
+    private OldiOSExperience.Pages.Springboard.Springboard? springboard;
 
     // This method is called after the component has rendered.
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -44,5 +45,10 @@
             // Tell Blazor to re-render the component with the new style
             StateHasChanged();
         }
+    }
+    
+    private void HandleHomeButtonClick()
+    {
+        springboard?.HandleHomeButtonPress();
     }
 }

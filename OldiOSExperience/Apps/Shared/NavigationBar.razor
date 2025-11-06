@@ -1,0 +1,35 @@
+@* iOS Navigation Bar Component *@
+
+<div class="ios-navbar">
+    <div class="navbar-left">
+        @if (!string.IsNullOrEmpty(BackButtonText))
+        {
+            <button class="back-button" @onclick="OnBackClick">
+                <span class="back-chevron">‹</span>
+                <span class="back-text">@BackButtonText</span>
+            </button>
+        }
+    </div>
+    
+    <div class="navbar-title">
+        @Title
+    </div>
+    
+    <div class="navbar-right">
+        @RightContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "";
+    
+    [Parameter]
+    public string BackButtonText { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback OnBackClick { get; set; }
+    
+    [Parameter]
+    public RenderFragment? RightContent { get; set; }
+}
