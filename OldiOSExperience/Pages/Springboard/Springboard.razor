@@ -138,6 +138,17 @@
     {
         openedApp = null;
     }
+    
+    // Public method to handle home button press from parent
+    public void HandleHomeButtonPress()
+    {
+        if (openedApp != null)
+        {
+            CloseApp();
+        }
+        // In real iOS, if no app is open, home button does nothing on springboard
+        // Could add "bounce" animation here in the future
+    }
 
     // --- TOUCH EVENT HANDLERS ---
     private void HandleTouchStart(TouchEventArgs e)
