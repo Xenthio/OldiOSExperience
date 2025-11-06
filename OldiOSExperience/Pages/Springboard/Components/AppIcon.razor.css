@@ -1,0 +1,22 @@
+﻿.app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px; /* 8px gap between icon and text */
+    text-align: center;
+    width: 120px; /* Give it a fixed width for alignment */
+}
+
+    .app-icon img {
+        width: 114px; /* iOS 6 icons were 57x57@2x = 114px */
+        height: 114px;
+        border-radius: 20px; /* Classic rounded-square */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .app-icon span {
+        color: white;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 22px; /* 11pt @2x = 22px */
+        text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    }

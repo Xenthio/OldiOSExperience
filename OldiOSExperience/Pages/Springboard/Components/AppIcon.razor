@@ -1,0 +1,9 @@
+﻿<div class="app-icon">
+    <img src="@App.IconPath" alt="@App.Name" />
+    <span>@App.Name</span>
+</div>
+
+@code {
+    [Parameter]
+    public AppInfo App { get; set; }
+}

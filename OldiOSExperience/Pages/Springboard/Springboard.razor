@@ -1,0 +1,146 @@
+﻿@using OldiOSExperience.Data
+
+<div class="springboard-container">
+    <!-- Wallpaper -->
+    <img src="images/wallpaper.jpg" class="wallpaper" alt="Wallpaper"/>
+
+    <!-- Status Bar (using our rem units) -->
+    <div class="status-bar">
+        <!-- Add status bar elements here later -->
+    </div>
+
+    <!-- Pages Container (the part that swipes) -->
+    <div class="springboard-pages-container"
+         @ontouchstart="HandleTouchStart"
+         @ontouchmove="HandleTouchMove"
+         @ontouchend="HandleTouchEnd">
+        
+        <div class="springboard-pages-filmstrip" style="@filmstripStyle">
+            @foreach (var page in Pages)
+            {
+                <div class="springboard-page">
+                    @foreach (var app in page)
+                    {
+                        <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" />
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Page Indicator Dots -->
+    <div class="page-indicator">
+        @for (int i = 0; i < Pages.Count; i++)
+        {
+            <div class="dot @(i == currentPageIndex ? "active" : "")"></div>
+        }
+    </div>
+
+    <!-- The Dock -->
+    <div class="dock">
+        <div class="dock-background"></div>
+        <div class="dock-icons">
+            @foreach (var app in DockApps)
+            {
+                <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    // --- DATA ---
+    private List<List<AppInfo>> Pages { get; set; } = new();
+    private List<AppInfo> DockApps { get; set; } = new();
+
+    // --- STATE for SWIPING ---
+    private int currentPageIndex = 0;
+    private double touchStartX = 0;
+    private double touchCurrentX = 0;
+    private double dragOffset = 0;
+    private bool isDragging = false;
+    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex} * 100% + {dragOffset}px));";
+
+    protected override void OnInitialized()
+    {
+        // --- POPULATE WITH MOCK DATA ---
+        // This is where you would load your app list.
+
+        DockApps = new List<AppInfo>
+        {
+            new AppInfo { Id = 101, Name = "Phone", IconPath = "images/icons/phone.png" },
+            new AppInfo { Id = 102, Name = "Mail", IconPath = "images/icons/mail.png" },
+            new AppInfo { Id = 103, Name = "Safari", IconPath = "images/icons/safari.png" },
+            new AppInfo { Id = 104, Name = "Music", IconPath = "images/icons/music.png" }
+        };
+
+        var page1 = new List<AppInfo>
+        {
+            new AppInfo { Id = 1, Name = "Messages", IconPath = "images/icons/messages.png" },
+            new AppInfo { Id = 2, Name = "Calendar", IconPath = "images/icons/calendar.png" },
+            new AppInfo { Id = 3, Name = "Photos", IconPath = "images/icons/photos.png" },
+            new AppInfo { Id = 4, Name = "Camera", IconPath = "images/icons/camera.png" },
+            new AppInfo { Id = 5, Name = "YouTube", IconPath = "images/icons/youtube.png" },
+            new AppInfo { Id = 6, Name = "Stocks", IconPath = "images/icons/stocks.png" },
+            new AppInfo { Id = 7, Name = "Maps", IconPath = "images/icons/maps.png" },
+            new AppInfo { Id = 8, Name = "Weather", IconPath = "images/icons/weather.png" }
+        };
+
+        var page2 = new List<AppInfo>
+        {
+            new AppInfo { Id = 9, Name = "Notes", IconPath = "images/icons/notes.png" },
+            new AppInfo { Id = 10, Name = "Reminders", IconPath = "images/icons/reminders.png" },
+            new AppInfo { Id = 11, Name = "Clock", IconPath = "images/icons/clock.png" },
+            new AppInfo { Id = 12, Name = "Videos", IconPath = "images/icons/videos.png" },
+            new AppInfo { Id = 13, Name = "App Store", IconPath = "images/icons/appstore.png" },
+            new AppInfo { Id = 14, Name = "iTunes", IconPath = "images/icons/itunes.png" },
+            new AppInfo { Id = 15, Name = "Game Center", IconPath = "images/icons/gamecenter.png" },
+            new AppInfo { Id = 16, Name = "Settings", IconPath = "images/icons/settings.png" }
+        };
+
+        Pages.Add(page1);
+        Pages.Add(page2);
+    }
+
+    // --- TOUCH EVENT HANDLERS ---
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        isDragging = true;
+        touchStartX = e.Touches[0].ClientX;
+        // Find the filmstrip and remove the transition class to make dragging instant
+        // We will do this with JS Interop in the future for better performance.
+        // For now, the style is calculated directly.
+    }
+
+    private void HandleTouchMove(TouchEventArgs e)
+    {
+        if (!isDragging) return;
+
+        touchCurrentX = e.Touches[0].ClientX;
+        dragOffset = touchCurrentX - touchStartX;
+    }
+
+    private void HandleTouchEnd(TouchEventArgs e)
+    {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // Check if swipe was significant enough
+        if (Math.Abs(dragOffset) > 50) // Swiped more than 50px
+        {
+            if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
+            {
+                // Swiped left, go to next page
+                currentPageIndex++;
+            }
+            else if (dragOffset > 0 && currentPageIndex > 0)
+            {
+                // Swiped right, go to previous page
+                currentPageIndex--;
+            }
+        }
+
+        // Reset drag offset to snap back
+        dragOffset = 0;
+    }
+}

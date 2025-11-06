@@ -1,0 +1,105 @@
+﻿.springboard-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.wallpaper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.status-bar {
+    height: 40px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    /* Background was a subtle gradient in iOS 6 */
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
+}
+
+/* This is the viewport for our swiping pages */
+.springboard-pages-container {
+    flex-grow: 1; /* Takes up all available space between status bar and dock */
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+/* This is the "filmstrip" that holds all pages side-by-side */
+.springboard-pages-filmstrip {
+    display: flex;
+    height: 100%;
+    /* 2 pages = 200% width, 3 pages = 300%, etc. We can set this dynamically if needed */
+    width: 200%;
+    transition: transform 0.3s ease-out; /* Smooth snapping animation */
+}
+
+/* Each individual page */
+.springboard-page {
+    width: 100%;
+    height: 100%;
+    padding: 30px 40px;
+    box-sizing: border-box;
+    /* The famous 4-column icon grid */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr); /* iOS 6 on iPhone 4 was 4x4 */
+    gap: 15px;
+    align-items: start;
+    justify-items: center;
+}
+
+.page-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    height: 50px;
+    align-items: center;
+    z-index: 10;
+}
+
+    .page-indicator .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+        .page-indicator .dot.active {
+            background-color: white;
+        }
+
+.dock {
+    height: 190px; /* 95pt @2x */
+    width: 100%;
+    z-index: 10;
+    position: relative;
+}
+
+.dock-background {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url(/images/dock_background.png) no-repeat center bottom;
+    background-size: cover;
+}
+
+.dock-icons {
+    position: relative;
+    z-index: 11;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 20px;
+}

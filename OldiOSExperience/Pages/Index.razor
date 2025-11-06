@@ -1,0 +1,48 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+
+<div class="phone-container">
+    <!-- This is the responsive viewport. Its size is controlled by CSS. -->
+    <div class="screen-viewport" @ref="screenViewportElement">
+
+        <!-- This is the fixed-size content that gets scaled. -->
+        <div class="screen-content" style="@screenContentStyle">
+            <OldiOSExperience.Pages.Springboard.Springboard/>
+        </div>
+
+    </div>
+    <div class="home-button">
+        <div class="home-button-square"></div>
+    </div>
+</div>
+
+@code {
+    private ElementReference screenViewportElement;
+    private double scaleFactor = 1.0;
+    private string screenContentStyle => $"transform: scale({scaleFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)});";
+
+    // This method is called after the component has rendered.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // We only need to do this once when the page first loads.
+        if (firstRender)
+        {
+            await CalculateAndApplyScaleFactor();
+        }
+    }
+
+    private async Task CalculateAndApplyScaleFactor()
+    {
+        // Call our JS function to get the actual width of the viewport element
+        var viewportWidth = await JSRuntime.InvokeAsync<double>("getElementWidth", screenViewportElement);
+
+        if (viewportWidth > 0)
+        {
+            // Calculate the scale factor
+            scaleFactor = viewportWidth / 640.0;
+            
+            // Tell Blazor to re-render the component with the new style
+            StateHasChanged();
+        }
+    }
+}
