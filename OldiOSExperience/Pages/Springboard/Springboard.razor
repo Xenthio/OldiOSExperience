@@ -60,7 +60,7 @@
     </div>
     
     <!-- App Container for launching apps -->
-    <OldiOSExperience.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
+    <OldiOSExperience.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="@(async () => await CloseApp())" />
 </div>
 
 @code {

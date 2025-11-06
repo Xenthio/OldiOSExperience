@@ -1,5 +1,6 @@
 ﻿@using OldiOSExperience.Data
 @using OldiOSExperience.Services
+@using Microsoft.JSInterop
 @inject AnimationService AnimationService
 @inject IJSRuntime JSRuntime
 @implements IDisposable
@@ -47,10 +48,16 @@
             iconCenterX = rect.Left + rect.Width / 2;
             iconCenterY = rect.Top + rect.Height / 2;
         }
-        catch (Exception)
+        catch (JSException)
         {
-            // Element not yet rendered or JS interop failed
+            // JavaScript interop failed - element may not be rendered yet
             // Position will be recaptured on next render or click
+            iconCenterX = 0;
+            iconCenterY = 0;
+        }
+        catch (TaskCanceledException)
+        {
+            // Operation was cancelled - likely component disposed
             iconCenterX = 0;
             iconCenterY = 0;
         }
@@ -100,16 +107,8 @@
         // Fly away distance increases with distance from center
         double flyDistance = Math.Min(distance * 2, 800);
         
-        if (AnimationService.CurrentState == AnimationState.Opening)
-        {
-            return $"--fly-x: {flyDistance * directionX}px; --fly-y: {flyDistance * directionY}px;";
-        }
-        else if (AnimationService.CurrentState == AnimationState.Closing)
-        {
-            return $"--fly-x: {flyDistance * directionX}px; --fly-y: {flyDistance * directionY}px;";
-        }
-        
-        return "";
+        // Both opening and closing use the same CSS custom properties
+        return $"--fly-x: {flyDistance * directionX}px; --fly-y: {flyDistance * directionY}px;";
     }
     
     public void Dispose()
