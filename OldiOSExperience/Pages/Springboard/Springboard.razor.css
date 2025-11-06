@@ -37,13 +37,14 @@
 .springboard-pages-filmstrip {
     display: flex;
     height: 100%;
-    /* Now we have spotlight + 2 pages = 3 total = 300% width */
-    width: 300%;
+    /* Dynamic width based on number of pages - will be set inline if needed, but 300% works for 3 pages (spotlight + 2) */
 }
 
-/* Each individual page */
+/* Each individual page - must be exactly the container width */
 .springboard-page {
-    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    flex-shrink: 0;
     height: 100%;
     padding: 30px 40px;
     box-sizing: border-box;

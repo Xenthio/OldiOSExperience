@@ -2,24 +2,24 @@
 
 @* App Container - handles app launching and closing animations *@
 
-@if (CurrentApp != null)
-{
-    <div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
-         @onclick:stopPropagation="true">
+<div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
+     @onclick:stopPropagation="true">
+    @if (CurrentApp != null || isAnimating)
+    {
         <div class="app-content">
-            @if (CurrentApp.Id == 16) @* Settings app *@
+            @if (CurrentApp != null && CurrentApp.Id == 16) @* Settings app *@
             {
                 <OldiOSExperience.Apps.Settings.SettingsApp />
             }
-            else
+            else if (CurrentApp != null)
             {
                 <div style="padding: 40px; color: white; font-size: 32px;">
                     @CurrentApp.Name app coming soon...
                 </div>
             }
         </div>
-    </div>
-}
+    }
+</div>
 
 @code {
     [Parameter]
