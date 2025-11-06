@@ -120,12 +120,7 @@
         Pages.Add(page2);
         
         // Create a combined list of all apps for Spotlight search
-        AllApps = new List<AppInfo>();
-        AllApps.AddRange(DockApps);
-        foreach (var page in Pages)
-        {
-            AllApps.AddRange(page);
-        }
+        AllApps = DockApps.Concat(Pages.SelectMany(page => page)).ToList();
     }
     
     // --- APP LAUNCHING ---
