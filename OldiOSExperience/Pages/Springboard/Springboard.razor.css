@@ -37,9 +37,8 @@
 .springboard-pages-filmstrip {
     display: flex;
     height: 100%;
-    /* 2 pages = 200% width, 3 pages = 300%, etc. We can set this dynamically if needed */
-    width: 200%;
-    transition: transform 0.3s ease-out; /* Smooth snapping animation */
+    /* Now we have spotlight + 2 pages = 3 total = 300% width */
+    width: 300%;
 }
 
 /* Each individual page */
@@ -55,6 +54,12 @@
     gap: 15px;
     align-items: start;
     justify-items: center;
+}
+
+/* Spotlight page doesn't use grid layout */
+.springboard-page.spotlight-container {
+    display: block;
+    padding: 0;
 }
 
 .page-indicator {

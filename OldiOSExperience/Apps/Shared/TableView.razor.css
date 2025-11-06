@@ -1,0 +1,8 @@
+.ios-table-view {
+    width: 100%;
+    background-color: #c8cdd5;
+}
+
+.ios-table-view.grouped {
+    padding: 30px 20px;
+}

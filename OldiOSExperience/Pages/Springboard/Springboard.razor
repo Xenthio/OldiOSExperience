@@ -13,15 +13,25 @@
     <div class="springboard-pages-container"
          @ontouchstart="HandleTouchStart"
          @ontouchmove="HandleTouchMove"
-         @ontouchend="HandleTouchEnd">
+         @ontouchend="HandleTouchEnd"
+         @onmousedown="HandleMouseDown"
+         @onmousemove="HandleMouseMove"
+         @onmouseup="HandleMouseUp"
+         @onmouseleave="HandleMouseUp">
         
         <div class="springboard-pages-filmstrip" style="@filmstripStyle">
+            <!-- Spotlight Page (index -1) -->
+            <div class="springboard-page spotlight-container">
+                <OldiOSExperience.Pages.Springboard.Components.Spotlight AllApps="AllApps" />
+            </div>
+            
+            <!-- Regular App Pages -->
             @foreach (var page in Pages)
             {
                 <div class="springboard-page">
                     @foreach (var app in page)
                     {
-                        <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" />
+                        <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
                     }
                 </div>
             }
@@ -42,24 +52,32 @@
         <div class="dock-icons">
             @foreach (var app in DockApps)
             {
-                <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" />
+                <OldiOSExperience.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
             }
         </div>
     </div>
+    
+    <!-- App Container for launching apps -->
+    <OldiOSExperience.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
 </div>
 
 @code {
     // --- DATA ---
     private List<List<AppInfo>> Pages { get; set; } = new();
     private List<AppInfo> DockApps { get; set; } = new();
+    private List<AppInfo> AllApps { get; set; } = new();
+    private AppInfo? openedApp = null;
 
     // --- STATE for SWIPING ---
-    private int currentPageIndex = 0;
+    private int currentPageIndex = 0; // 0 = first app page, -1 = spotlight
     private double touchStartX = 0;
     private double touchCurrentX = 0;
     private double dragOffset = 0;
     private bool isDragging = false;
-    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex} * 100% + {dragOffset}px));";
+    
+    // We now have spotlight page, so total pages = spotlight + app pages
+    // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
+    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
 
     protected override void OnInitialized()
     {
@@ -100,6 +118,25 @@
 
         Pages.Add(page1);
         Pages.Add(page2);
+        
+        // Create a combined list of all apps for Spotlight search
+        AllApps = new List<AppInfo>();
+        AllApps.AddRange(DockApps);
+        foreach (var page in Pages)
+        {
+            AllApps.AddRange(page);
+        }
+    }
+    
+    // --- APP LAUNCHING ---
+    private void HandleAppClick(AppInfo app)
+    {
+        openedApp = app;
+    }
+    
+    private void CloseApp()
+    {
+        openedApp = null;
     }
 
     // --- TOUCH EVENT HANDLERS ---
@@ -107,9 +144,6 @@
     {
         isDragging = true;
         touchStartX = e.Touches[0].ClientX;
-        // Find the filmstrip and remove the transition class to make dragging instant
-        // We will do this with JS Interop in the future for better performance.
-        // For now, the style is calculated directly.
     }
 
     private void HandleTouchMove(TouchEventArgs e)
@@ -133,14 +167,54 @@
                 // Swiped left, go to next page
                 currentPageIndex++;
             }
-            else if (dragOffset > 0 && currentPageIndex > 0)
+            else if (dragOffset > 0 && currentPageIndex > -1)
             {
-                // Swiped right, go to previous page
+                // Swiped right, go to previous page (can go to spotlight at -1)
                 currentPageIndex--;
             }
         }
 
         // Reset drag offset to snap back
+        dragOffset = 0;
+    }
+    
+    // --- MOUSE EVENT HANDLERS (for desktop testing) ---
+    private bool isMouseDown = false;
+    
+    private void HandleMouseDown(MouseEventArgs e)
+    {
+        isMouseDown = true;
+        isDragging = true;
+        touchStartX = e.ClientX;
+    }
+
+    private void HandleMouseMove(MouseEventArgs e)
+    {
+        if (!isMouseDown || !isDragging) return;
+
+        touchCurrentX = e.ClientX;
+        dragOffset = touchCurrentX - touchStartX;
+    }
+
+    private void HandleMouseUp(MouseEventArgs e)
+    {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+        isDragging = false;
+
+        // Check if swipe was significant enough
+        if (Math.Abs(dragOffset) > 50)
+        {
+            if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
+            {
+                currentPageIndex++;
+            }
+            else if (dragOffset > 0 && currentPageIndex > -1)
+            {
+                currentPageIndex--;
+            }
+        }
+
         dragOffset = 0;
     }
 }

@@ -1,0 +1,48 @@
+@using OldiOSExperience.Apps.Shared
+
+<div class="settings-app">
+    <NavigationBar Title="Settings" />
+    
+    <div class="settings-content">
+        <TableView Grouped="true">
+            <TableSection>
+                <TableCell Text="Airplane Mode" ShowToggle="true" ToggleValue="false" />
+                <TableCell Text="Wi-Fi" Detail="Not Connected" ShowDisclosure="true" />
+                <TableCell Text="Bluetooth" Detail="Off" ShowDisclosure="true" />
+                <TableCell Text="Cellular" ShowDisclosure="true" IsLast="true" />
+            </TableSection>
+            
+            <TableSection>
+                <TableCell Text="Notifications" ShowDisclosure="true" />
+                <TableCell Text="Control Center" ShowDisclosure="true" />
+                <TableCell Text="Do Not Disturb" ShowDisclosure="true" IsLast="true" />
+            </TableSection>
+            
+            <TableSection>
+                <TableCell Text="General" ShowDisclosure="true" />
+                <TableCell Text="Sounds" ShowDisclosure="true" />
+                <TableCell Text="Brightness & Wallpaper" ShowDisclosure="true" />
+                <TableCell Text="Privacy" ShowDisclosure="true" IsLast="true" />
+            </TableSection>
+            
+            <TableSection>
+                <TableCell Text="iCloud" ShowDisclosure="true" />
+                <TableCell Text="Mail, Contacts, Calendars" ShowDisclosure="true" />
+                <TableCell Text="Notes" ShowDisclosure="true" />
+                <TableCell Text="Reminders" ShowDisclosure="true" />
+                <TableCell Text="Phone" ShowDisclosure="true" />
+                <TableCell Text="Messages" ShowDisclosure="true" />
+                <TableCell Text="FaceTime" ShowDisclosure="true" />
+                <TableCell Text="Maps" ShowDisclosure="true" />
+                <TableCell Text="Safari" ShowDisclosure="true" />
+                <TableCell Text="Music" ShowDisclosure="true" />
+                <TableCell Text="Videos" ShowDisclosure="true" />
+                <TableCell Text="Photos & Camera" ShowDisclosure="true" IsLast="true" />
+            </TableSection>
+        </TableView>
+    </div>
+</div>
+
+@code {
+    
+}

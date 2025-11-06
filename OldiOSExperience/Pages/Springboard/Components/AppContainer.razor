@@ -1,0 +1,73 @@
+@using OldiOSExperience.Data
+
+@* App Container - handles app launching and closing animations *@
+
+@if (CurrentApp != null)
+{
+    <div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
+         @onclick:stopPropagation="true">
+        <div class="app-content">
+            @if (CurrentApp.Id == 16) @* Settings app *@
+            {
+                <OldiOSExperience.Apps.Settings.SettingsApp />
+            }
+            else
+            {
+                <div style="padding: 40px; color: white; font-size: 32px;">
+                    @CurrentApp.Name app coming soon...
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public AppInfo? CurrentApp { get; set; }
+    
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    
+    private bool isVisible = false;
+    private bool isAnimating = false;
+    private string animationClass = "";
+    
+    protected override void OnParametersSet()
+    {
+        if (CurrentApp != null && !isVisible)
+        {
+            // Opening animation
+            isVisible = true;
+            isAnimating = true;
+            animationClass = "app-opening";
+            
+            // Remove animation class after animation completes
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(300);
+                await InvokeAsync(() =>
+                {
+                    isAnimating = false;
+                    StateHasChanged();
+                });
+            });
+        }
+        else if (CurrentApp == null && isVisible)
+        {
+            // Closing animation
+            isAnimating = true;
+            animationClass = "app-closing";
+            
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(300);
+                await InvokeAsync(() =>
+                {
+                    isVisible = false;
+                    isAnimating = false;
+                    StateHasChanged();
+                });
+            });
+        }
+    }
+}

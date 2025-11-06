@@ -3,8 +3,8 @@
     public class AppInfo
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string IconPath { get; set; }
+        public required string Name { get; set; }
+        public required string IconPath { get; set; }
 
         // We can add more later, like which component to launch
         // public Type ComponentToLaunch { get; set; }
