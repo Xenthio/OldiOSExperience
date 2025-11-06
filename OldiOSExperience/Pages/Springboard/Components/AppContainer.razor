@@ -53,7 +53,7 @@
             animationClass = "app-closing";
             StateHasChanged();
             
-            await Task.Delay(300);
+            await Task.Delay(AnimationService.ANIMATION_DURATION_MS);
             isVisible = false;
             isAnimating = false;
             displayedApp = null;
@@ -69,7 +69,7 @@
             animationClass = "app-opening";
             StateHasChanged();
             
-            await Task.Delay(300);
+            await Task.Delay(AnimationService.ANIMATION_DURATION_MS);
             isAnimating = false;
             StateHasChanged();
         }

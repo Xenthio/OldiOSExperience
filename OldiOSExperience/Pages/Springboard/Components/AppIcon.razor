@@ -47,9 +47,12 @@
             iconCenterX = rect.Left + rect.Width / 2;
             iconCenterY = rect.Top + rect.Height / 2;
         }
-        catch
+        catch (Exception)
         {
-            // Handle case where element not yet rendered
+            // Element not yet rendered or JS interop failed
+            // Position will be recaptured on next render or click
+            iconCenterX = 0;
+            iconCenterY = 0;
         }
     }
     
@@ -112,14 +115,5 @@
     public void Dispose()
     {
         AnimationService.OnAnimationStateChanged -= HandleAnimationStateChanged;
-    }
-    
-    // Helper class for JS interop
-    public class BoundingRect
-    {
-        public double Left { get; set; }
-        public double Top { get; set; }
-        public double Width { get; set; }
-        public double Height { get; set; }
     }
 }

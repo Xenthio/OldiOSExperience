@@ -2,6 +2,10 @@ namespace OldiOSExperience.Services
 {
     public class AnimationService
     {
+        // Animation timing constants (in milliseconds)
+        public const int ANIMATION_DURATION_MS = 400;
+        public const int ANIMATION_START_DELAY_MS = 50;
+        
         public event Action? OnAnimationStateChanged;
         
         public bool IsAnimating { get; private set; }

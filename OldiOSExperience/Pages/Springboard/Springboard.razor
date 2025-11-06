@@ -132,11 +132,11 @@
         // with the correct center position
         
         // Wait a bit for the animation to start
-        await Task.Delay(50);
+        await Task.Delay(AnimationService.ANIMATION_START_DELAY_MS);
         openedApp = app;
         
         // Complete the animation after the app opens
-        await Task.Delay(400);
+        await Task.Delay(AnimationService.ANIMATION_DURATION_MS);
         AnimationService.CompleteAnimation();
     }
     
@@ -145,7 +145,7 @@
         AnimationService.StartClosingAnimation();
         
         // Wait for animation to complete
-        await Task.Delay(400);
+        await Task.Delay(AnimationService.ANIMATION_DURATION_MS);
         openedApp = null;
         
         AnimationService.CompleteAnimation();
