@@ -31,43 +31,37 @@
     private bool isVisible = false;
     private bool isAnimating = false;
     private string animationClass = "";
+    private AppInfo? previousApp = null;
     
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        if (CurrentApp != null && !isVisible)
+        // Check if app changed from something to null (closing)
+        if (previousApp != null && CurrentApp == null && isVisible)
+        {
+            // Closing animation
+            isAnimating = true;
+            animationClass = "app-closing";
+            StateHasChanged();
+            
+            await Task.Delay(300);
+            isVisible = false;
+            isAnimating = false;
+            StateHasChanged();
+        }
+        // Check if app changed from null to something (opening)
+        else if (CurrentApp != null && !isVisible)
         {
             // Opening animation
             isVisible = true;
             isAnimating = true;
             animationClass = "app-opening";
+            StateHasChanged();
             
-            // Remove animation class after animation completes
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(300);
-                await InvokeAsync(() =>
-                {
-                    isAnimating = false;
-                    StateHasChanged();
-                });
-            });
+            await Task.Delay(300);
+            isAnimating = false;
+            StateHasChanged();
         }
-        else if (CurrentApp == null && isVisible)
-        {
-            // Closing animation
-            isAnimating = true;
-            animationClass = "app-closing";
-            
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(300);
-                await InvokeAsync(() =>
-                {
-                    isVisible = false;
-                    isAnimating = false;
-                    StateHasChanged();
-                });
-            });
-        }
+        
+        previousApp = CurrentApp;
     }
 }
