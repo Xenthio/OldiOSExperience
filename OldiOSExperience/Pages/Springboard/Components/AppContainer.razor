@@ -6,15 +6,20 @@
      @onclick:stopPropagation="true">
     @if (CurrentApp != null || isAnimating)
     {
+        <!-- Status Bar - shown in all apps -->
+        <div class="status-bar">
+            <!-- Add status bar elements here later -->
+        </div>
+        
         <div class="app-content">
-            @if (CurrentApp != null && CurrentApp.Id == 16) @* Settings app *@
+            @if (displayedApp != null && displayedApp.Id == 16) @* Settings app *@
             {
                 <OldiOSExperience.Apps.Settings.SettingsApp />
             }
-            else if (CurrentApp != null)
+            else if (displayedApp != null)
             {
                 <div style="padding: 40px; color: white; font-size: 32px;">
-                    @CurrentApp.Name app coming soon...
+                    @displayedApp.Name app coming soon...
                 </div>
             }
         </div>
@@ -32,13 +37,15 @@
     private bool isAnimating = false;
     private string animationClass = "";
     private AppInfo? previousApp = null;
+    private AppInfo? displayedApp = null; // The app to display during animations
     
     protected override async Task OnParametersSetAsync()
     {
         // Check if app changed from something to null (closing)
         if (previousApp != null && CurrentApp == null && isVisible)
         {
-            // Closing animation
+            // Closing animation - keep displaying the previous app
+            displayedApp = previousApp;
             isAnimating = true;
             animationClass = "app-closing";
             StateHasChanged();
@@ -46,12 +53,14 @@
             await Task.Delay(300);
             isVisible = false;
             isAnimating = false;
+            displayedApp = null;
             StateHasChanged();
         }
         // Check if app changed from null to something (opening)
         else if (CurrentApp != null && !isVisible)
         {
             // Opening animation
+            displayedApp = CurrentApp;
             isVisible = true;
             isAnimating = true;
             animationClass = "app-opening";
@@ -60,6 +69,11 @@
             await Task.Delay(300);
             isAnimating = false;
             StateHasChanged();
+        }
+        else if (CurrentApp != null)
+        {
+            // Update displayed app when it changes
+            displayedApp = CurrentApp;
         }
         
         previousApp = CurrentApp;
