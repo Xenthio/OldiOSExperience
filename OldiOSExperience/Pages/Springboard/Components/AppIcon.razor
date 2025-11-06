@@ -57,6 +57,10 @@
     {
         // Capture the center position before triggering animation
         await CaptureIconPosition();
+        
+        // Pass the center coordinates to the animation service
+        AnimationService.StartOpeningAnimation(iconCenterX, iconCenterY);
+        
         await OnAppClick.InvokeAsync(App);
     }
     

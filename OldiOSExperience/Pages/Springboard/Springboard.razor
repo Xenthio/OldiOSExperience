@@ -1,19 +1,18 @@
 ﻿@using OldiOSExperience.Data
 @using OldiOSExperience.Services
 @inject AnimationService AnimationService
-@inject IJSRuntime JSRuntime
 
-<div class="springboard-container @GetAnimationClass()" style="@GetSpringboardStyle()">
+<div class="springboard-container @GetAnimationClass()">
     <!-- Wallpaper -->
-    <img src="images/wallpaper.png" class="wallpaper" alt="Wallpaper"/>
+    <img src="images/wallpaper.png" class="wallpaper @GetPageIndicatorAnimationClass()" alt="Wallpaper"/>
 
     <!-- Status Bar (using our rem units) -->
-    <div class="status-bar">
+    <div class="status-bar @GetPageIndicatorAnimationClass()">
         <!-- Add status bar elements here later -->
     </div>
 
     <!-- Pages Container (the part that swipes) -->
-    <div class="springboard-pages-container"
+    <div class="springboard-pages-container @GetPageIndicatorAnimationClass()"
          @ontouchstart="HandleTouchStart"
          @ontouchmove="HandleTouchMove"
          @ontouchend="HandleTouchEnd"
@@ -42,7 +41,7 @@
     </div>
 
     <!-- Page Indicator Dots -->
-    <div class="page-indicator">
+    <div class="page-indicator @GetPageIndicatorAnimationClass()">
         @for (int i = 0; i < Pages.Count; i++)
         {
             <div class="dot @(i == currentPageIndex ? "active" : "")"></div>
@@ -129,20 +128,8 @@
     // --- APP LAUNCHING ---
     private async Task HandleAppClick(AppInfo app)
     {
-        // Get the center position from the clicked app icon via JS
-        // Note: The AppIcon component already captures its position
-        // We'll use a simple center point for now
-        try
-        {
-            var rect = await JSRuntime.InvokeAsync<BoundingRect>("getElementBoundingRect", 
-                new object[] { });
-            // Use center of viewport as fallback
-            AnimationService.StartOpeningAnimation(320, 480); // Approximate center for 640x960
-        }
-        catch
-        {
-            AnimationService.StartOpeningAnimation(320, 480);
-        }
+        // The AppIcon component already called AnimationService.StartOpeningAnimation
+        // with the correct center position
         
         // Wait a bit for the animation to start
         await Task.Delay(50);
@@ -176,16 +163,6 @@
         };
     }
     
-    private string GetSpringboardStyle()
-    {
-        // Add a fade to black effect during animations
-        if (AnimationService.IsAnimating && AnimationService.CurrentState == AnimationState.Opening)
-        {
-            return "opacity: 0; transition: opacity 0.4s ease-out;";
-        }
-        return "";
-    }
-    
     private string GetDockAnimationClass()
     {
         if (!AnimationService.IsAnimating) return "";
@@ -198,13 +175,16 @@
         };
     }
     
-    // Helper class for JS interop
-    public class BoundingRect
+    private string GetPageIndicatorAnimationClass()
     {
-        public double Left { get; set; }
-        public double Top { get; set; }
-        public double Width { get; set; }
-        public double Height { get; set; }
+        if (!AnimationService.IsAnimating) return "";
+        
+        return AnimationService.CurrentState switch
+        {
+            AnimationState.Opening => "fade-out-indicator",
+            AnimationState.Closing => "fade-in-indicator",
+            _ => ""
+        };
     }
     
     // Public method to handle home button press from parent
