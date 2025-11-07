@@ -25,13 +25,17 @@
     pointer-events: none;
 }
 
-/* Animate icons and page indicators to fly out when app opens */
-.springboard-container.app-is-open .springboard-pages-container,
-.springboard-container.app-is-open .page-indicator {
-    animation: iconsScatterOut 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+/* Individual icons get pushed radially from screen center */
+.springboard-container.app-is-open .app-icon {
+    animation: iconScatterOut 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 }
 
-/* Animate dock to slide down when app opens */
+/* Animate page indicators to fade out */
+.springboard-container.app-is-open .page-indicator {
+    animation: fadeOut 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+}
+
+/* Animate dock background to slide down */
 .springboard-container.app-is-open .dock {
     animation: dockSlideDown 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 }
@@ -45,13 +49,23 @@
     }
 }
 
-@keyframes iconsScatterOut {
+@keyframes iconScatterOut {
     0% {
-        transform: scale(1);
+        transform: translate(0, 0);
         opacity: 1;
     }
     100% {
-        transform: scale(1.2);
+        /* Icons pushed radially from screen center using CSS variables */
+        transform: translate(var(--scatter-x, 0), var(--scatter-y, 0));
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
         opacity: 0;
     }
 }
@@ -117,6 +131,37 @@
     align-items: start;
     justify-items: center;
 }
+
+/* Define radial scatter directions for each grid position (4x4 grid) */
+/* Top row */
+.springboard-page .app-icon:nth-child(1) { --scatter-x: -80px; --scatter-y: -80px; }
+.springboard-page .app-icon:nth-child(2) { --scatter-x: -30px; --scatter-y: -80px; }
+.springboard-page .app-icon:nth-child(3) { --scatter-x: 30px; --scatter-y: -80px; }
+.springboard-page .app-icon:nth-child(4) { --scatter-x: 80px; --scatter-y: -80px; }
+
+/* Second row */
+.springboard-page .app-icon:nth-child(5) { --scatter-x: -80px; --scatter-y: -30px; }
+.springboard-page .app-icon:nth-child(6) { --scatter-x: -30px; --scatter-y: -30px; }
+.springboard-page .app-icon:nth-child(7) { --scatter-x: 30px; --scatter-y: -30px; }
+.springboard-page .app-icon:nth-child(8) { --scatter-x: 80px; --scatter-y: -30px; }
+
+/* Third row */
+.springboard-page .app-icon:nth-child(9) { --scatter-x: -80px; --scatter-y: 30px; }
+.springboard-page .app-icon:nth-child(10) { --scatter-x: -30px; --scatter-y: 30px; }
+.springboard-page .app-icon:nth-child(11) { --scatter-x: 30px; --scatter-y: 30px; }
+.springboard-page .app-icon:nth-child(12) { --scatter-x: 80px; --scatter-y: 30px; }
+
+/* Fourth row */
+.springboard-page .app-icon:nth-child(13) { --scatter-x: -80px; --scatter-y: 80px; }
+.springboard-page .app-icon:nth-child(14) { --scatter-x: -30px; --scatter-y: 80px; }
+.springboard-page .app-icon:nth-child(15) { --scatter-x: 30px; --scatter-y: 80px; }
+.springboard-page .app-icon:nth-child(16) { --scatter-x: 80px; --scatter-y: 80px; }
+
+/* Dock icons scatter horizontally from center */
+.dock-icons .app-icon:nth-child(1) { --scatter-x: -100px; --scatter-y: 50px; }
+.dock-icons .app-icon:nth-child(2) { --scatter-x: -40px; --scatter-y: 50px; }
+.dock-icons .app-icon:nth-child(3) { --scatter-x: 40px; --scatter-y: 50px; }
+.dock-icons .app-icon:nth-child(4) { --scatter-x: 100px; --scatter-y: 50px; }
 
 /* Spotlight page doesn't use grid layout */
 .springboard-page.spotlight-container {
