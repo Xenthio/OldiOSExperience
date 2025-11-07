@@ -71,9 +71,11 @@
         // Capture the icon position for fly-away calculations
         await CaptureIconPosition();
         
-        // iOS 5/6: Always animate from screen center (320, 480)
+        // iOS 5/6: Always animate from screen center
         // App zooms in from center, icons fly away from center
-        AnimationService.StartOpeningAnimation(320, 480);
+        AnimationService.StartOpeningAnimation(
+            AnimationService.SCREEN_CENTER_X, 
+            AnimationService.SCREEN_CENTER_Y);
         
         await OnAppClick.InvokeAsync(App);
     }

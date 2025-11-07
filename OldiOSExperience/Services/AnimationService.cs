@@ -6,6 +6,10 @@ namespace OldiOSExperience.Services
         public const int ANIMATION_DURATION_MS = 400;
         public const int ANIMATION_START_DELAY_MS = 50;
         
+        // Screen dimensions for iOS 5/6 (iPhone 4 resolution)
+        public const double SCREEN_CENTER_X = 320;
+        public const double SCREEN_CENTER_Y = 480;
+        
         public event Action? OnAnimationStateChanged;
         
         public bool IsAnimating { get; private set; }

@@ -39,12 +39,15 @@
             // Get position relative to the screen-content container (640x960 space)
             let left = 0, top = 0;
             let current = element;
+            let iterations = 0;
+            const maxIterations = 50; // Safety limit to prevent infinite loops
             
             // Walk up the DOM tree to calculate cumulative offset
-            while (current && !current.classList.contains('screen-content')) {
-                left += current.offsetLeft;
-                top += current.offsetTop;
+            while (current && !current.classList.contains('screen-content') && iterations < maxIterations) {
+                left += current.offsetLeft || 0;
+                top += current.offsetTop || 0;
                 current = current.offsetParent;
+                iterations++;
             }
             
             return {
