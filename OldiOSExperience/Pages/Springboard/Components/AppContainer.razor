@@ -1,4 +1,6 @@
 @using OldiOSExperience.Models
+@using OldiOSExperience.Services
+@inject AnimationService AnimationService
 
 @* App Container - handles app launching and closing animations *@
 
@@ -12,15 +14,18 @@
         </div>
         
         <div class="app-content">
-            @if (displayedApp != null && displayedApp.Id == 16) @* Settings app *@
+            @if (displayedApp != null)
             {
-                <OldiOSExperience.Apps.Settings.SettingsApp />
-            }
-            else if (displayedApp != null)
-            {
-                <div style="padding: 40px; color: white; font-size: 32px;">
-                    @displayedApp.Name app coming soon...
-                </div>
+                @if (displayedApp.ComponentType != null)
+                {
+                    <DynamicComponent Type="@displayedApp.ComponentType" />
+                }
+                else
+                {
+                    <div style="padding: 40px; color: white; font-size: 32px;">
+                        @displayedApp.Name app coming soon...
+                    </div>
+                }
             }
         </div>
     }
@@ -50,7 +55,9 @@
             animationClass = "app-closing";
             StateHasChanged();
             
-            await Task.Delay(300);
+            var closeSequence = AnimationService.CreateAppCloseSequence();
+            await Task.Delay(closeSequence.TotalDurationMs);
+            
             isVisible = false;
             isAnimating = false;
             displayedApp = null;
@@ -66,7 +73,9 @@
             animationClass = "app-opening";
             StateHasChanged();
             
-            await Task.Delay(300);
+            var openSequence = AnimationService.CreateAppOpenSequence();
+            await Task.Delay(openSequence.TotalDurationMs);
+            
             isAnimating = false;
             StateHasChanged();
         }

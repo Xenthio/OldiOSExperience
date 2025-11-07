@@ -5,7 +5,7 @@
 @inject AnimationService AnimationService
 @implements IDisposable
 
-<div class="springboard-container">
+<div class="springboard-container @(isAppOpen ? "app-is-open" : "")"
     <!-- Wallpaper -->
     <img src="images/wallpaper.png" class="wallpaper" alt="Wallpaper"/>
 
@@ -72,6 +72,7 @@
     private List<AppInfo> DockApps => SpringboardService.DockApps;
     private List<AppInfo> AllApps => SpringboardService.AllApps;
     private AppInfo? openedApp => AppManager.ForegroundApp?.App;
+    private bool isAppOpen => openedApp != null;
 
     // --- STATE for SWIPING ---
     private int currentPageIndex = 0; // 0 = first app page, -1 = spotlight

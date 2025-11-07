@@ -4,6 +4,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    transition: opacity 0.3s ease-out;
+}
+
+.springboard-container.app-is-open {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .wallpaper {

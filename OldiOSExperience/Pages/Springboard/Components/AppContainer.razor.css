@@ -37,34 +37,40 @@
     transform-origin: center center;
 }
 
-/* Opening Animation - zoom in from small */
+/* Opening Animation - zoom in from small with slight bounce */
 .app-container.app-opening {
-    animation: appOpen 0.3s ease-out forwards;
+    animation: appOpen 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
 }
 
 @keyframes appOpen {
-    from {
-        transform: scale(0.1);
+    0% {
+        transform: scale(0.05);
         opacity: 0;
     }
-    to {
+    50% {
+        opacity: 1;
+    }
+    100% {
         transform: scale(1);
         opacity: 1;
     }
 }
 
-/* Closing Animation - zoom out to small */
+/* Closing Animation - zoom out to small with slight ease */
 .app-container.app-closing {
-    animation: appClose 0.3s ease-in forwards;
+    animation: appClose 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 }
 
 @keyframes appClose {
-    from {
+    0% {
         transform: scale(1);
         opacity: 1;
     }
-    to {
-        transform: scale(0.1);
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0.05);
         opacity: 0;
     }
 }

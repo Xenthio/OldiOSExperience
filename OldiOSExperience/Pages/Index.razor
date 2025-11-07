@@ -1,5 +1,7 @@
 @page "/"
 @inject IJSRuntime JSRuntime
+@using OldiOSExperience.Services
+@inject BackgroundAppManager AppManager
 
 <div class="phone-container">
     <!-- This is the responsive viewport. Its size is controlled by CSS. -->
@@ -8,6 +10,9 @@
         <!-- This is the fixed-size content that gets scaled. -->
         <div class="screen-content" style="@screenContentStyle">
             <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
+            <OldiOSExperience.System.AppSwitcher IsVisible="@isAppSwitcherVisible" 
+                                                  OnClose="HandleAppSwitcherClose"
+                                                  OnAppSelected="HandleAppSwitcherSelect" />
             <OldiOSExperience.System.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
         </div>
 
@@ -23,6 +28,11 @@
     private string screenContentStyle => $"transform: scale({scaleFactor.ToString(global::System.Globalization.CultureInfo.InvariantCulture)});";
     private OldiOSExperience.Pages.Springboard.Springboard? springboard;
     private bool isLocked = true;
+    private bool isAppSwitcherVisible = false;
+    
+    // Double-tap detection
+    private DateTime lastHomeButtonPress = DateTime.MinValue;
+    private const int DoubleTapWindowMs = 400;
 
     // This method is called after the component has rendered.
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -51,16 +61,48 @@
     
     private void HandleHomeButtonClick()
     {
-        if (!isLocked)
+        if (isLocked)
         {
-            springboard?.HandleHomeButtonPress();
+            // If locked, home button wakes the screen but doesn't unlock
+            return;
         }
-        // If locked, home button wakes the screen but doesn't unlock
+        
+        var now = DateTime.Now;
+        var timeSinceLastPress = (now - lastHomeButtonPress).TotalMilliseconds;
+        
+        // Check for double-tap
+        if (timeSinceLastPress <= DoubleTapWindowMs && AppManager.ForegroundApp == null)
+        {
+            // Double-tap detected on springboard - show app switcher
+            isAppSwitcherVisible = true;
+            lastHomeButtonPress = DateTime.MinValue; // Reset to prevent triple tap
+        }
+        else
+        {
+            // Single tap - normal home button behavior
+            springboard?.HandleHomeButtonPress();
+            lastHomeButtonPress = now;
+        }
+        
+        StateHasChanged();
     }
     
     private void HandleUnlocked()
     {
         isLocked = false;
+        StateHasChanged();
+    }
+    
+    private void HandleAppSwitcherClose()
+    {
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+    }
+    
+    private void HandleAppSwitcherSelect(Models.AppInfo app)
+    {
+        // Launch the selected app
+        AppManager.LaunchApp(app);
         StateHasChanged();
     }
 }
