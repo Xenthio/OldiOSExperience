@@ -158,6 +158,8 @@
     gap: 15px;
     align-items: start;
     justify-items: center;
+    /* Clip icons that scatter outside page boundaries */
+    overflow: hidden;
 }
 
 /* Define radial scatter directions for each grid position (4x4 grid) */
