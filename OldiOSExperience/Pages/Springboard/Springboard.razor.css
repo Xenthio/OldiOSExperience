@@ -131,7 +131,6 @@
 /* This is the viewport for our swiping pages */
 .springboard-pages-container {
     flex-grow: 1; /* Takes up all available space between status bar and dock */
-    overflow: hidden;
     position: relative;
     z-index: 1;
 }
@@ -149,17 +148,18 @@
     max-width: 100%;
     flex-shrink: 0;
     height: 100%;
-    padding: 30px 40px;
+    padding: 26px 15px;
     box-sizing: border-box;
     /* The famous 4-column icon grid */
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr); /* iOS 6 on iPhone 4 was 4x4 */
-    gap: 15px;
     align-items: start;
     justify-items: center;
     /* Clip icons that scatter outside page boundaries */
-    overflow: hidden;
+    overflow-x: clip;
+    overflow-y: visible;
+    gap: 25px 0px;
 }
 
 /* Define radial scatter directions for each grid position (4x4 grid) */
@@ -203,7 +203,7 @@
     display: flex;
     justify-content: center;
     gap: 12px;
-    height: 50px;
+    height: 10px;
     align-items: center;
     z-index: 10;
     /* Default: ease-out for return animation */
@@ -251,5 +251,5 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 15px;
 }

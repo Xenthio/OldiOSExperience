@@ -1,7 +1,7 @@
 @using OldiOSExperience.Models
 
 <div class="app-icon" @onclick="HandleClick">
-    <img src="@App.IconPath" alt="@App.Name" />
+    <div class="icon-image" style="background-image: url(@App.IconPath)"></div>
     <span>@App.Name</span>
 </div>
 

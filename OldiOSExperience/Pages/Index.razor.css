@@ -12,7 +12,7 @@
 .screen-viewport {
     /* This part is the same: create a responsive container with a fixed aspect ratio */
     aspect-ratio: 640 / 960;
-    max-width: 450px;
+    max-width: 640px;
     width: 95vw;
     max-height: 90vh;
     background-color: #f7f7f7;

@@ -47,20 +47,21 @@ namespace OldiOSExperience.Services
                 new AppInfo { Id = 5, Name = "YouTube", IconPath = "images/icons/youtube.png", BundleId = "com.google.youtube" },
                 new AppInfo { Id = 6, Name = "Stocks", IconPath = "images/icons/stocks.png", BundleId = "com.apple.stocks" },
                 new AppInfo { Id = 7, Name = "Maps", IconPath = "images/icons/maps.png", BundleId = "com.apple.Maps" },
-                new AppInfo { Id = 8, Name = "Weather", IconPath = "images/icons/weather.png", BundleId = "com.apple.weather" }
+                new AppInfo { Id = 8, Name = "Weather", IconPath = "images/icons/weather.png", BundleId = "com.apple.weather" },
+                new AppInfo { Id = 9, Name = "Notes", IconPath = "images/icons/notes.png", BundleId = "com.apple.mobilenotes" },
+                new AppInfo { Id = 10, Name = "Clock", IconPath = "images/icons/clock.png", BundleId = "com.apple.mobiletimer" },
+                new AppInfo { Id = 11, Name = "App Store", IconPath = "images/icons/appstore.png", BundleId = "com.apple.AppStore" },
+                new AppInfo { Id = 12, Name = "iTunes", IconPath = "images/icons/itunes.png", BundleId = "com.apple.MobileStore" },
+                new AppInfo { Id = 13, Name = "Game Center", IconPath = "images/icons/gamecenter.png", BundleId = "com.apple.gamecenter" },
+                new AppInfo { Id = 14, Name = "Settings", IconPath = "images/icons/settings.png", BundleId = "com.apple.Preferences", ComponentType = typeof(Apps.Settings.SettingsApp) }
             };
 
             // Page 2
             var page2 = new List<AppInfo>
             {
-                new AppInfo { Id = 9, Name = "Notes", IconPath = "images/icons/notes.png", BundleId = "com.apple.mobilenotes" },
-                new AppInfo { Id = 10, Name = "Reminders", IconPath = "images/icons/reminders.png", BundleId = "com.apple.reminders" },
-                new AppInfo { Id = 11, Name = "Clock", IconPath = "images/icons/clock.png", BundleId = "com.apple.mobiletimer" },
-                new AppInfo { Id = 12, Name = "Videos", IconPath = "images/icons/videos.png", BundleId = "com.apple.videos" },
-                new AppInfo { Id = 13, Name = "App Store", IconPath = "images/icons/appstore.png", BundleId = "com.apple.AppStore" },
-                new AppInfo { Id = 14, Name = "iTunes", IconPath = "images/icons/itunes.png", BundleId = "com.apple.MobileStore" },
-                new AppInfo { Id = 15, Name = "Game Center", IconPath = "images/icons/gamecenter.png", BundleId = "com.apple.gamecenter" },
-                new AppInfo { Id = 16, Name = "Settings", IconPath = "images/icons/settings.png", BundleId = "com.apple.Preferences", ComponentType = typeof(Apps.Settings.SettingsApp) }
+                new AppInfo { Id = 15, Name = "Reminders", IconPath = "images/icons/reminders.png", BundleId = "com.apple.reminders" },
+                new AppInfo { Id = 16, Name = "Videos", IconPath = "images/icons/videos.png", BundleId = "com.apple.videos" },
+
             };
 
             Pages.Add(page1);
