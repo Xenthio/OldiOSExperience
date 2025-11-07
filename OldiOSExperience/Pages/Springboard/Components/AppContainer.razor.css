@@ -16,13 +16,7 @@
     pointer-events: all;
 }
 
-/* Status bar in apps */
-.app-container .status-bar {
-    height: 40px;
-    width: 100%;
-    background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
-    flex-shrink: 0;
-}
+/* Status bar styling moved to StatusBar.razor.css */
 
 .app-content {
     flex: 1;

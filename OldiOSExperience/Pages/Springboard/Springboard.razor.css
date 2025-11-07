@@ -25,6 +25,14 @@
     pointer-events: none;
 }
 
+/* Animate status bar to fade out with black overlay */
+.springboard-container.app-is-open ::deep .status-bar,
+.springboard-container.debug-animation ::deep .status-bar {
+    opacity: 0;
+    /* Override: ease-in for outward animation */
+    transition: opacity 0.4s ease-in;
+}
+
 /* Animate page indicators to fade out */
 .springboard-container.app-is-open .page-indicator,
 .springboard-container.debug-animation .page-indicator {
@@ -120,6 +128,12 @@
 }
 
 /* Status bar styling moved to StatusBar.razor.css */
+/* But we need to control its animation in Springboard context */
+.springboard-container ::deep .status-bar {
+    /* Default: ease-out for return animation (status bar fading back in) */
+    transition: opacity 0.4s ease-out;
+    opacity: 1;
+}
 
 /* This is the viewport for our swiping pages */
 .springboard-pages-container {
