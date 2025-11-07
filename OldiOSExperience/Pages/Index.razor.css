@@ -34,6 +34,13 @@
     /* 3. The magic! Scale the content down to fit its viewport. */
     /*    We use CSS variables to link our C# calculation to the style. */
     transform: scale(calc(100% / 640));
+    transition: transform 0.3s ease-out;
+    position: relative;
+}
+
+.screen-content.switcher-visible {
+    /* Push content up by 189px when app switcher is visible */
+    transform: scale(calc(100% / 640)) translateY(-189px);
 }
 
 /* Simple styling for the physical home button */

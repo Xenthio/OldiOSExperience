@@ -5,8 +5,9 @@
 
 @* iOS 5 App Switcher - shown when double-tapping home button *@
 
-<div class="app-switcher @(isVisible ? "visible" : "")" @onclick="HandleBackgroundClick">
-    <div class="app-switcher-tray" @onclick:stopPropagation="true">
+<div class="app-switcher @(isVisible ? "visible" : "")">
+    <div class="app-switcher-dismiss" @onclick="HandleBackgroundClick"></div>
+    <div class="app-switcher-tray">
         <div class="recent-apps-container">
             @if (recentApps.Any())
             {

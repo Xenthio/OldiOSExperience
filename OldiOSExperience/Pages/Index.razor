@@ -8,7 +8,7 @@
     <div class="screen-viewport" @ref="screenViewportElement">
 
         <!-- This is the fixed-size content that gets scaled. -->
-        <div class="screen-content" style="@screenContentStyle">
+        <div class="screen-content @(isAppSwitcherVisible ? "switcher-visible" : "")" style="@screenContentStyle">
             <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
             <OldiOSExperience.System.AppSwitcher IsVisible="@isAppSwitcherVisible" 
                                                   OnClose="HandleAppSwitcherClose"
