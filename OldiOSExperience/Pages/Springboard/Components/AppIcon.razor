@@ -71,13 +71,30 @@
         // Capture the icon position for fly-away calculations
         await CaptureIconPosition();
         
-        // iOS 5/6: Always animate from screen center
+        // Get the current page offset to calculate the visual center
+        var pageOffset = await GetCurrentPageOffset();
+        
+        // iOS 5/6: Always animate from screen center (accounting for page scroll)
         // App zooms in from center, icons fly away from center
         AnimationService.StartOpeningAnimation(
-            AnimationService.SCREEN_CENTER_X, 
+            AnimationService.SCREEN_CENTER_X + pageOffset, 
             AnimationService.SCREEN_CENTER_Y);
         
         await OnAppClick.InvokeAsync(App);
+    }
+    
+    private async Task<double> GetCurrentPageOffset()
+    {
+        try
+        {
+            // Get the filmstrip's transform to find current page
+            var offset = await JSRuntime.InvokeAsync<double>("getFilmstripOffset");
+            return offset;
+        }
+        catch
+        {
+            return 0; // Default to no offset if we can't get it
+        }
     }
     
     private void HandleAnimationStateChanged()

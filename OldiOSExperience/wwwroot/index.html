@@ -57,6 +57,27 @@
                 height: element.offsetHeight
             };
         };
+        
+        window.getFilmstripOffset = () => {
+            // Get the current X offset of the filmstrip (for page scrolling)
+            const filmstrip = document.querySelector('.springboard-pages-filmstrip');
+            if (!filmstrip) return 0;
+            
+            // Parse the transform translate value
+            const style = window.getComputedStyle(filmstrip);
+            const transform = style.transform || style.webkitTransform;
+            
+            if (transform && transform !== 'none') {
+                const matrix = transform.match(/matrix\(([^)]+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
+                    // translateX is the 5th value in the matrix (index 4)
+                    return Math.abs(values[4] || 0);
+                }
+            }
+            
+            return 0;
+        };
     </script>
 </body>
 
