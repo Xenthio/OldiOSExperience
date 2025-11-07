@@ -39,7 +39,7 @@
 
 /* Opening Animation - zoom in from small with slight bounce */
 .app-container.app-opening {
-    animation: appOpen 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+    animation: appOpen 0.4s ease-out forwards;
 }
 
 @keyframes appOpen {
@@ -58,7 +58,7 @@
 
 /* Closing Animation - zoom out to small with slight ease */
 .app-container.app-closing {
-    animation: appClose 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+    animation: appClose 0.4s ease-in forwards;
 }
 
 @keyframes appClose {

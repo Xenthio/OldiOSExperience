@@ -36,7 +36,7 @@
 /* Animate dock to slide down */
 .springboard-container.app-is-open .dock,
 .springboard-container.debug-animation .dock {
-    transform: translateY(100px);
+    transform: translateY(calc(100px * 2));
     opacity: 0;
     /* Override: ease-in for outward animation */
     transition: transform 0.4s ease-in,
