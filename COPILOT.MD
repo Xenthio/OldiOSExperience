@@ -137,10 +137,13 @@ The animation system is designed for complex, multi-element animations:
 - [ ] Persist app state between sessions (localStorage)
 
 ### Lock Screen
+- [x] Real-time clock updates
+- [x] iOS 5 style wallpaper with dark blue gradient
+- [x] iOS 5 style fonts (HelveticaNeue-UltraLight for time)
+- [x] iOS 5 glossy metallic slide-to-unlock slider
 - [ ] Add passcode support
 - [ ] Implement notification center pull-down
 - [ ] Add camera access from lock screen
-- [ ] Real-time clock updates
 
 ### Status Bar
 - [ ] Extract status bar to separate component

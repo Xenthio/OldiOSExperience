@@ -13,7 +13,7 @@
     
     <!-- Lock screen wallpaper -->
     <img src="images/lock-wallpaper.png" class="lock-wallpaper" alt="Lock Wallpaper" 
-         onerror="this.style.display='none'"/>
+         onerror="this.style.backgroundImage='linear-gradient(to bottom, #1a1a2e 0%, #0f0f1a 100%)'; this.style.display='block'; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'"/>
     
     <!-- Status bar -->
     <div class="lock-status-bar">
@@ -52,7 +52,7 @@
     private double dragOffsetX = 0;
     private const double UnlockThreshold = 250; // Pixels to drag to unlock
     private const double SlideTrackWidth = 640; // Match screen width
-    private const double SlideButtonWidth = 90; // Button width including padding
+    private const double SlideButtonWidth = 72; // Button width including padding (68px + 2px left + 2px space)
     
     private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, SlideTrackWidth - SlideButtonWidth))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
     private string slideTextStyle => $"opacity: {Math.Max(0, 1 - (dragOffsetX / 200))}; transition: {(isDragging ? "none" : "opacity 0.3s ease-out")};";
