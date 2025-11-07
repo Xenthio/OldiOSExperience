@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @inject IJSRuntime JSRuntime
 
 <div class="phone-container">
@@ -8,6 +8,7 @@
         <!-- This is the fixed-size content that gets scaled. -->
         <div class="screen-content" style="@screenContentStyle">
             <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
+            <OldiOSExperience.System.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
         </div>
 
     </div>
@@ -19,8 +20,9 @@
 @code {
     private ElementReference screenViewportElement;
     private double scaleFactor = 1.0;
-    private string screenContentStyle => $"transform: scale({scaleFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)});";
+    private string screenContentStyle => $"transform: scale({scaleFactor.ToString(global::System.Globalization.CultureInfo.InvariantCulture)});";
     private OldiOSExperience.Pages.Springboard.Springboard? springboard;
+    private bool isLocked = true;
 
     // This method is called after the component has rendered.
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -49,6 +51,16 @@
     
     private void HandleHomeButtonClick()
     {
-        springboard?.HandleHomeButtonPress();
+        if (!isLocked)
+        {
+            springboard?.HandleHomeButtonPress();
+        }
+        // If locked, home button wakes the screen but doesn't unlock
+    }
+    
+    private void HandleUnlocked()
+    {
+        isLocked = false;
+        StateHasChanged();
     }
 }
