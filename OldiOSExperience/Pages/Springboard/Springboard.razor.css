@@ -4,6 +4,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s ease-out;
+}
+
+.springboard-container.switcher-visible {
+    /* Push content up by 189px when app switcher is visible */
+    transform: translateY(-189px);
 }
 
 .springboard-container.app-is-open::before {
