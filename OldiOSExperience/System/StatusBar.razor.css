@@ -80,16 +80,7 @@
     display: block;
 }
 
-/* Hide broken images gracefully */
-.wifi-icon[src*="png"]:not([src=""]) {
-    /* Image will show if loaded, hide if broken */
-}
-
-.battery-icon[src*="png"]:not([src=""]) {
-    /* Image will show if loaded, hide if broken */
-}
-
-/* Error handling for missing images */
+/* Optimize image rendering for icons */
 .wifi-icon,
 .battery-icon {
     image-rendering: crisp-edges;
