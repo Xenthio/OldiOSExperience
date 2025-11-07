@@ -87,13 +87,20 @@
     {
         try
         {
-            // Get the filmstrip's transform to find current page
+            // Get the filmstrip's horizontal scroll offset in pixels
+            // This is used to calculate the visual center of the screen
             var offset = await JSRuntime.InvokeAsync<double>("getFilmstripOffset");
             return offset;
         }
-        catch
+        catch (JSException)
         {
-            return 0; // Default to no offset if we can't get it
+            // JS interop failed - assume we're on first page (no offset)
+            return 0;
+        }
+        catch (TaskCanceledException)
+        {
+            // Operation cancelled - assume we're on first page (no offset)
+            return 0;
         }
     }
     

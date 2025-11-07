@@ -72,7 +72,8 @@
                 if (matrix) {
                     const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
                     // translateX is the 5th value in the matrix (index 4)
-                    return Math.abs(values[4] || 0);
+                    // Negative translate means scrolled right, so negate to get positive offset
+                    return -(values[4] || 0);
                 }
             }
             
