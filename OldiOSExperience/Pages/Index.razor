@@ -32,6 +32,7 @@
         }
     }
 
+
     private async Task CalculateAndApplyScaleFactor()
     {
         // Call our JS function to get the actual width of the viewport element
@@ -39,11 +40,13 @@
 
         if (viewportWidth > 0)
         {
+            var prevScale = scaleFactor;
+
             // Calculate the scale factor
             scaleFactor = viewportWidth / 640.0;
             
             // Tell Blazor to re-render the component with the new style
-            StateHasChanged();
+            if (prevScale != scaleFactor) StateHasChanged();
         }
     }
     
