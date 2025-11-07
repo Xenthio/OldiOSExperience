@@ -4,32 +4,17 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    background-color: #000; /* Black background for when elements fade out */
 }
 
-.springboard-container.opening-app {
-    animation: fadeToBlack 0.4s ease-out forwards;
+/* Keep springboard black while app is open */
+.springboard-container.opening-app,
+.springboard-container.app-open {
+    background-color: #000;
 }
 
 .springboard-container.closing-app {
-    animation: fadeFromBlack 0.4s ease-out forwards;
-}
-
-@keyframes fadeToBlack {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@keyframes fadeFromBlack {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
+    background-color: #000;
 }
 
 .wallpaper {

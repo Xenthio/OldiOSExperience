@@ -153,6 +153,12 @@
     
     private string GetAnimationClass()
     {
+        // If app is open, keep the springboard black
+        if (openedApp != null && !AnimationService.IsAnimating)
+        {
+            return "app-open";
+        }
+        
         if (!AnimationService.IsAnimating) return "";
         
         return AnimationService.CurrentState switch
