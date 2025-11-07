@@ -68,15 +68,12 @@
     
     private async Task HandleClick()
     {
-        // Capture the center position before triggering animation
+        // Capture the icon position for fly-away calculations
         await CaptureIconPosition();
         
-        // Use center of screen as fallback if position capture failed
-        var centerX = iconCenterX != 0 ? iconCenterX : 320;
-        var centerY = iconCenterY != 0 ? iconCenterY : 480;
-        
-        // Pass the center coordinates to the animation service
-        AnimationService.StartOpeningAnimation(centerX, centerY);
+        // iOS 5/6: Always animate from screen center (320, 480)
+        // App zooms in from center, icons fly away from center
+        AnimationService.StartOpeningAnimation(320, 480);
         
         await OnAppClick.InvokeAsync(App);
     }

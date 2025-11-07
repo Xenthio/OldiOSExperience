@@ -36,12 +36,22 @@
         };
         
         window.getElementBoundingRect = (element) => {
-            const rect = element.getBoundingClientRect();
+            // Get position relative to the screen-content container (640x960 space)
+            let left = 0, top = 0;
+            let current = element;
+            
+            // Walk up the DOM tree to calculate cumulative offset
+            while (current && !current.classList.contains('screen-content')) {
+                left += current.offsetLeft;
+                top += current.offsetTop;
+                current = current.offsetParent;
+            }
+            
             return {
-                left: rect.left,
-                top: rect.top,
-                width: rect.width,
-                height: rect.height
+                left: left,
+                top: top,
+                width: element.offsetWidth,
+                height: element.offsetHeight
             };
         };
     </script>
