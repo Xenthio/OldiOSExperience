@@ -28,19 +28,21 @@
 /* Individual icons get pushed radially from screen center */
 .springboard-container.app-is-open .app-icon,
 .springboard-container.debug-animation .app-icon {
-    animation: iconScatterOut 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+    transform: translate(var(--scatter-x, 0), var(--scatter-y, 0));
+    opacity: 0;
 }
 
 /* Animate page indicators to fade out */
 .springboard-container.app-is-open .page-indicator,
 .springboard-container.debug-animation .page-indicator {
-    animation: fadeOut 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+    opacity: 0;
 }
 
-/* Animate dock background to slide down */
+/* Animate dock to slide down */
 .springboard-container.app-is-open .dock,
 .springboard-container.debug-animation .dock {
-    animation: dockSlideDown 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+    transform: translateY(100px);
+    opacity: 0;
 }
 
 /* Debug animation button */
@@ -204,6 +206,8 @@
     height: 50px;
     align-items: center;
     z-index: 10;
+    transition: opacity 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+    opacity: 1;
 }
 
     .page-indicator .dot {
@@ -222,6 +226,10 @@
     width: 100%;
     z-index: 10;
     position: relative;
+    transition: transform 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335),
+                opacity 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .dock-background {
