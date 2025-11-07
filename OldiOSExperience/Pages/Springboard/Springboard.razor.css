@@ -119,14 +119,7 @@
     z-index: 0;
 }
 
-.status-bar {
-    height: 40px;
-    width: 100%;
-    position: relative;
-    z-index: 10;
-    /* Background was a subtle gradient in iOS 6 */
-    background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
-}
+/* Status bar styling moved to StatusBar.razor.css */
 
 /* This is the viewport for our swiping pages */
 .springboard-pages-container {

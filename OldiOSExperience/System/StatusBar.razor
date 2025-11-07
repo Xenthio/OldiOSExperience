@@ -1,0 +1,93 @@
+@implements IDisposable
+
+@* iOS 5 Status Bar Component *@
+
+<div class="status-bar @(Style == StatusBarStyle.Black ? "status-bar-black" : "status-bar-default")">
+    <div class="status-bar-left">
+        <!-- Carrier -->
+        <span class="carrier-text">@Carrier</span>
+        
+        <!-- WiFi Icon -->
+        <img src="@WifiIconPath" class="wifi-icon" alt="WiFi" />
+    </div>
+    
+    <div class="status-bar-center">
+        <!-- Time -->
+        <span class="time-text">@currentTime</span>
+    </div>
+    
+    <div class="status-bar-right">
+        <!-- Battery Percentage (optional) -->
+        @if (ShowBatteryPercentage)
+        {
+            <span class="battery-percentage">@BatteryPercentage%</span>
+        }
+        
+        <!-- Battery Icon -->
+        <img src="@BatteryIconPath" class="battery-icon" alt="Battery" />
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The visual style of the status bar (black with white text, or default/colored)
+    /// </summary>
+    [Parameter]
+    public StatusBarStyle Style { get; set; } = StatusBarStyle.Default;
+    
+    /// <summary>
+    /// The carrier name to display (e.g., "AT&T", "Verizon", "Sprint")
+    /// </summary>
+    [Parameter]
+    public string Carrier { get; set; } = "Carrier";
+    
+    /// <summary>
+    /// Path to the WiFi signal icon image
+    /// </summary>
+    [Parameter]
+    public string WifiIconPath { get; set; } = "images/status-bar/wifi.png";
+    
+    /// <summary>
+    /// Battery percentage (0-100)
+    /// </summary>
+    [Parameter]
+    public int BatteryPercentage { get; set; } = 100;
+    
+    /// <summary>
+    /// Whether to show battery percentage as text
+    /// </summary>
+    [Parameter]
+    public bool ShowBatteryPercentage { get; set; } = false;
+    
+    /// <summary>
+    /// Path to the battery icon image (should reflect battery level)
+    /// </summary>
+    [Parameter]
+    public string BatteryIconPath { get; set; } = "images/status-bar/battery-full.png";
+    
+    private string currentTime = "";
+    private global::System.Threading.Timer? clockTimer;
+    
+    protected override void OnInitialized()
+    {
+        UpdateTime();
+        
+        // Update time every minute for status bar clock
+        clockTimer = new global::System.Threading.Timer(_ => 
+        {
+            UpdateTime();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+    }
+    
+    public void Dispose()
+    {
+        clockTimer?.Dispose();
+    }
+    
+    private void UpdateTime()
+    {
+        var now = DateTime.Now;
+        currentTime = now.ToString("h:mm tt");
+    }
+}
