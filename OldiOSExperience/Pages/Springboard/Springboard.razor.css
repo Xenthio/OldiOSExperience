@@ -25,13 +25,6 @@
     pointer-events: none;
 }
 
-/* Individual icons get pushed radially from screen center */
-.springboard-container.app-is-open .app-icon,
-.springboard-container.debug-animation .app-icon {
-    transform: translate(var(--scatter-x, 0), var(--scatter-y, 0));
-    opacity: 0;
-}
-
 /* Animate page indicators to fade out */
 .springboard-container.app-is-open .page-indicator,
 .springboard-container.debug-animation .page-indicator {
