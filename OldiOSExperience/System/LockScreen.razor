@@ -1,0 +1,174 @@
+@implements IDisposable
+
+@* iOS 5 Lock Screen *@
+
+<div class="lock-screen @(isUnlocking ? "unlocking" : "") @(isVisible ? "visible" : "")"
+     @ontouchstart="HandleTouchStart"
+     @ontouchmove="HandleTouchMove"
+     @ontouchend="HandleTouchEnd"
+     @onmousedown="HandleMouseDown"
+     @onmousemove="HandleMouseMove"
+     @onmouseup="HandleMouseUp"
+     @onmouseleave="HandleMouseUp">
+    
+    <!-- Lock screen wallpaper -->
+    <img src="images/lock-wallpaper.png" class="lock-wallpaper" alt="Lock Wallpaper" 
+         onerror="this.style.display='none'"/>
+    
+    <!-- Status bar -->
+    <div class="lock-status-bar">
+        <div class="status-time">@currentTime</div>
+        <div class="status-date">@currentDate</div>
+    </div>
+    
+    <!-- Slide to unlock -->
+    <div class="slide-to-unlock-container">
+        <div class="slide-track">
+            <div class="slide-text" style="@slideTextStyle">
+                slide to unlock
+            </div>
+            <div class="slide-button" style="@slideButtonStyle">
+                <div class="slide-arrow">›</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsLocked { get; set; } = true;
+    
+    [Parameter]
+    public EventCallback OnUnlocked { get; set; }
+    
+    private bool isVisible = true;
+    private bool isUnlocking = false;
+    private string currentTime = "";
+    private string currentDate = "";
+    
+    // Touch/drag state
+    private bool isDragging = false;
+    private double touchStartX = 0;
+    private double dragOffsetX = 0;
+    private const double UnlockThreshold = 250; // Pixels to drag to unlock
+    private const double SlideTrackWidth = 640; // Match screen width
+    private const double SlideButtonWidth = 90; // Button width including padding
+    
+    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, SlideTrackWidth - SlideButtonWidth))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
+    private string slideTextStyle => $"opacity: {Math.Max(0, 1 - (dragOffsetX / 200))}; transition: {(isDragging ? "none" : "opacity 0.3s ease-out")};";
+    
+    private global::System.Threading.Timer? clockTimer;
+    
+    protected override void OnInitialized()
+    {
+        UpdateTime();
+        isVisible = IsLocked;
+        
+        // Update time every second for real-time clock
+        clockTimer = new global::System.Threading.Timer(_ => 
+        {
+            UpdateTime();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+    
+    public void Dispose()
+    {
+        clockTimer?.Dispose();
+    }
+    
+    protected override void OnParametersSet()
+    {
+        isVisible = IsLocked;
+    }
+    
+    private void UpdateTime()
+    {
+        var now = DateTime.Now;
+        currentTime = now.ToString("h:mm");
+        currentDate = now.ToString("dddd, MMMM d");
+    }
+    
+    // Touch handlers
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        isDragging = true;
+        touchStartX = e.Touches[0].ClientX;
+        dragOffsetX = 0;
+    }
+    
+    private void HandleTouchMove(TouchEventArgs e)
+    {
+        if (!isDragging) return;
+        
+        var currentX = e.Touches[0].ClientX;
+        dragOffsetX = Math.Max(0, currentX - touchStartX);
+    }
+    
+    private async Task HandleTouchEnd(TouchEventArgs e)
+    {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        if (dragOffsetX >= UnlockThreshold)
+        {
+            await PerformUnlock();
+        }
+        else
+        {
+            // Snap back
+            dragOffsetX = 0;
+        }
+    }
+    
+    // Mouse handlers (for desktop testing)
+    private bool isMouseDown = false;
+    
+    private void HandleMouseDown(MouseEventArgs e)
+    {
+        isMouseDown = true;
+        isDragging = true;
+        touchStartX = e.ClientX;
+        dragOffsetX = 0;
+    }
+    
+    private void HandleMouseMove(MouseEventArgs e)
+    {
+        if (!isMouseDown || !isDragging) return;
+        
+        var currentX = e.ClientX;
+        dragOffsetX = Math.Max(0, currentX - touchStartX);
+    }
+    
+    private async Task HandleMouseUp(MouseEventArgs e)
+    {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+        isDragging = false;
+        
+        if (dragOffsetX >= UnlockThreshold)
+        {
+            await PerformUnlock();
+        }
+        else
+        {
+            // Snap back
+            dragOffsetX = 0;
+        }
+    }
+    
+    private async Task PerformUnlock()
+    {
+        isUnlocking = true;
+        StateHasChanged();
+        
+        await Task.Delay(400); // Animation duration
+        
+        isVisible = false;
+        await OnUnlocked.InvokeAsync();
+        
+        // Reset state
+        isUnlocking = false;
+        dragOffsetX = 0;
+    }
+}

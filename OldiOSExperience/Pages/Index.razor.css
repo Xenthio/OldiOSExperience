@@ -34,6 +34,7 @@
     /* 3. The magic! Scale the content down to fit its viewport. */
     /*    We use CSS variables to link our C# calculation to the style. */
     transform: scale(calc(100% / 640));
+    position: relative;
 }
 
 /* Simple styling for the physical home button */

@@ -1,0 +1,125 @@
+.lock-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    background-color: #000;
+    display: none;
+}
+
+.lock-screen.visible {
+    display: flex;
+    flex-direction: column;
+}
+
+.lock-screen.unlocking {
+    animation: lockScreenUnlock 0.4s ease-out forwards;
+}
+
+@keyframes lockScreenUnlock {
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.lock-wallpaper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.lock-status-bar {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    padding-top: 80px;
+}
+
+.status-time {
+    font-size: 120px;
+    font-weight: 200;
+    line-height: 1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.status-date {
+    font-size: 30px;
+    font-weight: 400;
+    margin-top: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.slide-to-unlock-container {
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.slide-track {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 90px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 45px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.slide-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 32px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.slide-button {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(to bottom, #ffffff, #d0d0d0);
+    border-radius: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.slide-button:active {
+    cursor: grabbing;
+}
+
+.slide-arrow {
+    font-size: 60px;
+    color: #333;
+    font-weight: 300;
+    line-height: 1;
+}

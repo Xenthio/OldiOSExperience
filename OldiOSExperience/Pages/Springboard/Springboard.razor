@@ -1,8 +1,18 @@
-﻿@using OldiOSExperience.Data
+@using OldiOSExperience.Models
+@using OldiOSExperience.Services
+@inject SpringboardService SpringboardService
+@inject BackgroundAppManager AppManager
+@inject AnimationService AnimationService
+@implements IDisposable
 
-<div class="springboard-container">
+<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(debugAnimationActive ? "debug-animation" : "")">
     <!-- Wallpaper -->
     <img src="images/wallpaper.png" class="wallpaper" alt="Wallpaper"/>
+
+    <!-- Debug Animation Toggle Button -->
+    <button class="debug-animation-button" @onclick="ToggleDebugAnimation">
+        @(debugAnimationActive ? "Hide Icons" : "Show Icons")
+    </button>
 
     <!-- Status Bar (using our rem units) -->
     <div class="status-bar">
@@ -59,14 +69,23 @@
     
     <!-- App Container for launching apps -->
     <OldiOSExperience.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
+    
+    <!-- App Switcher (multitasking tray) -->
+    <OldiOSExperience.System.AppSwitcher IsVisible="@isAppSwitcherVisible" 
+                                          OnClose="HandleAppSwitcherClose"
+                                          OnAppSelected="HandleAppSwitcherSelect" />
+    
+    <!-- Lock Screen -->
+    <OldiOSExperience.System.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
 </div>
 
 @code {
-    // --- DATA ---
-    private List<List<AppInfo>> Pages { get; set; } = new();
-    private List<AppInfo> DockApps { get; set; } = new();
-    private List<AppInfo> AllApps { get; set; } = new();
-    private AppInfo? openedApp = null;
+    // --- DATA from Services ---
+    private List<List<AppInfo>> Pages => SpringboardService.Pages;
+    private List<AppInfo> DockApps => SpringboardService.DockApps;
+    private List<AppInfo> AllApps => SpringboardService.AllApps;
+    private AppInfo? openedApp => AppManager.ForegroundApp?.App;
+    private bool isAppOpen => openedApp != null;
 
     // --- STATE for SWIPING ---
     private int currentPageIndex = 0; // 0 = first app page, -1 = spotlight
@@ -75,73 +94,106 @@
     private double dragOffset = 0;
     private bool isDragging = false;
     
+    // --- APP SWITCHER STATE ---
+    private bool isAppSwitcherVisible = false;
+    
+    // --- LOCK SCREEN STATE ---
+    private bool isLocked = true;
+    
+    // --- HOME BUTTON STATE ---
+    private DateTime lastHomeButtonPress = DateTime.MinValue;
+    private const int DoubleTapWindowMs = 400;
+    
+    // --- DEBUG ANIMATION STATE ---
+    private bool debugAnimationActive = false;
+    
     // We now have spotlight page, so total pages = spotlight + app pages
     // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
     private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
 
     protected override void OnInitialized()
     {
-        // --- POPULATE WITH MOCK DATA ---
-        // This is where you would load your app list.
-
-        DockApps = new List<AppInfo>
-        {
-            new AppInfo { Id = 101, Name = "Phone", IconPath = "images/icons/phone.png" },
-            new AppInfo { Id = 102, Name = "Mail", IconPath = "images/icons/mail.png" },
-            new AppInfo { Id = 103, Name = "Safari", IconPath = "images/icons/safari.png" },
-            new AppInfo { Id = 104, Name = "Music", IconPath = "images/icons/music.png" }
-        };
-
-        var page1 = new List<AppInfo>
-        {
-            new AppInfo { Id = 1, Name = "Messages", IconPath = "images/icons/messages.png" },
-            new AppInfo { Id = 2, Name = "Calendar", IconPath = "images/icons/calendar.png" },
-            new AppInfo { Id = 3, Name = "Photos", IconPath = "images/icons/photos.png" },
-            new AppInfo { Id = 4, Name = "Camera", IconPath = "images/icons/camera.png" },
-            new AppInfo { Id = 5, Name = "YouTube", IconPath = "images/icons/youtube.png" },
-            new AppInfo { Id = 6, Name = "Stocks", IconPath = "images/icons/stocks.png" },
-            new AppInfo { Id = 7, Name = "Maps", IconPath = "images/icons/maps.png" },
-            new AppInfo { Id = 8, Name = "Weather", IconPath = "images/icons/weather.png" }
-        };
-
-        var page2 = new List<AppInfo>
-        {
-            new AppInfo { Id = 9, Name = "Notes", IconPath = "images/icons/notes.png" },
-            new AppInfo { Id = 10, Name = "Reminders", IconPath = "images/icons/reminders.png" },
-            new AppInfo { Id = 11, Name = "Clock", IconPath = "images/icons/clock.png" },
-            new AppInfo { Id = 12, Name = "Videos", IconPath = "images/icons/videos.png" },
-            new AppInfo { Id = 13, Name = "App Store", IconPath = "images/icons/appstore.png" },
-            new AppInfo { Id = 14, Name = "iTunes", IconPath = "images/icons/itunes.png" },
-            new AppInfo { Id = 15, Name = "Game Center", IconPath = "images/icons/gamecenter.png" },
-            new AppInfo { Id = 16, Name = "Settings", IconPath = "images/icons/settings.png" }
-        };
-
-        Pages.Add(page1);
-        Pages.Add(page2);
+        // Initialize springboard layout via service
+        SpringboardService.InitializeLayout();
         
-        // Create a combined list of all apps for Spotlight search
-        AllApps = DockApps.Concat(Pages.SelectMany(page => page)).ToList();
+        // Subscribe to app state changes
+        AppManager.OnAppStatesChanged += HandleAppStateChanged;
+    }
+    
+    private void ToggleDebugAnimation()
+    {
+        debugAnimationActive = !debugAnimationActive;
+        StateHasChanged();
+    }
+    
+    public void Dispose()
+    {
+        AppManager.OnAppStatesChanged -= HandleAppStateChanged;
+    }
+    
+    private void HandleAppStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private void HandleUnlocked()
+    {
+        isLocked = false;
+        StateHasChanged();
+    }
+    
+    private void HandleAppSwitcherClose()
+    {
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+    }
+    
+    private void HandleAppSwitcherSelect(AppInfo app)
+    {
+        // Launch the selected app
+        AppManager.LaunchApp(app);
+        isAppSwitcherVisible = false;
+        StateHasChanged();
     }
     
     // --- APP LAUNCHING ---
     private void HandleAppClick(AppInfo app)
     {
-        openedApp = app;
+        SpringboardService.LaunchApp(app);
     }
     
     private void CloseApp()
     {
-        openedApp = null;
+        AppManager.ReturnToSpringboard();
     }
     
     // Public method to handle home button press from parent
     public void HandleHomeButtonPress()
     {
-        if (openedApp != null)
+        if (isLocked)
         {
-            CloseApp();
-            StateHasChanged(); // Force re-render
+            // If locked, home button wakes the screen but doesn't unlock
+            return;
         }
+        
+        var now = DateTime.Now;
+        var timeSinceLastPress = (now - lastHomeButtonPress).TotalMilliseconds;
+        
+        // Check for double-tap
+        if (timeSinceLastPress <= DoubleTapWindowMs && AppManager.ForegroundApp == null)
+        {
+            // Double-tap detected on springboard - show app switcher
+            isAppSwitcherVisible = true;
+            lastHomeButtonPress = DateTime.MinValue; // Reset to prevent triple tap
+        }
+        else
+        {
+            // Single tap - normal home button behavior
+            SpringboardService.HandleHomeButton();
+            lastHomeButtonPress = now;
+        }
+        
+        StateHasChanged();
         // In real iOS, if no app is open, home button does nothing on springboard
         // Could add "bounce" animation here in the future
     }

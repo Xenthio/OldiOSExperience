@@ -4,6 +4,109 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s ease-out;
+}
+
+.springboard-container.switcher-visible {
+    /* Push content up by 189px when app switcher is visible */
+    transform: translateY(-189px);
+}
+
+.springboard-container.app-is-open::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 50;
+    animation: fadeToBlack 0.3s ease-out forwards;
+    pointer-events: none;
+}
+
+/* Animate page indicators to fade out */
+.springboard-container.app-is-open .page-indicator,
+.springboard-container.debug-animation .page-indicator {
+    opacity: 0;
+    /* Override: ease-in for outward animation */
+    transition: opacity 0.4s ease-in;
+}
+
+/* Animate dock to slide down */
+.springboard-container.app-is-open .dock,
+.springboard-container.debug-animation .dock {
+    transform: translateY(calc(100px * 2));
+    opacity: 0;
+    /* Override: ease-in for outward animation */
+    transition: transform 0.4s ease-in,
+                opacity 0.4s ease-in;
+}
+
+/* Debug animation button */
+.debug-animation-button {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    z-index: 200;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: background 0.2s;
+}
+
+.debug-animation-button:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.debug-animation-button:active {
+    transform: scale(0.95);
+}
+
+@keyframes fadeToBlack {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes iconScatterOut {
+    0% {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        /* Icons pushed radially from screen center using CSS variables */
+        transform: translate(var(--scatter-x, 0), var(--scatter-y, 0));
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes dockSlideDown {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100px);
+        opacity: 0;
+    }
 }
 
 .wallpaper {
@@ -55,7 +158,40 @@
     gap: 15px;
     align-items: start;
     justify-items: center;
+    /* Clip icons that scatter outside page boundaries */
+    overflow: hidden;
 }
+
+/* Define radial scatter directions for each grid position (4x4 grid) */
+/* Top row */
+.springboard-page .app-icon:nth-child(1) { --scatter-x: -80px; --scatter-y: -80px; }
+.springboard-page .app-icon:nth-child(2) { --scatter-x: -30px; --scatter-y: -80px; }
+.springboard-page .app-icon:nth-child(3) { --scatter-x: 30px; --scatter-y: -80px; }
+.springboard-page .app-icon:nth-child(4) { --scatter-x: 80px; --scatter-y: -80px; }
+
+/* Second row */
+.springboard-page .app-icon:nth-child(5) { --scatter-x: -80px; --scatter-y: -30px; }
+.springboard-page .app-icon:nth-child(6) { --scatter-x: -30px; --scatter-y: -30px; }
+.springboard-page .app-icon:nth-child(7) { --scatter-x: 30px; --scatter-y: -30px; }
+.springboard-page .app-icon:nth-child(8) { --scatter-x: 80px; --scatter-y: -30px; }
+
+/* Third row */
+.springboard-page .app-icon:nth-child(9) { --scatter-x: -80px; --scatter-y: 30px; }
+.springboard-page .app-icon:nth-child(10) { --scatter-x: -30px; --scatter-y: 30px; }
+.springboard-page .app-icon:nth-child(11) { --scatter-x: 30px; --scatter-y: 30px; }
+.springboard-page .app-icon:nth-child(12) { --scatter-x: 80px; --scatter-y: 30px; }
+
+/* Fourth row */
+.springboard-page .app-icon:nth-child(13) { --scatter-x: -80px; --scatter-y: 80px; }
+.springboard-page .app-icon:nth-child(14) { --scatter-x: -30px; --scatter-y: 80px; }
+.springboard-page .app-icon:nth-child(15) { --scatter-x: 30px; --scatter-y: 80px; }
+.springboard-page .app-icon:nth-child(16) { --scatter-x: 80px; --scatter-y: 80px; }
+
+/* Dock icons scatter horizontally from center */
+.dock-icons .app-icon:nth-child(1) { --scatter-x: -100px; --scatter-y: 50px; }
+.dock-icons .app-icon:nth-child(2) { --scatter-x: -40px; --scatter-y: 50px; }
+.dock-icons .app-icon:nth-child(3) { --scatter-x: 40px; --scatter-y: 50px; }
+.dock-icons .app-icon:nth-child(4) { --scatter-x: 100px; --scatter-y: 50px; }
 
 /* Spotlight page doesn't use grid layout */
 .springboard-page.spotlight-container {
@@ -70,6 +206,9 @@
     height: 50px;
     align-items: center;
     z-index: 10;
+    /* Default: ease-out for return animation */
+    transition: opacity 0.4s ease-out;
+    opacity: 1;
 }
 
     .page-indicator .dot {
@@ -88,6 +227,11 @@
     width: 100%;
     z-index: 10;
     position: relative;
+    /* Default: ease-out for return animation (dock sliding back up) */
+    transition: transform 0.4s ease-out,
+                opacity 0.4s ease-out;
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .dock-background {
