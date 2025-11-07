@@ -29,6 +29,8 @@
 .springboard-container.app-is-open .page-indicator,
 .springboard-container.debug-animation .page-indicator {
     opacity: 0;
+    /* Override: ease-in for outward animation */
+    transition: opacity 0.4s ease-in;
 }
 
 /* Animate dock to slide down */
@@ -36,6 +38,9 @@
 .springboard-container.debug-animation .dock {
     transform: translateY(100px);
     opacity: 0;
+    /* Override: ease-in for outward animation */
+    transition: transform 0.4s ease-in,
+                opacity 0.4s ease-in;
 }
 
 /* Debug animation button */
@@ -199,7 +204,8 @@
     height: 50px;
     align-items: center;
     z-index: 10;
-    transition: opacity 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+    /* Default: ease-out for return animation */
+    transition: opacity 0.4s ease-out;
     opacity: 1;
 }
 
@@ -219,8 +225,9 @@
     width: 100%;
     z-index: 10;
     position: relative;
-    transition: transform 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335),
-                opacity 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+    /* Default: ease-out for return animation (dock sliding back up) */
+    transition: transform 0.4s ease-out,
+                opacity 0.4s ease-out;
     transform: translateY(0);
     opacity: 1;
 }

@@ -122,14 +122,18 @@ code {
 
 /* Global animation styles for springboard icons */
 .app-icon {
-    transition: transform 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335), 
-                opacity 0.4s cubic-bezier(0.6, 0.04, 0.98, 0.335) !important;
+    /* Default: ease-out for return animation (icons flying back in) */
+    transition: transform 0.4s ease-out, 
+                opacity 0.4s ease-out !important;
 }
 
 .springboard-container.app-is-open .app-icon,
 .springboard-container.debug-animation .app-icon {
     transform: translate(var(--scatter-x, 0), var(--scatter-y, 0)) !important;
     opacity: 0 !important;
+    /* Override: ease-in for outward animation (icons flying out) */
+    transition: transform 0.4s ease-in, 
+                opacity 0.4s ease-in !important;
 }
 
 /* Define radial scatter directions from grid center (1.5, 1.5) for 4x4 grid */
