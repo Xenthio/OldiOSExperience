@@ -107,11 +107,16 @@
     
     private string CalculateAnimationStyle()
     {
-        if (!AnimationService.IsAnimating || iconCenterX == 0) return "";
+        if (!AnimationService.IsAnimating) return "";
         
-        // Calculate distance and direction from the animation center point
-        double deltaX = iconCenterX - AnimationService.CenterX;
-        double deltaY = iconCenterY - AnimationService.CenterY;
+        // If position wasn't captured, use a default position for this icon
+        // This ensures animations always work even if JS interop fails
+        double posX = iconCenterX != 0 ? iconCenterX : 320; // Default to center if not captured
+        double posY = iconCenterY != 0 ? iconCenterY : 480;
+        
+        // Calculate distance and direction from the animation center point (screen center)
+        double deltaX = posX - AnimationService.CenterX;
+        double deltaY = posY - AnimationService.CenterY;
         double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         
         // Normalize to get direction

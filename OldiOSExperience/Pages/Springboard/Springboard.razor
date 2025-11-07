@@ -131,11 +131,10 @@
         // The AppIcon component already called AnimationService.StartOpeningAnimation
         // with the correct center position
         
-        // Wait a bit for the animation to start
-        await Task.Delay(AnimationService.ANIMATION_START_DELAY_MS);
+        // Set the app immediately so zoom animation starts right away
         openedApp = app;
         
-        // Complete the animation after the app opens
+        // Complete the animation after the full duration
         await Task.Delay(AnimationService.ANIMATION_DURATION_MS);
         AnimationService.CompleteAnimation();
     }
