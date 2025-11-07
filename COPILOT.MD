@@ -75,6 +75,15 @@ OldiOSExperience/
 - Allows switching between apps or closing them
 - Slide-up animation from bottom
 
+#### StatusBar
+- Reusable status bar component matching iOS 5 design
+- Two styles: Default (semi-transparent) and Black (solid)
+- Displays carrier name, WiFi icon, time, and battery indicator
+- Real-time clock updates (updates every minute)
+- Springboard status bar fades out when app opens
+- AppContainer provides independent status bar for apps
+- Uses placeholder image paths for WiFi and battery icons
+
 ## Animation Framework
 
 The animation system is designed for complex, multi-element animations:
@@ -143,9 +152,14 @@ The animation system is designed for complex, multi-element animations:
 - [ ] Real-time clock updates
 
 ### Status Bar
-- [ ] Extract status bar to separate component
-- [ ] Add real time/battery/signal indicators
-- [ ] Implement different status bar styles per app
+- [x] Extract status bar to separate component
+- [x] Add real time/battery/signal indicators (with placeholder images)
+- [x] Implement different status bar styles per app (Default/Black)
+- [x] StatusBar component fades out with springboard when app opens
+- [x] AppContainer provides independent StatusBar for opened apps
+- [ ] Add actual WiFi and battery icon images
+- [ ] Implement dynamic battery level display
+- [ ] Add signal strength indicators
 
 ### Navigation
 - [ ] Create navigation service for app-to-app transitions
