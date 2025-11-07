@@ -53,16 +53,7 @@ namespace OldiOSExperience.Services
                 var offsetX = currentX - startX;
                 var offsetY = currentY - startY;
                 
-                // Determine primary direction
-                if (Math.Abs(offsetX) > Math.Abs(offsetY))
-                {
-                    Direction = offsetX > 0 ? SwipeDirection.Right : SwipeDirection.Left;
-                }
-                else
-                {
-                    Direction = offsetY > 0 ? SwipeDirection.Down : SwipeDirection.Up;
-                }
-                
+                UpdateSwipeDirection(offsetX, offsetY);
                 OnSwipeChanged?.Invoke(offsetX);
             }
             
@@ -99,16 +90,7 @@ namespace OldiOSExperience.Services
                 var offsetX = currentX - startX;
                 var offsetY = currentY - startY;
                 
-                // Determine primary direction
-                if (Math.Abs(offsetX) > Math.Abs(offsetY))
-                {
-                    Direction = offsetX > 0 ? SwipeDirection.Right : SwipeDirection.Left;
-                }
-                else
-                {
-                    Direction = offsetY > 0 ? SwipeDirection.Down : SwipeDirection.Up;
-                }
-                
+                UpdateSwipeDirection(offsetX, offsetY);
                 OnSwipeChanged?.Invoke(offsetX);
             }
             
@@ -122,6 +104,19 @@ namespace OldiOSExperience.Services
                 OnSwipeEnded?.Invoke(result);
                 
                 Direction = SwipeDirection.None;
+            }
+            
+            private void UpdateSwipeDirection(double offsetX, double offsetY)
+            {
+                // Determine primary direction based on which offset is larger
+                if (Math.Abs(offsetX) > Math.Abs(offsetY))
+                {
+                    Direction = offsetX > 0 ? SwipeDirection.Right : SwipeDirection.Left;
+                }
+                else
+                {
+                    Direction = offsetY > 0 ? SwipeDirection.Down : SwipeDirection.Up;
+                }
             }
             
             private SwipeResult GetSwipeResult()

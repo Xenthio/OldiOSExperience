@@ -1,3 +1,5 @@
+@implements IDisposable
+
 @* iOS 5 Lock Screen *@
 
 <div class="lock-screen @(isUnlocking ? "unlocking" : "") @(isVisible ? "visible" : "")"
@@ -50,14 +52,29 @@
     private double dragOffsetX = 0;
     private const double UnlockThreshold = 250; // Pixels to drag to unlock
     private const double SlideTrackWidth = 640; // Match screen width
+    private const double SlideButtonWidth = 90; // Button width including padding
     
-    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, SlideTrackWidth - 90))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
+    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, SlideTrackWidth - SlideButtonWidth))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
     private string slideTextStyle => $"opacity: {Math.Max(0, 1 - (dragOffsetX / 200))}; transition: {(isDragging ? "none" : "opacity 0.3s ease-out")};";
+    
+    private global::System.Threading.Timer? clockTimer;
     
     protected override void OnInitialized()
     {
         UpdateTime();
         isVisible = IsLocked;
+        
+        // Update time every second for real-time clock
+        clockTimer = new global::System.Threading.Timer(_ => 
+        {
+            UpdateTime();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+    
+    public void Dispose()
+    {
+        clockTimer?.Dispose();
     }
     
     protected override void OnParametersSet()

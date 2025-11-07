@@ -38,6 +38,12 @@ OldiOSExperience/
 - Defines iOS-style animation sequences
 - Equivalent to iOS's Core Animation framework
 
+#### 4. GestureService
+- Provides gesture recognition for swipes and taps
+- Includes SwipeGestureRecognizer and TapGestureRecognizer classes
+- Handles both touch and mouse events for cross-platform testing
+- Equivalent to iOS's UIGestureRecognizer system
+
 ### Key Models
 
 #### AppInfo
@@ -60,6 +66,14 @@ OldiOSExperience/
 - iOS 5 style lock screen with slide-to-unlock
 - Touch/mouse gesture support
 - State management for locked/unlocked
+- Displays time and date
+
+#### AppSwitcher
+- iOS 5 style app switcher (multitasking tray)
+- Activated by double-tapping home button
+- Shows recent apps with preview cards
+- Allows switching between apps or closing them
+- Slide-up animation from bottom
 
 ## Animation Framework
 
@@ -80,6 +94,26 @@ The animation system is designed for complex, multi-element animations:
 ### Unlock Sequence
 - Lock screen slides right with opacity fade (0-400ms)
 
+## Recent Improvements (Current Session)
+
+### Animation Enhancements
+- ✅ Improved app open/close animations with better easing curves
+- ✅ Added cubic-bezier timing functions for authentic iOS feel
+- ✅ Springboard fades out when app opens
+- ✅ App container uses AnimationService for consistent timing
+
+### Multitasking System
+- ✅ Implemented AppSwitcher component
+- ✅ Double-tap home button shows recent apps
+- ✅ Recent apps displayed with close buttons
+- ✅ Smooth slide-up animation for app switcher tray
+- ✅ Background click to dismiss
+
+### Code Organization
+- ✅ Created GestureService for reusable gesture recognition
+- ✅ Used DynamicComponent for flexible app loading based on ComponentType
+- ✅ Services properly registered in DI container
+
 ## Future Improvements
 
 ### Animations
@@ -87,12 +121,13 @@ The animation system is designed for complex, multi-element animations:
 - [ ] Add dock slide-down/up animations during app open/close
 - [ ] Implement spring physics for more authentic feel
 - [ ] Add "bounce" animation when pressing home on springboard
+- [ ] Add parallax effect to wallpaper during page swipe
 
 ### Multitasking
-- [ ] Implement app switcher UI (double-tap home button)
-- [ ] Add app preview snapshots
+- [ ] Add app preview snapshots (currently just icons)
 - [ ] Implement background app refresh simulation
 - [ ] Add memory pressure simulation
+- [ ] Persist app state between sessions (localStorage)
 
 ### Lock Screen
 - [ ] Add passcode support
@@ -131,12 +166,49 @@ Components subscribe to service events (e.g., `OnAppStatesChanged`) to react to 
 ### State Management
 State is managed at the service level, not in components. Components are stateless views of service state.
 
+### Dynamic Component Loading
+Apps can specify a `ComponentType` property to load custom components dynamically using `<DynamicComponent>`. This allows for flexible app implementations without hard-coding app IDs.
+
+### Gesture Recognition
+Touch and mouse events are handled through gesture recognizers that provide clean abstractions for swipes, taps, and drags. This pattern is inspired by iOS's UIGestureRecognizer.
+
+## Implementation Details
+
+### Home Button Behavior
+The home button in Index.razor implements several behaviors:
+1. **When locked**: Does nothing (could add wake screen in future)
+2. **Single tap with app open**: Returns to springboard
+3. **Single tap on springboard**: Does nothing (could add bounce animation)
+4. **Double-tap on springboard**: Shows app switcher
+5. Double-tap window is 400ms (matching iOS timing)
+
+### App Switcher Flow
+1. User double-taps home button
+2. AppSwitcher slides up from bottom with fade-in background
+3. Shows recent apps from BackgroundAppManager
+4. User can:
+   - Tap an app to switch to it
+   - Tap X button to close an app
+   - Tap background to dismiss switcher
+
+### App Lifecycle
+1. **Launch**: App moves to Foreground state
+2. **Home button**: App moves to Background state (stays in memory)
+3. **Close from switcher**: App moves to NotRunning state (removed from memory)
+4. **Switch apps**: Current app to Background, selected app to Foreground
+
 ## Known Issues
 
 ### Namespace Collision
 The `System/` folder conflicts with C#'s `System` namespace. All `System` namespace references must use `global::System` prefix.
 
 Alternative: Rename `System/` to `SystemUI/` in future refactor.
+
+### App Preview Snapshots
+AppSwitcher currently shows app icons instead of preview snapshots. To implement previews:
+1. Capture DOM snapshot before app goes to background
+2. Convert to image or store as virtual DOM
+3. Display in app switcher card
 
 ## Testing Notes
 

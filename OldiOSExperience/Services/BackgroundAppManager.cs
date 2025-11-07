@@ -11,11 +11,12 @@ namespace OldiOSExperience.Services
         private readonly Dictionary<int, AppState> _appStates = new();
         private readonly List<AppState> _recentApps = new(); // For app switcher
         private const int MaxRecentApps = 10;
+        private AppState? _cachedForegroundApp = null;
         
         public event Action? OnAppStatesChanged;
         
         /// <summary>Get current foreground app</summary>
-        public AppState? ForegroundApp => _appStates.Values.FirstOrDefault(s => s.ExecutionState == AppExecutionState.Foreground);
+        public AppState? ForegroundApp => _cachedForegroundApp;
         
         /// <summary>Get all background apps</summary>
         public IEnumerable<AppState> BackgroundApps => _appStates.Values.Where(s => s.ExecutionState == AppExecutionState.Background);
@@ -29,10 +30,9 @@ namespace OldiOSExperience.Services
         public void LaunchApp(AppInfo app)
         {
             // Move current foreground app to background
-            var currentForeground = ForegroundApp;
-            if (currentForeground != null)
+            if (_cachedForegroundApp != null)
             {
-                MoveToBackground(currentForeground);
+                MoveToBackground(_cachedForegroundApp);
             }
             
             // Get or create app state
@@ -44,6 +44,7 @@ namespace OldiOSExperience.Services
             
             // Move to foreground
             appState.ExecutionState = AppExecutionState.Foreground;
+            _cachedForegroundApp = appState;
             
             // Add to recent apps (remove if already in list, then add to front)
             _recentApps.RemoveAll(s => s.App.Id == app.Id);
@@ -77,10 +78,10 @@ namespace OldiOSExperience.Services
         /// </summary>
         public void ReturnToSpringboard()
         {
-            var currentForeground = ForegroundApp;
-            if (currentForeground != null)
+            if (_cachedForegroundApp != null)
             {
-                MoveToBackground(currentForeground);
+                MoveToBackground(_cachedForegroundApp);
+                _cachedForegroundApp = null;
                 OnAppStatesChanged?.Invoke();
             }
         }
