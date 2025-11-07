@@ -109,10 +109,10 @@
     {
         if (!AnimationService.IsAnimating) return "";
         
-        // If position wasn't captured, use a default position for this icon
+        // If position wasn't captured, use screen center as fallback
         // This ensures animations always work even if JS interop fails
-        double posX = iconCenterX != 0 ? iconCenterX : 320; // Default to center if not captured
-        double posY = iconCenterY != 0 ? iconCenterY : 480;
+        double posX = iconCenterX != 0 ? iconCenterX : AnimationService.SCREEN_CENTER_X;
+        double posY = iconCenterY != 0 ? iconCenterY : AnimationService.SCREEN_CENTER_Y;
         
         // Calculate distance and direction from the animation center point (screen center)
         double deltaX = posX - AnimationService.CenterX;
