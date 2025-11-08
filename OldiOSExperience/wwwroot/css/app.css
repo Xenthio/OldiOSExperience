@@ -138,15 +138,17 @@ code {
 
 /* Locked state: icons start scattered (no animation, instant) */
 .springboard-container.locked .app-icon {
-    transform: translate(calc(var(--scatter-x, 0) * 3), calc(var(--scatter-y, 0) * 3)) !important;
-    opacity: 0 !important;
-    transition: none !important; /* No transition when initially locked */
+    transform: translate(calc(var(--scatter-x, 0) * 3), calc(var(--scatter-y, 0) * 3));
+    opacity: 0;
+    transition: none; /* No transition when initially locked */
 }
 
 /* Unlocking state: icons fly in from scattered positions */
 .springboard-container.unlocking .app-icon {
     /* Icons fly in from scattered positions with ease-out */
-    animation: iconFlyIn 0.4s ease-out forwards;
+    animation: iconFlyIn 0.4s ease-out forwards !important;
+    /* Override locked state */
+    transition: none !important;
 }
 
 @keyframes iconFlyIn {
