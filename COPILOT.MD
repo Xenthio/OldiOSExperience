@@ -10,14 +10,15 @@ This project is an iOS 5 replica built with Blazor WebAssembly, simulating an iP
 OldiOSExperience/
 ├── Models/           # Data models (AppInfo, AppState, Animation)
 ├── Services/         # Core system services (iOS-inspired)
-├── System/          # System UI components (LockScreen, StatusBar)
-├── Pages/           # Page-level components
-│   └── Springboard/ # Home screen implementation
-├── Apps/            # Individual app implementations
+├── System/           # System UI components (StatusBar)
+├── Pages/            # Page-level components
+│   └── Springboard/  # Home screen implementation
+│       └── Components/ # Springboard-specific components (LockScreen, AppSwitcher, AppIcon, etc.)
+├── Apps/             # Individual app implementations
 │   ├── Settings/
-│   └── Shared/      # Shared app UI components
-├── Components/      # Reusable UI components (future)
-└── wwwroot/        # Static assets
+│   └── Shared/       # Shared app UI components
+├── Components/       # Reusable UI components (future)
+└── wwwroot/          # Static assets
 ```
 
 ### Core Services
@@ -62,20 +63,23 @@ OldiOSExperience/
 
 ### System Components
 
-#### LockScreen
+#### LockScreen (Pages/Springboard/Components/)
 - iOS 5 style lock screen with slide-to-unlock
 - Touch/mouse gesture support
 - State management for locked/unlocked
 - Displays time and date
+- **Unlock Animation**: lock-status-bar slides up, slide-to-unlock-container slides down
+- Triggers springboard entrance animation when unlocked
 
-#### AppSwitcher
+#### AppSwitcher (Pages/Springboard/Components/)
 - iOS 5 style app switcher (multitasking tray)
 - Activated by double-tapping home button
 - Shows recent apps with preview cards
 - Allows switching between apps or closing them
 - Slide-up animation from bottom
+- Part of SpringBoard (matches iOS architecture)
 
-#### StatusBar
+#### StatusBar (System/)
 - Reusable status bar component matching iOS 5 design
 - Two styles: Default (semi-transparent) and Black (solid)
 - Displays carrier name, WiFi icon, time, and battery indicator
@@ -100,8 +104,13 @@ The animation system is designed for complex, multi-element animations:
 3. Dock slides up (100-400ms)
 4. Everything fades in (100-400ms)
 
-### Unlock Sequence
-- Lock screen slides right with opacity fade (0-400ms)
+### Unlock Sequence (Lock Screen to Home Screen)
+1. Lock-status-bar slides up and fades out (0-400ms)
+2. Slide-to-unlock-container slides down and fades out (0-400ms)
+3. Icons fly in from scattered positions (0-400ms)
+4. Dock slides up from bottom (0-400ms)
+5. Status bar and page indicators fade in (0-400ms)
+- All animations use ease-out timing for smooth entrance
 
 ## Recent Improvements (Current Session)
 
@@ -110,6 +119,13 @@ The animation system is designed for complex, multi-element animations:
 - ✅ Added cubic-bezier timing functions for authentic iOS feel
 - ✅ Springboard fades out when app opens
 - ✅ App container uses AnimationService for consistent timing
+- ✅ **NEW: Lock screen unlock animations**
+  - Lock-status-bar slides up and fades out
+  - Slide-to-unlock-container slides down and fades out
+  - Icons fly in from scattered positions (using existing scatter system)
+  - Dock slides up from bottom
+  - Status bar and page indicators fade in
+  - All animations coordinated with 400ms timing
 
 ### Multitasking System
 - ✅ Implemented AppSwitcher component
@@ -122,6 +138,10 @@ The animation system is designed for complex, multi-element animations:
 - ✅ Created GestureService for reusable gesture recognition
 - ✅ Used DynamicComponent for flexible app loading based on ComponentType
 - ✅ Services properly registered in DI container
+- ✅ **NEW: Moved LockScreen and AppSwitcher to Pages/Springboard/Components/**
+  - Better architecture matching iOS (both are part of SpringBoard)
+  - Clearer separation of concerns
+  - System/ folder now only contains truly system-level components (StatusBar)
 
 ### Code Review Improvements
 - ✅ Real-time clock on lock screen (updates every second)
@@ -133,8 +153,9 @@ The animation system is designed for complex, multi-element animations:
 ## Future Improvements
 
 ### Animations
-- [ ] Implement actual radial icon scatter/gather (currently simple fade)
-- [ ] Add dock slide-down/up animations during app open/close
+- [x] Implement actual radial icon scatter/gather
+- [x] Add dock slide-down/up animations during app open/close
+- [x] Unlock animation with lock elements sliding out and icons flying in
 - [ ] Implement spring physics for more authentic feel
 - [ ] Add "bounce" animation when pressing home on springboard
 - [ ] Add parallax effect to wallpaper during page swipe
@@ -146,6 +167,7 @@ The animation system is designed for complex, multi-element animations:
 - [ ] Persist app state between sessions (localStorage)
 
 ### Lock Screen
+- [x] Unlock animations (lock elements slide out, springboard flies in)
 - [ ] Add passcode support
 - [ ] Implement notification center pull-down
 - [ ] Add camera access from lock screen
