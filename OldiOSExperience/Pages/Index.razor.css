@@ -1,42 +1,57 @@
-/* Main container that centers the phone on the page */
-.phone-container {
+/* New wrapper to center the scaled phone */
+.simulation-wrapper {
+    width: 100vw;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Align to top for transform origin */
+    justify-content: center;
     align-items: center;
-    
-    /* --- NEW: Define the total fixed size of the entire phone UI --- */
-    width: 640px;
-    height: 1085px; /* 960px (screen) + 25px (gap) + 100px (button) */
-
-    /* --- NEW: Set the transform origin for scaling --- */
-    transform-origin: top center;
-
-    /* The transform itself will be applied via an inline style from C# */
-}
-
-/* This viewport no longer needs special sizing */
-.screen-viewport {
-    width: 640px;
-    height: 960px;
-    background-color: #f7f7f7;
     overflow: hidden;
 }
 
-/* The screen content no longer needs any transform logic */
+/* This is now the element that gets scaled */
+.phone-container {
+    /* Set the base size of the entire phone, including the home button */
+    width: 640px;
+    
+    /* Arrange the screen and button vertically */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+
+    /* --- CHANGE HERE --- */
+    /* Remove the zoom property */
+    /* zoom: var(--phone-scale, 1.0); */
+    
+    /* Add back the transform properties */
+    transform-origin: center center;
+    transform: scale(var(--phone-scale, 1.0));
+    transition: transform 0.2s ease-out;
+}
+
+/* The screen viewport is now just a simple box */
+.screen-viewport {
+    width: 640px;
+    height: 960px;
+    background-color: #000;
+    overflow: hidden;
+    position: relative; /* Important for child positioning */
+}
+
+/* The screen content takes up the full space of the viewport */
 .screen-content {
     width: 100%;
     height: 100%;
     position: relative;
+    /* NO MORE TRANSFORM HERE */
 }
 
 /* Simple styling for the physical home button */
 .home-button {
-    margin-top: 25px; /* Replaces the 'gap' property */
     width: 100px;
     height: 100px;
     border: 2px solid #333;
-    border-radius: 50%;
+    border-radius: 50%; /* Makes it a circle */
     display: flex;
     justify-content: center;
     align-items: center;

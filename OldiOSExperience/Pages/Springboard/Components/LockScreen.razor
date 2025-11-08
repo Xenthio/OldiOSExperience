@@ -64,7 +64,7 @@
     private double slideButtonWidth = 0;
     
     // --- UPDATED: Style properties to use new dimensions ---
-    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, slideTrackContentWidth - (slideButtonWidth / DisplaySettings.SCALEFACTOR)))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
+    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, slideTrackContentWidth - (slideButtonWidth)))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
     private string slideTextStyle => $"opacity: {Math.Max(0, 1 - (dragOffsetX / 200))}; transition: {(isDragging ? "none" : "opacity 0.3s ease-out")};";
     
     private global::System.Threading.Timer? clockTimer;

@@ -210,14 +210,14 @@
     private void HandleTouchStart(TouchEventArgs e)
     {
         isDragging = true;
-        touchStartX = e.Touches[0].ClientX;
+        touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
     }
 
     private void HandleTouchMove(TouchEventArgs e)
     {
         if (!isDragging) return;
 
-        touchCurrentX = e.Touches[0].ClientX;
+        touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
         dragOffset = touchCurrentX - touchStartX;
     }
 
@@ -252,14 +252,14 @@
     {
         isMouseDown = true;
         isDragging = true;
-        touchStartX = e.ClientX;
+        touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
     }
 
     private void HandleMouseMove(MouseEventArgs e)
     {
         if (!isMouseDown || !isDragging) return;
 
-        touchCurrentX = e.ClientX;
+        touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
         dragOffset = touchCurrentX - touchStartX;
     }
 

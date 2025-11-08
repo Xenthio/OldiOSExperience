@@ -1,57 +1,70 @@
 @page "/"
 @using OldiOSExperience.Services
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
-<div class="phone-container">
-    <!-- This is the responsive viewport. Its size is controlled by CSS. -->
-    <div class="screen-viewport" @ref="screenViewportElement">
-
-        <div class="screen-content">
-            <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
+<div class="simulation-wrapper" @ref="simulationWrapperElement">
+    <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString()">
+        <div class="screen-viewport">
+            <div class="screen-content">
+                <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
+            </div>
         </div>
-
-    </div>
-    <div class="home-button" @onclick="HandleHomeButtonClick">
-        <div class="home-button-square"></div>
+        <div class="home-button" @onclick="HandleHomeButtonClick">
+            <div class="home-button-square"></div>
+        </div>
     </div>
 </div>
 
 @code {
-    private ElementReference screenViewportElement;
-    // private double scaleFactor = 1.0; // This is no longer needed here.
-    private string screenContentStyle => $"transform: scale({DisplaySettings.SCALEFACTOR.ToString(global::System.Globalization.CultureInfo.InvariantCulture)});";
+    private ElementReference simulationWrapperElement;
     private OldiOSExperience.Pages.Springboard.Springboard? springboard;
+    private DotNetObjectReference<Index>? objRef;
 
-    // This method is called after the component has rendered.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // We only need to do this once when the page first loads.
         if (firstRender)
         {
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("addResizeListener", objRef);
             await CalculateAndApplyScaleFactor();
         }
     }
 
+    [JSInvokable]
+    public async Task OnBrowserResize()
+    {
+        await CalculateAndApplyScaleFactor();
+    }
 
     private async Task CalculateAndApplyScaleFactor()
     {
-        // Call our JS function to get the actual width of the viewport element
-        var viewportWidth = await JSRuntime.InvokeAsync<double>("getElementWidth", screenViewportElement);
+        // Get the available height of the wrapper
+        var viewportHeight = await JSRuntime.InvokeAsync<double>("getElementHeight", simulationWrapperElement);
 
-        if (viewportWidth > 0)
+        // Total height of the phone model (1136px screen + 25px gap + 100px button)
+        const double phoneModelHeight = 1261.0;
+        
+        if (viewportHeight > 0)
         {
-            var prevScale = DisplaySettings.SCALEFACTOR;
-
-            // Calculate the scale factor and set it on the static class
-            DisplaySettings.SCALEFACTOR = viewportWidth / DisplaySettings.RESOLUTION_X;
-            
-            // Tell Blazor to re-render the component with the new style
-            if (prevScale != DisplaySettings.SCALEFACTOR) StateHasChanged();
+            // Calculate scale based on height, with some padding (95%)
+            // SET THE STATIC PROPERTY
+            DisplaySettings.SCALEFACTOR = (viewportHeight / phoneModelHeight) * 0.95;
+            StateHasChanged();
         }
     }
-    
+
     private void HandleHomeButtonClick()
     {
         springboard?.HandleHomeButtonPress();
+    }
+
+    public void Dispose()
+    {
+        if (objRef != null)
+        {
+            JSRuntime.InvokeVoidAsync("removeResizeListener", objRef);
+            objRef.Dispose();
+        }
     }
 }
