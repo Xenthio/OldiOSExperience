@@ -136,6 +136,23 @@ code {
                 opacity 0.4s ease-in !important;
 }
 
+/* Unlocking state: icons start scattered and fly in */
+.springboard-container.unlocking .app-icon {
+    /* Icons fly in from scattered positions with ease-out */
+    animation: iconFlyIn 0.4s ease-out forwards;
+}
+
+@keyframes iconFlyIn {
+    from {
+        transform: translate(calc(var(--scatter-x, 0) * 3), calc(var(--scatter-y, 0) * 3));
+        opacity: 0;
+    }
+    to {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+}
+
 /* Define radial scatter directions from grid center (1.5, 1.5) for 4x4 grid */
 /* Calculated as: direction = (col - 1.5, row - 1.5), normalized and scaled by 100px */
 

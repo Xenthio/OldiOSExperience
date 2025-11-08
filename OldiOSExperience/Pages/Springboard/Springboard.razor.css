@@ -33,12 +33,31 @@
     transition: opacity 0.4s ease-in;
 }
 
+/* Unlocking state: status bar fades in */
+.springboard-container.unlocking ::deep .status-bar {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 /* Animate page indicators to fade out */
 .springboard-container.app-is-open .page-indicator,
 .springboard-container.debug-animation .page-indicator {
     opacity: 0;
     /* Override: ease-in for outward animation */
     transition: opacity 0.4s ease-in;
+}
+
+/* Unlocking state: page indicators fade in */
+.springboard-container.unlocking .page-indicator {
+    animation: fadeIn 0.4s ease-out forwards;
 }
 
 /* Animate dock to slide down */
@@ -49,6 +68,22 @@
     /* Override: ease-in for outward animation */
     transition: transform 0.4s ease-in,
                 opacity 0.4s ease-in;
+}
+
+/* Unlocking state: dock slides up from bottom */
+.springboard-container.unlocking .dock {
+    animation: dockSlideUp 0.4s ease-out forwards;
+}
+
+@keyframes dockSlideUp {
+    from {
+        transform: translateY(calc(250px * 2));
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Debug animation button */

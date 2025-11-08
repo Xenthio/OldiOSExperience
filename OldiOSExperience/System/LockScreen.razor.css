@@ -15,12 +15,27 @@
 }
 
 .lock-screen.unlocking {
-    animation: lockScreenUnlock 0.4s ease-out forwards;
+    /* Don't animate the whole screen, animate individual parts */
 }
 
-@keyframes lockScreenUnlock {
+.lock-screen.unlocking .lock-status-bar {
+    animation: lockStatusSlideUp 0.4s ease-out forwards;
+}
+
+.lock-screen.unlocking .slide-to-unlock-container {
+    animation: lockSlideDown 0.4s ease-out forwards;
+}
+
+@keyframes lockStatusSlideUp {
     to {
-        transform: translateX(100%);
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes lockSlideDown {
+    to {
+        transform: translateY(100%);
         opacity: 0;
     }
 }
