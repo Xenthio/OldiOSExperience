@@ -26,7 +26,6 @@
     /* Add back the transform properties */
     transform-origin: center center;
     transform: scale(var(--phone-scale, 1.0));
-    transition: transform 0.2s ease-out;
 }
 
 /* The screen viewport is now just a simple box */

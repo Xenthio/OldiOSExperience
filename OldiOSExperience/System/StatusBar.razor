@@ -1,8 +1,10 @@
 @implements IDisposable
+@using OldiOSExperience.System 
+@inject IJSRuntime JSRuntime // <-- Add this
 
 @* iOS 5 Status Bar Component *@
 
-<div class="status-bar @(Style == StatusBarStyle.Coloured ? "status-bar-coloured" : "status-bar-default")">
+<div class="status-bar @StatusBarStyleClass">
     <div class="status-bar-left">
         <!-- Carrier -->
         <span class="carrier-text">@Carrier</span>
@@ -23,56 +25,133 @@
             <span class="battery-percentage">@BatteryPercentage%</span>
         }
         
-        <!-- Battery Icon -->
-        <img src="@BatteryIconPath" class="battery-icon" alt="Battery" />
+        <!-- Battery Icon: Changed from <img> to a styled <div> with an inner fill -->
+        <div class="battery-icon" style="background-image: url('@BatteryFrameIconPath')">
+            <div class="battery-fill" style="@BatteryFillStyle"></div>
+        </div>
     </div>
 </div>
 
 @code {
-    /// <summary>
-    /// The visual style of the status bar (black with white text, or default/colored)
-    /// </summary>
     [Parameter]
-    public StatusBarStyle Style { get; set; } = StatusBarStyle.Default;
+    public StatusBarStyle Style { get; set; } = StatusBarStyle.Coloured;
     
-    /// <summary>
-    /// The carrier name to display (e.g., "AT&T", "Verizon", "Sprint")
-    /// </summary>
     [Parameter]
-    public string Carrier { get; set; } = "Carrier";
+    public string Carrier { get; set; } = "No SIM";
     
-    /// <summary>
-    /// Path to the WiFi signal icon image
-    /// </summary>
     [Parameter]
     public string WifiIconPath { get; set; } = "images/status-bar/wifi.png";
     
-    /// <summary>
-    /// Battery percentage (0-100)
-    /// </summary>
     [Parameter]
     public int BatteryPercentage { get; set; } = 100;
+
+    [Parameter]
+    public BatteryState BatteryState { get; set; } = BatteryState.Draining;
     
-    /// <summary>
-    /// Whether to show battery percentage as text
-    /// </summary>
     [Parameter]
     public bool ShowBatteryPercentage { get; set; } = false;
-    
-    /// <summary>
-    /// Path to the battery icon image (should reflect battery level)
-    /// </summary>
-    [Parameter]
-    public string BatteryIconPath { get; set; } = "images/status-bar/battery-full.png";
-    
+
     private string currentTime = "";
     private global::System.Threading.Timer? clockTimer;
+    private DotNetObjectReference<StatusBar>? objRef; // <-- Add this
+
+    /// <summary>
+    /// Gets the CSS class for the status bar based on the Style enum.
+    /// </summary>
+    private string StatusBarStyleClass => Style switch
+    {
+        StatusBarStyle.WhiteOnBlackShadow => "status-bar-white-on-black-shadow",
+        StatusBarStyle.WhiteOnBlackEtch => "status-bar-white-on-black-etch",
+        _ => "status-bar-coloured"
+    };
+
+    /// <summary>
+    /// Gets the folder name for the current theme's assets.
+    /// </summary>
+    private string ThemeFolder => Style switch
+    {
+        StatusBarStyle.WhiteOnBlackShadow => "white_on_black_shadow",
+        StatusBarStyle.WhiteOnBlackEtch => "white_on_black_etch",
+        _ => "coloured" // Default/fallback folder
+    };
+
+    /// <summary>
+    /// Calculates the path to the correct battery FRAME icon.
+    /// </summary>
+    private string BatteryFrameIconPath
+    {
+        get
+        {
+            string iconName = BatteryState switch
+            {
+                BatteryState.Charging => "battery_charging.png",
+                BatteryState.Full => "battery_charged.png",
+                _ => "battery_draining.png"
+            };
+            return $"images/status/{ThemeFolder}/{iconName}";
+        }
+    }
+
+    /// <summary>
+    /// Calculates the inline style for the battery's inner fill level.
+    /// </summary>
+    private string BatteryFillStyle
+    {
+        get
+        {
+            // Don't show a fill if the battery is charging (it has the lightning bolt)
+            if (BatteryState == BatteryState.Charging) return "display: none;";
+
+            // Determine if we should use the red "low" battery fill
+            string fillImage = (BatteryPercentage <= 20) 
+                ? "battery_insides_low.png" 
+                : "battery_insides.png";
+            
+            string fillImagePath = $"images/status/{ThemeFolder}/{fillImage}";
+
+            // Calculate the width of the fill based on the percentage.
+            // The fill area of the icon is ~90% of its total width.
+            double fillWidthPercent = (double)BatteryPercentage * 0.72;
+
+            return $"width: {fillWidthPercent.ToString()}%; background-image: url('{fillImagePath}');";
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Start the battery monitoring
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("batteryManager.start", objRef);
+        }
+    }
+
+    /// <summary>
+    /// This method is called from JavaScript with real battery data.
+    /// </summary>
+    [JSInvokable]
+    public void UpdateBatteryStatus(bool isCharging, double level)
+    {
+        BatteryPercentage = (int)(level * 100);
+
+        if (isCharging)
+        {
+            BatteryState = BatteryState.Charging;
+        }
+        else
+        {
+            BatteryState = (level == 1.0) ? BatteryState.Full : BatteryState.Draining;
+        }
+
+        // Tell Blazor to re-render with the new data
+        StateHasChanged();
+    }
     
     protected override void OnInitialized()
     {
         UpdateTime();
         
-        // Update time every minute for status bar clock
         clockTimer = new global::System.Threading.Timer(_ => 
         {
             UpdateTime();
@@ -83,6 +162,13 @@
     public void Dispose()
     {
         clockTimer?.Dispose();
+        
+        // Clean up the JavaScript interop
+        if (objRef != null)
+        {
+            JSRuntime.InvokeVoidAsync("batteryManager.stop");
+            objRef.Dispose();
+        }
     }
     
     private void UpdateTime()

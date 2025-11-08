@@ -10,6 +10,14 @@ function getElementHeight(element) {
     }
     return element.getBoundingClientRect().height;
 }
+// ...existing code...
+function getElementDimensions(element) {
+    if (!element) {
+        return { width: 0, height: 0 };
+    }
+    const rect = element.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+}
 
 // Keep track of the Blazor component reference for the resize event
 let blazorResizeRef = null;

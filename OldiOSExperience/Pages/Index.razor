@@ -21,6 +21,9 @@
     private OldiOSExperience.Pages.Springboard.Springboard? springboard;
     private DotNetObjectReference<Index>? objRef;
 
+    // Helper record to receive dimensions from JS
+    public record ElementDimensions(double Width, double Height);
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -39,17 +42,22 @@
 
     private async Task CalculateAndApplyScaleFactor()
     {
-        // Get the available height of the wrapper
-        var viewportHeight = await JSRuntime.InvokeAsync<double>("getElementHeight", simulationWrapperElement);
+        var viewport = await JSRuntime.InvokeAsync<ElementDimensions>("getElementDimensions", simulationWrapperElement);
 
-        // Total height of the phone model (1136px screen + 25px gap + 100px button)
-        const double phoneModelHeight = 1261.0;
-        
-        if (viewportHeight > 0)
+        if (viewport.Width > 0 && viewport.Height > 0)
         {
-            // Calculate scale based on height, with some padding (95%)
-            // SET THE STATIC PROPERTY
-            DisplaySettings.SCALEFACTOR = (viewportHeight / phoneModelHeight) * 0.95;
+            // Define the native dimensions of the phone model
+            const double phoneModelWidth = 640.0;
+            // Height of screen (960) + gap (25) + home button (100)
+            const double phoneModelHeight = 1085.0; 
+
+            // Calculate scale factor based on width and height, leaving 5% padding
+            var scaleX = (viewport.Width * 0.95) / phoneModelWidth;
+            var scaleY = (viewport.Height * 0.95) / phoneModelHeight;
+
+            // Use the smaller of the two scales to ensure it fits, and cap it at 1.0
+            DisplaySettings.SCALEFACTOR = Math.Min(1.0, Math.Min(scaleX, scaleY));
+            
             StateHasChanged();
         }
     }
