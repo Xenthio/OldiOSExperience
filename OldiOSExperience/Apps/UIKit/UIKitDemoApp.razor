@@ -1,0 +1,97 @@
+@using OldiOSExperience.Apps.Shared
+@using OldiOSExperience.Apps.UIKit
+
+<div class="uikit-demo-app">
+    <NavigationBar Title="UIKit Demo" />
+    
+    <div class="demo-content">
+        <TableView Grouped="true">
+            <TableSection Header="BUTTONS">
+                <div class="demo-section">
+                    <UIButton Text="Default Button" OnClick="@(() => Console.WriteLine("Default clicked"))" />
+                    <UIButton Text="Bordered Button" Style="UIButtonStyle.Bordered" OnClick="@(() => Console.WriteLine("Bordered clicked"))" />
+                    <UIButton Text="Delete" Style="UIButtonStyle.Destructive" OnClick="@(() => Console.WriteLine("Delete clicked"))" />
+                    <UIButton Text="Disabled Button" Disabled="true" />
+                    <UIButton Text="Full Width Button" FullWidth="true" />
+                </div>
+            </TableSection>
+            
+            <TableSection Header="TEXT FIELDS">
+                <div class="demo-section">
+                    <UITextField @bind-Value="textValue" Placeholder="Enter text..." Label="Text Field" />
+                    <UITextField @bind-Value="emailValue" Placeholder="Email" InputType="email" />
+                    <UITextField @bind-Value="passwordValue" Placeholder="Password" InputType="password" ShowClearButton="false" />
+                </div>
+            </TableSection>
+            
+            <TableSection Header="LABELS">
+                <div class="demo-section">
+                    <UILabel Text="Title Label" Style="UILabelStyle.Title" />
+                    <UILabel Text="Headline Label" Style="UILabelStyle.Headline" />
+                    <UILabel Text="Body Label - This is the default text style" Style="UILabelStyle.Body" />
+                    <UILabel Text="Subheadline Label" Style="UILabelStyle.Subheadline" />
+                    <UILabel Text="Footnote Label" Style="UILabelStyle.Footnote" />
+                    <UILabel Text="Caption Label" Style="UILabelStyle.Caption" />
+                    <UILabel Text="Centered Text" Alignment="TextAlignment.Center" Bold="true" />
+                </div>
+            </TableSection>
+            
+            <TableSection Header="SWITCHES">
+                <div class="demo-section">
+                    <div class="switch-row">
+                        <UILabel Text="Enable Feature" />
+                        <UISwitch @bind-Value="switchValue" />
+                    </div>
+                    <div class="switch-row">
+                        <UILabel Text="Disabled Switch" />
+                        <UISwitch Value="true" Disabled="true" />
+                    </div>
+                </div>
+            </TableSection>
+            
+            <TableSection Header="SEGMENTED CONTROLS">
+                <div class="demo-section">
+                    <UISegmentedControl Segments="@segmentOptions" @bind-SelectedIndex="selectedSegment" FullWidth="true" />
+                </div>
+            </TableSection>
+            
+            <TableSection Header="SLIDERS">
+                <div class="demo-section">
+                    <UILabel Text="@($"Volume: {volumeValue:F0}%")" Style="UILabelStyle.Subheadline" />
+                    <UISlider @bind-Value="volumeValue" Min="0" Max="100" />
+                    <UILabel Text="@($"Brightness: {brightnessValue:F0}%")" Style="UILabelStyle.Subheadline" />
+                    <UISlider @bind-Value="brightnessValue" Min="0" Max="100" />
+                </div>
+            </TableSection>
+            
+            <TableSection Header="ACTIVITY INDICATORS">
+                <div class="demo-section demo-row">
+                    <div class="activity-group">
+                        <UILabel Text="Small" Style="UILabelStyle.Caption" Alignment="TextAlignment.Center" />
+                        <UIActivityIndicator Size="UIActivityIndicatorSize.Small" />
+                    </div>
+                    <div class="activity-group">
+                        <UILabel Text="Medium" Style="UILabelStyle.Caption" Alignment="TextAlignment.Center" />
+                        <UIActivityIndicator Size="UIActivityIndicatorSize.Medium" />
+                    </div>
+                    <div class="activity-group">
+                        <UILabel Text="Large" Style="UILabelStyle.Caption" Alignment="TextAlignment.Center" />
+                        <UIActivityIndicator Size="UIActivityIndicatorSize.Large" />
+                    </div>
+                </div>
+            </TableSection>
+        </TableView>
+    </div>
+</div>
+
+@code {
+    private string textValue = "";
+    private string emailValue = "";
+    private string passwordValue = "";
+    private bool switchValue = false;
+    private int selectedSegment = 0;
+    private double volumeValue = 50;
+    private double brightnessValue = 75;
+    
+    private List<string> segmentOptions = new() { "First", "Second", "Third" };
+}

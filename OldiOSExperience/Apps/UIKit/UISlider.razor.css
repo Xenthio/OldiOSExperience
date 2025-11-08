@@ -1,0 +1,117 @@
+/* iOS 5 UISlider Styles */
+
+.uislider-container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.uislider-container.full-width {
+    width: 100%;
+}
+
+.uislider-container.disabled {
+    opacity: 0.4;
+}
+
+.uislider-wrapper {
+    flex: 1;
+    position: relative;
+    height: 56px;
+    display: flex;
+    align-items: center;
+}
+
+.slider-track {
+    position: absolute;
+    width: 100%;
+    height: 16px;
+    background: #b4b8bd;
+    border: 1px solid #9a9ea3;
+    border-radius: 8px;
+    pointer-events: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.slider-track-fill {
+    height: 100%;
+    background: linear-gradient(to bottom, #007aff 0%, #0066cc 100%);
+    border-radius: 8px 0 0 8px;
+    transition: width 0.1s ease;
+}
+
+.uislider {
+    position: relative;
+    width: 100%;
+    height: 56px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Remove default styling */
+.uislider::-webkit-slider-track {
+    background: transparent;
+}
+
+.uislider::-moz-range-track {
+    background: transparent;
+}
+
+/* Style the thumb (knob) */
+.uislider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.uislider::-moz-range-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.uislider:active::-webkit-slider-thumb {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.uislider:active::-moz-range-thumb {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.uislider:disabled {
+    cursor: not-allowed;
+}
+
+.uislider:disabled::-webkit-slider-thumb {
+    cursor: not-allowed;
+}
+
+.uislider:disabled::-moz-range-thumb {
+    cursor: not-allowed;
+}
+
+.slider-icon {
+    width: 44px;
+    height: 44px;
+}
+
+.slider-icon.min {
+    opacity: 0.6;
+}
+
+.slider-icon.max {
+    opacity: 1;
+}
