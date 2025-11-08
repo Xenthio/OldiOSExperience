@@ -162,16 +162,18 @@
     private async Task PerformUnlock()
     {
         isUnlocking = true;
-        
-        // Trigger springboard unlock animation immediately
-        await OnUnlocked.InvokeAsync();
-        
         StateHasChanged();
         
-        // Wait for animation to complete before hiding
+        // Wait for lock screen elements to slide out and wallpaper to fade (400ms)
         await Task.Delay(400);
         
-        // Hide lock screen after animation completes
+        // Now trigger springboard unlock animation (icons fly in)
+        await OnUnlocked.InvokeAsync();
+        
+        // Wait for springboard animation to complete (400ms)
+        await Task.Delay(400);
+        
+        // Hide lock screen after all animations complete
         isVisible = false;
         StateHasChanged();
         

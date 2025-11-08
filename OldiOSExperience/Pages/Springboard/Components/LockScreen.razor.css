@@ -5,7 +5,7 @@
     width: 100%;
     height: 100%;
     z-index: 200;
-    background-color: #000;
+    background-color: transparent; /* Changed from #000 to transparent */
     display: none;
 }
 
@@ -15,8 +15,7 @@
 }
 
 .lock-screen.unlocking {
-    /* Fade out the entire lock screen */
-    animation: lockScreenFadeOut 0.4s ease-out forwards;
+    /* Don't fade the lock screen container, only the wallpaper */
 }
 
 .lock-screen.unlocking .lock-wallpaper {
@@ -29,12 +28,6 @@
 
 .lock-screen.unlocking .slide-to-unlock-container {
     animation: lockSlideDown 0.4s ease-out forwards;
-}
-
-@keyframes lockScreenFadeOut {
-    to {
-        opacity: 0;
-    }
 }
 
 @keyframes fadeOut {

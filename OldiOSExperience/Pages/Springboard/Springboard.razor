@@ -5,7 +5,7 @@
 @inject AnimationService AnimationService
 @implements IDisposable
 
-<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(debugAnimationActive ? "debug-animation" : "") @(isUnlocking ? "unlocking" : "")">
+<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(debugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")">
     <!-- Wallpaper -->
     <div class="wallpaper" alt="Wallpaper"/>
 
