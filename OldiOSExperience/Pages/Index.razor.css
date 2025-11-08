@@ -2,56 +2,51 @@
 .phone-container {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Center vertically */
-    align-items: center; /* Center horizontally */
-    height: 100vh; /* Full viewport height */
-    gap: 25px; /* Space between screen and home button */
+    justify-content: flex-start; /* Align to top for transform origin */
+    align-items: center;
+    
+    /* --- NEW: Define the total fixed size of the entire phone UI --- */
+    width: 640px;
+    height: 1085px; /* 960px (screen) + 25px (gap) + 100px (button) */
+
+    /* --- NEW: Set the transform origin for scaling --- */
+    transform-origin: top center;
+
+    /* The transform itself will be applied via an inline style from C# */
 }
 
-/* This replaces your old .screen style */
+/* This viewport no longer needs special sizing */
 .screen-viewport {
-    /* This part is the same: create a responsive container with a fixed aspect ratio */
-    aspect-ratio: 640 / 960;
-    max-width: 640px;
-    width: 95vw;
-    max-height: 90vh;
-    background-color: #f7f7f7;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    overflow: hidden; /* VERY IMPORTANT: hides the oversized content */
-}
-
-.screen-content {
-    /* 1. Set the FIXED, native resolution */
     width: 640px;
     height: 960px;
-    min-width: 640px;
-    min-height: 960px;
-    max-width: 640px;
-    max-height: 960px;
-    /* 2. Set the transform origin to the top-left corner. */
-    /*    This makes the scaling behave predictably. */
-    transform-origin: top left;
-    /* 3. The magic! Scale the content down to fit its viewport. */
-    /*    We use CSS variables to link our C# calculation to the style. */
-    transform: scale(calc(100% / 640));
+    background-color: #f7f7f7;
+    overflow: hidden;
+}
+
+/* The screen content no longer needs any transform logic */
+.screen-content {
+    width: 100%;
+    height: 100%;
     position: relative;
 }
 
 /* Simple styling for the physical home button */
 .home-button {
-    width: 60px;
-    height: 60px;
+    margin-top: 25px; /* Replaces the 'gap' property */
+    width: 100px;
+    height: 100px;
     border: 2px solid #333;
-    border-radius: 50%; /* Makes it a circle */
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    flex-shrink: 0; /* Prevents the button from shrinking */
 }
 
 .home-button-square {
-    width: 22px;
-    height: 22px;
+    width: 33px;
+    height: 33px;
     border: 1px solid #555;
     border-radius: 5px;
 }

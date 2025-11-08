@@ -1,4 +1,7 @@
+@page "/lockscreen"
+@using OldiOSExperience.Services
 @implements IDisposable
+@inject IJSRuntime JSRuntime
 
 @* iOS 5 Lock Screen *@
 
@@ -25,11 +28,11 @@
     
     <!-- Slide to unlock -->
     <div class="slide-to-unlock-container">
-        <div class="slide-track">
+        <div @ref="slideTrackElement" class="slide-track">
             <div class="slide-text" style="@slideTextStyle">
                 slide to unlock
             </div>
-            <div class="slide-button" style="@slideButtonStyle">
+            <div @ref="slideButtonElement" class="slide-button" style="@slideButtonStyle">
                 <div class="slide-arrow"></div>
             </div>
         </div>
@@ -53,13 +56,32 @@
     private double touchStartX = 0;
     private double dragOffsetX = 0;
     private const double UnlockThreshold = 250; // Pixels to drag to unlock
-    private const double SlideTrackWidth = 640; // Match screen width
-    private const double SlideButtonWidth = 90; // Button width including padding
+
+    // --- NEW: Element references and dimension properties ---
+    private ElementReference slideTrackElement;
+    private ElementReference slideButtonElement;
+    private double slideTrackContentWidth = 0;
+    private double slideButtonWidth = 0;
     
-    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, SlideTrackWidth - SlideButtonWidth))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
+    // --- UPDATED: Style properties to use new dimensions ---
+    private string slideButtonStyle => $"transform: translateX({Math.Max(0, Math.Min(dragOffsetX, slideTrackContentWidth - (slideButtonWidth / DisplaySettings.SCALEFACTOR)))}px); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
     private string slideTextStyle => $"opacity: {Math.Max(0, 1 - (dragOffsetX / 200))}; transition: {(isDragging ? "none" : "opacity 0.3s ease-out")};";
     
     private global::System.Threading.Timer? clockTimer;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Get the real dimensions from the DOM after the first render
+            var trackRect = await JSRuntime.InvokeAsync<DOMRect>("getElementRect", slideTrackElement);
+            var buttonRect = await JSRuntime.InvokeAsync<DOMRect>("getElementRect", slideButtonElement);
+
+            // The content width of the track is its total width minus its horizontal padding (8px on each side)
+            slideTrackContentWidth = trackRect.width - 16; 
+            slideButtonWidth = buttonRect.width;
+        }
+    }
     
     protected override void OnInitialized()
     {
@@ -104,7 +126,8 @@
         if (!isDragging) return;
         
         var currentX = e.Touches[0].ClientX;
-        dragOffsetX = Math.Max(0, currentX - touchStartX);
+        // Use the static property directly
+        dragOffsetX = Math.Max(0, (currentX - touchStartX) / DisplaySettings.SCALEFACTOR);
     }
     
     private async Task HandleTouchEnd(TouchEventArgs e)
@@ -139,7 +162,8 @@
         if (!isMouseDown || !isDragging) return;
         
         var currentX = e.ClientX;
-        dragOffsetX = Math.Max(0, currentX - touchStartX);
+        // Use the static property directly
+        dragOffsetX = Math.Max(0, (currentX - touchStartX) / DisplaySettings.SCALEFACTOR);
     }
     
     private async Task HandleMouseUp(MouseEventArgs e)
@@ -180,5 +204,13 @@
         // Reset state
         isUnlocking = false;
         dragOffsetX = 0;
+    }
+    
+    // --- NEW: Helper class for JS Interop ---
+    public class DOMRect
+    {
+        public double width { get; set; }
+        public double height { get; set; }
+        // Add other properties like top, left if needed
     }
 }

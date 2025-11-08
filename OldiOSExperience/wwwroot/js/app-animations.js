@@ -20,7 +20,7 @@ function calculateScatterVector(iconElement) {
     
     // --- Add your offset configuration here ---
     const originOffsetX = 0;    // Negative values move the origin left
-    const originOffsetY = -30;  // Negative values move the origin up
+    const originOffsetY = -110;  // Negative values move the origin up
 
     // Apply the offset to the center point calculation
     const vectorX = iconRelativeX - ((containerRect.width / 2) + originOffsetX);

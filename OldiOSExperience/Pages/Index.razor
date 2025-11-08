@@ -1,12 +1,12 @@
 @page "/"
+@using OldiOSExperience.Services
 @inject IJSRuntime JSRuntime
 
 <div class="phone-container">
     <!-- This is the responsive viewport. Its size is controlled by CSS. -->
     <div class="screen-viewport" @ref="screenViewportElement">
 
-        <!-- This is the fixed-size content that gets scaled. -->
-        <div class="screen-content" style="@screenContentStyle">
+        <div class="screen-content">
             <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
         </div>
 
@@ -18,8 +18,8 @@
 
 @code {
     private ElementReference screenViewportElement;
-    private double scaleFactor = 1.0;
-    private string screenContentStyle => $"transform: scale({scaleFactor.ToString(global::System.Globalization.CultureInfo.InvariantCulture)});";
+    // private double scaleFactor = 1.0; // This is no longer needed here.
+    private string screenContentStyle => $"transform: scale({DisplaySettings.SCALEFACTOR.ToString(global::System.Globalization.CultureInfo.InvariantCulture)});";
     private OldiOSExperience.Pages.Springboard.Springboard? springboard;
 
     // This method is called after the component has rendered.
@@ -40,13 +40,13 @@
 
         if (viewportWidth > 0)
         {
-            var prevScale = scaleFactor;
+            var prevScale = DisplaySettings.SCALEFACTOR;
 
-            // Calculate the scale factor
-            scaleFactor = viewportWidth / 640.0;
+            // Calculate the scale factor and set it on the static class
+            DisplaySettings.SCALEFACTOR = viewportWidth / DisplaySettings.RESOLUTION_X;
             
             // Tell Blazor to re-render the component with the new style
-            if (prevScale != scaleFactor) StateHasChanged();
+            if (prevScale != DisplaySettings.SCALEFACTOR) StateHasChanged();
         }
     }
     
