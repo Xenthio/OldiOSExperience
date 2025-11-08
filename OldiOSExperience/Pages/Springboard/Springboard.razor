@@ -69,12 +69,12 @@
     <OldiOSExperience.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
     
     <!-- App Switcher (multitasking tray) -->
-    <OldiOSExperience.System.AppSwitcher IsVisible="@isAppSwitcherVisible" 
+    <OldiOSExperience.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible" 
                                           OnClose="HandleAppSwitcherClose"
                                           OnAppSelected="HandleAppSwitcherSelect" />
     
     <!-- Lock Screen -->
-    <OldiOSExperience.System.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
+    <OldiOSExperience.Pages.Springboard.Components.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
 </div>
 
 @code {
