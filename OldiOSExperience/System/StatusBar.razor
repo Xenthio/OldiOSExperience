@@ -1,6 +1,8 @@
 @implements IDisposable
 @using OldiOSExperience.System 
-@inject IJSRuntime JSRuntime // <-- Add this
+@using OldiOSExperience.Services
+@inject IJSRuntime JSRuntime
+@inject BatteryService BatteryService
 
 @* iOS 5 Status Bar Component *@
 
@@ -133,19 +135,34 @@
     [JSInvokable]
     public void UpdateBatteryStatus(bool isCharging, double level)
     {
-        BatteryPercentage = (int)(level * 100);
-
-        if (isCharging)
+        // Only update from browser API if manual override is not enabled
+        if (!BatteryService.UseManualOverride)
         {
-            BatteryState = BatteryState.Charging;
-        }
-        else
-        {
-            BatteryState = (level == 1.0) ? BatteryState.Full : BatteryState.Draining;
-        }
+            BatteryPercentage = (int)(level * 100);
 
-        // Tell Blazor to re-render with the new data
-        StateHasChanged();
+            if (isCharging)
+            {
+                BatteryState = BatteryState.Charging;
+            }
+            else
+            {
+                BatteryState = (level == 1.0) ? BatteryState.Full : BatteryState.Draining;
+            }
+
+            // Tell Blazor to re-render with the new data
+            StateHasChanged();
+        }
+    }
+    
+    private void HandleBatteryServiceChanged()
+    {
+        // Update battery display from service when manual override is enabled
+        if (BatteryService.UseManualOverride)
+        {
+            BatteryPercentage = BatteryService.BatteryPercentage;
+            BatteryState = BatteryService.GetBatteryState();
+            InvokeAsync(StateHasChanged);
+        }
     }
     
     protected override void OnInitialized()
@@ -157,6 +174,9 @@
             UpdateTime();
             InvokeAsync(StateHasChanged);
         }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+        
+        // Subscribe to battery service changes
+        BatteryService.OnBatteryStateChanged += HandleBatteryServiceChanged;
     }
     
     public void Dispose()
@@ -169,6 +189,9 @@
             JSRuntime.InvokeVoidAsync("batteryManager.stop");
             objRef.Dispose();
         }
+        
+        // Unsubscribe from battery service
+        BatteryService.OnBatteryStateChanged -= HandleBatteryServiceChanged;
     }
     
     private void UpdateTime()

@@ -7,7 +7,7 @@
     <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString()">
         <div class="screen-viewport">
             <div class="screen-content">
-                <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" />
+                <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" DebugAnimationActive="@debugAnimationActive" />
             </div>
         </div>
         <div class="home-button" @onclick="HandleHomeButtonClick">
@@ -16,10 +16,14 @@
     </div>
 </div>
 
+<!-- Debug Menu - globally accessible -->
+<OldiOSExperience.System.DebugMenu @bind-ShowIcons="debugAnimationActive" />
+
 @code {
     private ElementReference simulationWrapperElement;
     private OldiOSExperience.Pages.Springboard.Springboard? springboard;
     private DotNetObjectReference<Index>? objRef;
+    private bool debugAnimationActive = false;
 
     // Helper record to receive dimensions from JS
     public record ElementDimensions(double Width, double Height);

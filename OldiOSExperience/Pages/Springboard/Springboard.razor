@@ -5,14 +5,9 @@
 @inject AnimationService AnimationService
 @implements IDisposable
 
-<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(debugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")">
+<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(DebugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")">
     <!-- Wallpaper -->
     <div class="wallpaper" alt="Wallpaper"/>
-
-    <!-- Debug Animation Toggle Button -->
-    <button class="debug-animation-button" @onclick="ToggleDebugAnimation">
-        @(debugAnimationActive ? "Hide Icons" : "Show Icons")
-    </button>
 
     <!-- Status Bar -->
     <OldiOSExperience.System.StatusBar Style="OldiOSExperience.System.StatusBarStyle.WhiteOnBlackEtch" />
@@ -78,6 +73,10 @@
 </div>
 
 @code {
+    // --- PARAMETERS ---
+    [Parameter]
+    public bool DebugAnimationActive { get; set; } = false;
+    
     // --- DATA from Services ---
     private List<List<AppInfo>> Pages => SpringboardService.Pages;
     private List<AppInfo> DockApps => SpringboardService.DockApps;
@@ -103,9 +102,6 @@
     private DateTime lastHomeButtonPress = DateTime.MinValue;
     private const int DoubleTapWindowMs = 400;
     
-    // --- DEBUG ANIMATION STATE ---
-    private bool debugAnimationActive = false;
-    
     // We now have spotlight page, so total pages = spotlight + app pages
     // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
     private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
@@ -117,12 +113,6 @@
         
         // Subscribe to app state changes
         AppManager.OnAppStatesChanged += HandleAppStateChanged;
-    }
-    
-    private void ToggleDebugAnimation()
-    {
-        debugAnimationActive = !debugAnimationActive;
-        StateHasChanged();
     }
     
     public void Dispose()
