@@ -114,6 +114,33 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### Debug Menu Implementation (Latest)
+- ✅ **Created DebugMenu.razor component** - Side popover accessible from anywhere
+  - Positioned on the right side of the screen with slide-in animation
+  - Toggle button with gear icon always visible
+  - Dark themed panel with sections for different debug controls
+- ✅ **Created BatteryService** - Manages battery state independently
+  - Allows manual override of browser Battery API
+  - Provides plug/unplug controls and battery percentage slider
+  - Integrated with StatusBar component for real-time updates
+- ✅ **Battery Controls** in Debug Menu
+  - Manual Override checkbox to enable/disable browser API
+  - Plug/Unplug buttons to simulate charging state
+  - Battery percentage slider (0-100%)
+  - Real-time status bar updates when manual override is enabled
+- ✅ **Moved "Show Icons" button** from Springboard to Debug Menu
+  - Cleaner springboard interface
+  - Animation debug control now accessible globally
+- ✅ **Device Controls** in Debug Menu
+  - Sleep/Wake button (visual state tracking)
+  - Volume Up/Down buttons with visual percentage display
+- ✅ **Additional Debug Features**
+  - Lock Orientation checkbox
+  - Rotate Device button
+  - Override Time checkbox
+- ✅ **Integration** into Index.razor for global accessibility
+- ✅ **Styling** with modern dark UI, smooth animations, custom scrollbar
+
 ### Animation Enhancements
 - ✅ Improved app open/close animations with better easing curves
 - ✅ Added cubic-bezier timing functions for authentic iOS feel

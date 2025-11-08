@@ -193,4 +193,247 @@ code {
 .dock-icons .app-icon:nth-child(1) { --scatter-x: 0; --scatter-y: 0; }
 .dock-icons .app-icon:nth-child(2) { --scatter-x: 0; --scatter-y: 0; }
 .dock-icons .app-icon:nth-child(3) { --scatter-x: 0; --scatter-y: 0; }
+
+/* ========================================
+   Debug Menu Styles
+   ======================================== */
+
+.debug-menu-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+/* Toggle Button */
+.debug-menu-toggle {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #444;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    pointer-events: all;
+    transition: all 0.3s ease;
+    z-index: 10002;
+}
+
+.debug-menu-toggle:hover {
+    background: rgba(0, 0, 0, 0.95);
+    padding-right: 16px;
+}
+
+.debug-menu-icon {
+    font-size: 24px;
+    display: block;
+    line-height: 1;
+}
+
+/* Debug Panel */
+.debug-menu-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100vh;
+    background: rgba(30, 30, 30, 0.98);
+    backdrop-filter: blur(10px);
+    border-left: 2px solid #444;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    pointer-events: all;
+    overflow-y: auto;
+    color: #fff;
+}
+
+.debug-menu-container.visible .debug-menu-panel {
+    transform: translateX(0);
+}
+
+/* Header */
+.debug-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #444;
+    position: sticky;
+    top: 0;
+    background: rgba(30, 30, 30, 0.98);
+    backdrop-filter: blur(10px);
+    z-index: 1;
+}
+
+.debug-menu-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.debug-menu-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.debug-menu-close:hover {
+    color: #f44336;
+}
+
+/* Content */
+.debug-menu-content {
+    padding: 16px 20px;
+}
+
+.debug-section {
+    margin-bottom: 24px;
+}
+
+.debug-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.debug-control-group {
+    margin-bottom: 12px;
+}
+
+/* Checkbox */
+.debug-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.debug-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.debug-checkbox span {
+    font-size: 14px;
+}
+
+/* Buttons */
+.debug-button,
+.debug-button-full {
+    background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.debug-button:hover,
+.debug-button-full:hover {
+    background: linear-gradient(180deg, #5a5a5a 0%, #3a3a3a 100%);
+    border-color: #666;
+}
+
+.debug-button:active,
+.debug-button-full:active {
+    transform: scale(0.98);
+}
+
+.debug-button-full {
+    width: 100%;
+}
+
+.debug-button-row {
+    display: flex;
+    gap: 8px;
+}
+
+.debug-button-row .debug-button {
+    flex: 1;
+}
+
+/* Slider */
+.debug-label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #ccc;
+}
+
+.debug-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #444;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.debug-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #4a90e2 0%, #357abd 100%);
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.debug-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #4a90e2 0%, #357abd 100%);
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Volume Display */
+.debug-volume-display {
+    text-align: center;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 6px;
+}
+
+/* Scrollbar Styling */
+.debug-menu-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.debug-menu-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.debug-menu-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.debug-menu-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
 .dock-icons .app-icon:nth-child(4) { --scatter-x: 0; --scatter-y: 0; }

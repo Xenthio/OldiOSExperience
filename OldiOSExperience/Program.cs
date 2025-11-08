@@ -13,5 +13,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSingleton<AnimationService>();
 builder.Services.AddSingleton<BackgroundAppManager>();
 builder.Services.AddSingleton<SpringboardService>();
+builder.Services.AddSingleton<BatteryService>();
 
 await builder.Build().RunAsync();

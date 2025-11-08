@@ -1,0 +1,196 @@
+@using OldiOSExperience.Services
+@inject BatteryService BatteryService
+@implements IDisposable
+
+<div class="debug-menu-container @(IsVisible ? "visible" : "")">
+    <!-- Toggle Button (always visible) -->
+    <button class="debug-menu-toggle" @onclick="ToggleMenu">
+        <span class="debug-menu-icon">⚙️</span>
+    </button>
+    
+    <!-- Debug Menu Panel -->
+    <div class="debug-menu-panel">
+        <div class="debug-menu-header">
+            <h3>Debug Menu</h3>
+            <button class="debug-menu-close" @onclick="ToggleMenu">×</button>
+        </div>
+        
+        <div class="debug-menu-content">
+            <!-- Battery Controls Section -->
+            <div class="debug-section">
+                <h4>Battery</h4>
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="BatteryService.UseManualOverride" />
+                        <span>Manual Override</span>
+                    </label>
+                </div>
+                
+                @if (BatteryService.UseManualOverride)
+                {
+                    <div class="debug-control-group">
+                        <div class="debug-button-row">
+                            <button class="debug-button" @onclick="UnplugCharger">
+                                🔌 Unplug
+                            </button>
+                            <button class="debug-button" @onclick="PlugCharger">
+                                ⚡ Plug In
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="debug-control-group">
+                        <label class="debug-label">
+                            Battery: @BatteryService.BatteryPercentage%
+                        </label>
+                        <input type="range" 
+                               min="0" 
+                               max="100" 
+                               step="1"
+                               @bind="BatteryService.BatteryPercentage"
+                               @bind:event="oninput"
+                               class="debug-slider" />
+                    </div>
+                }
+            </div>
+            
+            <!-- Animation Debug Section -->
+            <div class="debug-section">
+                <h4>Animation</h4>
+                <div class="debug-control-group">
+                    <button class="debug-button-full" @onclick="ToggleIconsVisibility">
+                        @(ShowIcons ? "Hide Icons" : "Show Icons")
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Device Controls Section -->
+            <div class="debug-section">
+                <h4>Device Controls</h4>
+                <div class="debug-control-group">
+                    <button class="debug-button-full" @onclick="ToggleSleepWake">
+                        @(IsAsleep ? "🌙 Wake" : "😴 Sleep")
+                    </button>
+                </div>
+                
+                <div class="debug-control-group">
+                    <div class="debug-button-row">
+                        <button class="debug-button" @onclick="VolumeDown">
+                            🔉 Vol -
+                        </button>
+                        <button class="debug-button" @onclick="VolumeUp">
+                            🔊 Vol +
+                        </button>
+                    </div>
+                    <div class="debug-volume-display">
+                        Volume: @CurrentVolume%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Debug Section -->
+            <div class="debug-section">
+                <h4>Additional</h4>
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="OrientationLocked" />
+                        <span>🔒 Lock Orientation</span>
+                    </label>
+                </div>
+                
+                <div class="debug-control-group">
+                    <button class="debug-button-full" @onclick="SimulateRotation">
+                        🔄 Rotate Device
+                    </button>
+                </div>
+                
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="TimeOverride" />
+                        <span>⏰ Override Time</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool IsVisible = false;
+    
+    // Animation debug
+    [Parameter]
+    public bool ShowIcons { get; set; } = false;
+    
+    [Parameter]
+    public EventCallback<bool> ShowIconsChanged { get; set; }
+    
+    // Device state
+    private bool IsAsleep = false;
+    private int CurrentVolume = 50;
+    private bool OrientationLocked = false;
+    private bool TimeOverride = false;
+    
+    protected override void OnInitialized()
+    {
+        BatteryService.OnBatteryStateChanged += HandleBatteryStateChanged;
+    }
+    
+    public void Dispose()
+    {
+        BatteryService.OnBatteryStateChanged -= HandleBatteryStateChanged;
+    }
+    
+    private void HandleBatteryStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private void ToggleMenu()
+    {
+        IsVisible = !IsVisible;
+    }
+    
+    // Battery controls
+    private void UnplugCharger()
+    {
+        BatteryService.IsCharging = false;
+    }
+    
+    private void PlugCharger()
+    {
+        BatteryService.IsCharging = true;
+    }
+    
+    // Animation controls
+    private async Task ToggleIconsVisibility()
+    {
+        ShowIcons = !ShowIcons;
+        await ShowIconsChanged.InvokeAsync(ShowIcons);
+    }
+    
+    // Device controls
+    private void ToggleSleepWake()
+    {
+        IsAsleep = !IsAsleep;
+        // Could trigger screen dimming or lock screen in the future
+    }
+    
+    private void VolumeUp()
+    {
+        CurrentVolume = Math.Min(100, CurrentVolume + 10);
+    }
+    
+    private void VolumeDown()
+    {
+        CurrentVolume = Math.Max(0, CurrentVolume - 10);
+    }
+    
+    private void SimulateRotation()
+    {
+        if (!OrientationLocked)
+        {
+            // Could trigger orientation change animation in the future
+        }
+    }
+}
