@@ -33,12 +33,43 @@
     transition: opacity 0.4s ease-in;
 }
 
+/* Locked state: springboard's status bar hidden (but not lock screen's) */
+.springboard-container.locked > ::deep .status-bar {
+    opacity: 0;
+    transition: none;
+}
+
+/* Unlocking state: status bar fades in */
+.springboard-container.unlocking ::deep .status-bar {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 /* Animate page indicators to fade out */
 .springboard-container.app-is-open .page-indicator,
 .springboard-container.debug-animation .page-indicator {
     opacity: 0;
     /* Override: ease-in for outward animation */
     transition: opacity 0.4s ease-in;
+}
+
+/* Locked state: page indicators hidden */
+.springboard-container.locked .page-indicator {
+    opacity: 0;
+    transition: none;
+}
+
+/* Unlocking state: page indicators fade in */
+.springboard-container.unlocking .page-indicator {
+    animation: fadeIn 0.4s ease-out forwards;
 }
 
 /* Animate dock to slide down */
@@ -49,6 +80,29 @@
     /* Override: ease-in for outward animation */
     transition: transform 0.4s ease-in,
                 opacity 0.4s ease-in;
+}
+
+/* Locked state: dock hidden below */
+.springboard-container.locked .dock {
+    transform: translateY(calc(250px * 2));
+    opacity: 0;
+    transition: none;
+}
+
+/* Unlocking state: dock slides up from bottom */
+.springboard-container.unlocking .dock {
+    animation: dockSlideUp 0.4s ease-out forwards;
+}
+
+@keyframes dockSlideUp {
+    from {
+        transform: translateY(calc(250px * 2));
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Debug animation button */
