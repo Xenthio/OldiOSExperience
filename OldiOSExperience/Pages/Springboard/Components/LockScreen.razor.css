@@ -15,7 +15,12 @@
 }
 
 .lock-screen.unlocking {
-    /* Don't animate the whole screen, animate individual parts */
+    /* Fade out the entire lock screen */
+    animation: lockScreenFadeOut 0.4s ease-out forwards;
+}
+
+.lock-screen.unlocking .lock-wallpaper {
+    animation: fadeOut 0.4s ease-out forwards;
 }
 
 .lock-screen.unlocking .lock-status-bar {
@@ -24,6 +29,18 @@
 
 .lock-screen.unlocking .slide-to-unlock-container {
     animation: lockSlideDown 0.4s ease-out forwards;
+}
+
+@keyframes lockScreenFadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
 }
 
 @keyframes lockStatusSlideUp {

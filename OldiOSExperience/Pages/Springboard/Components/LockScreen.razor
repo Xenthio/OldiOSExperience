@@ -162,12 +162,18 @@
     private async Task PerformUnlock()
     {
         isUnlocking = true;
+        
+        // Trigger springboard unlock animation immediately
+        await OnUnlocked.InvokeAsync();
+        
         StateHasChanged();
         
-        await Task.Delay(400); // Animation duration
+        // Wait for animation to complete before hiding
+        await Task.Delay(400);
         
+        // Hide lock screen after animation completes
         isVisible = false;
-        await OnUnlocked.InvokeAsync();
+        StateHasChanged();
         
         // Reset state
         isUnlocking = false;
