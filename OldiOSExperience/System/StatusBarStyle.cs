@@ -11,7 +11,7 @@ public enum StatusBarStyle
     Default,
     
     /// <summary>
-    /// Black style with white text - used in most apps
+    /// Coloured style with white text - used in most apps
     /// </summary>
-    Black
+    Coloured
 }

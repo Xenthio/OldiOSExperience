@@ -1,26 +1,12 @@
 .app-switcher {
     position: absolute;
-    bottom: 0;
+    bottom: -189px;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 150;
-    display: none;
-    flex-direction: column;
-}
-
-.app-switcher.visible {
     display: flex;
-    animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    flex-direction: column;
 }
 
 .app-switcher-dismiss {
@@ -37,7 +23,6 @@
     overflow-x: auto;
     overflow-y: hidden;
     box-sizing: border-box;
-    animation: slideUp 0.3s ease-out;
 }
 
 @keyframes slideUp {
