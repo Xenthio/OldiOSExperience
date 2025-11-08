@@ -12,9 +12,8 @@
      @onmouseleave="HandleMouseUp">
     
     <!-- Lock screen wallpaper -->
-    <img src="images/lock-wallpaper.png" class="lock-wallpaper" alt="Lock Wallpaper" 
-         onerror="this.style.display='none'"/>
-    
+    <div class="lock-wallpaper" alt="Wallpaper"/>
+
     <!-- Status bar at top -->
     <OldiOSExperience.System.StatusBar Style="OldiOSExperience.System.StatusBarStyle.Default" />
     
@@ -31,7 +30,7 @@
                 slide to unlock
             </div>
             <div class="slide-button" style="@slideButtonStyle">
-                <div class="slide-arrow">›</div>
+                <div class="slide-arrow"></div>
             </div>
         </div>
     </div>

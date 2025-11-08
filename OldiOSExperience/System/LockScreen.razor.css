@@ -31,17 +31,39 @@
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    background-image: url(/images/lockscreen/lock-wallpaper.png);
+    background-size: cover;
     z-index: 0;
+}
+.lock-wallpaper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(/images/wallpaper_gradient_bottom.png);
+    background-repeat: repeat-x;
+    background-size: auto;
+    background-position: bottom;
+    z-index: 100;
+    pointer-events: none;
 }
 
 .lock-status-bar {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     z-index: 1;
     text-align: center;
     color: white;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-    padding-top: 80px;
+    text-shadow: 0 -2px 2px rgba(0,0,0,0.8);
+    background-image: url(/images/lockscreen/controls_small.png);
+    background-repeat: repeat-x;
+    background-size: auto;
+    background-position: top;
+    min-height: 192px;
 }
 
 .status-time {
@@ -54,30 +76,61 @@
 .status-date {
     font-size: 30px;
     font-weight: 400;
-    margin-top: 10px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .slide-to-unlock-container {
     position: absolute;
-    bottom: 100px;
+    bottom: 0;
     left: 0;
     right: 0;
     z-index: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    padding: 0 20px;
+    padding: 0 40px;
+    height: 190px;
+    border-top: 2px solid black;
+    background-image: url(/images/lockscreen/controls_small.png);
+    background-repeat: repeat-x;
+    background-size: auto;
+    background-position: top;
 }
 
 .slide-track {
-    position: relative;
+    padding: 8px;
+    position: relative; /* Crucial for containing the ::before element */
     width: 100%;
     max-width: 600px;
-    height: 90px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 45px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    height: 104px; /* The height is now exactly what you want for the content area */
+    
+    /* Remove all border properties from the main element */
+    border: none;
+
+    /* Keep border-radius and overflow to clip the inner content and the pseudo-element */
+    border-radius: 25px;
     overflow: hidden;
+}
+
+/* New pseudo-element to draw the frame */
+.slide-track::before {
+    content: '';
+    position: absolute;
+    /* Stretch to fill the entire parent .slide-track element */
+    inset: 0;
+
+    /* Move all the border-image properties here */
+    border-width: 25px;
+    border-style: solid;
+    border-image-source: url(/images/lockscreen/slide_well.png);
+    border-image-slice: 25 fill;
+    border-image-repeat: stretch;
+
+    /* The border-radius must also be applied here to round the border-image itself */
+    border-radius: 25px;
+
+    /* Place the frame behind the parent's actual content (text, button) */
+    z-index: -1;
 }
 
 .slide-text {
@@ -98,13 +151,12 @@
 
 .slide-button {
     position: absolute;
-    left: 5px;
-    top: 5px;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(to bottom, #ffffff, #d0d0d0);
-    border-radius: 40px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    left: 8px;                        /* inset by track padding */
+    top: 8px;                         /* inset by track padding */
+    width: 116px;
+    height: calc(100% - 16px);
+    border-radius: calc(25px - 8px);
+    background-image: url(/images/lockscreen/slide_knob_grey.png);
     display: flex;
     align-items: center;
     justify-content: center;
