@@ -129,7 +129,7 @@ code {
 
 .springboard-container.app-is-open .app-icon,
 .springboard-container.debug-animation .app-icon {
-    transform: translate(calc(var(--scatter-x, 0) * 2), calc(var(--scatter-y, 0) * 2)) !important;
+    transform: translate(calc(var(--scatter-x, 0) * 3), calc(var(--scatter-y, 0) * 3)) !important;
     opacity: 0 !important;
     /* Override: ease-in for outward animation (icons flying out) */
     transition: transform 0.4s ease-in, 

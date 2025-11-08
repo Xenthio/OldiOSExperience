@@ -4,7 +4,7 @@
     align-items: center;
     gap: 0px; /* 8px gap between icon and text */
     text-align: center;
-    width: 138px; /* Give it a fixed width for alignment */ 
+    width: 140px; /* Give it a fixed width for alignment */ 
     filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.3));
 }
  

@@ -38,7 +38,7 @@
 
 @keyframes appOpen {
     0% {
-        transform: scale(0.05);
+        transform: scale(0.00);
         opacity: 0;
     }
     50% {
@@ -68,7 +68,7 @@
         opacity: 0.8;
     }
     100% {
-        transform: scale(0.05);
+        transform: scale(0.00);
         opacity: 0;
     }
 }
