@@ -180,6 +180,8 @@
     background-image: url(/_content/OldiOS.Shared/images/wallpaper.png);
     background-size: cover;
     z-index: 0;
+    /* Enable GPU acceleration */
+    transform: translateZ(0);
 }
 .wallpaper::after {
     content: '';
@@ -209,6 +211,8 @@
     flex-grow: 1; /* Takes up all available space between status bar and dock */
     position: relative;
     z-index: 1;
+    /* Enable GPU acceleration for smoother scrolling */
+    transform: translateZ(0);
 }
 
 /* This is the "filmstrip" that holds all pages side-by-side */
@@ -216,6 +220,9 @@
     display: flex;
     height: 100%;
     /* Dynamic width based on number of pages - will be set inline if needed, but 300% works for 3 pages (spotlight + 2) */
+    /* Enable GPU acceleration and optimize for transform animations */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 /* Each individual page - must be exactly the container width */
@@ -236,6 +243,8 @@
     overflow-x: clip;
     overflow-y: visible;
     gap: 25px 0px;
+    /* Enable GPU acceleration for better performance */
+    transform: translateZ(0);
 }
 
 /* Define radial scatter directions for each grid position (4x4 grid) */
@@ -308,6 +317,8 @@
                 opacity 0.4s ease-out;
     transform: translateY(0);
     opacity: 1;
+    /* Enable GPU acceleration for animations */
+    will-change: transform, opacity;
 }
 
 .dock-background {
