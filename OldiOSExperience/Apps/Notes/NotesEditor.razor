@@ -1,0 +1,87 @@
+@using OldiOSExperience.Apps.UIKit
+
+<div class="notes-app">
+    <UINavigationBar Title="@noteTitle" 
+                     BackButtonText="Notes" 
+                     OnBackClick="@HandleBack"
+                     RightButtonText="Done"
+                     OnRightButtonClick="@HandleDone" />
+    
+    <div class="notes-content">
+        <div class="note-header">
+            <UILabel Text="@lastModified" Style="UILabelStyle.Footnote" Alignment="TextAlignment.Center" />
+        </div>
+        
+        <div class="note-editor">
+            <textarea class="note-textarea" 
+                      placeholder="Start typing..." 
+                      @bind="noteContent"
+                      @bind:event="oninput"></textarea>
+        </div>
+        
+        <div class="note-toolbar">
+            <UIButton Text="📷 Camera" Style="UIButtonStyle.Bordered" OnClick="@HandleCamera" />
+            <UIButton Text="🖼️ Photo" Style="UIButtonStyle.Bordered" OnClick="@HandlePhoto" />
+            <UIButton Text="✓ Done" Style="UIButtonStyle.Default" OnClick="@HandleDone" />
+        </div>
+        
+        <div class="note-actions">
+            <UITableView Grouped="true">
+                <UITableViewSection>
+                    <UITableViewCell Text="Share Note" ShowDisclosure="true" OnClick="@HandleShare" />
+                    <UITableViewCell Text="Print Note" ShowDisclosure="true" OnClick="@HandlePrint" IsLast="true" />
+                </UITableViewSection>
+                
+                <UITableViewSection>
+                    <div class="delete-note-section">
+                        <UIButton Text="Delete Note" Style="UIButtonStyle.Destructive" FullWidth="true" OnClick="@HandleDelete" />
+                    </div>
+                </UITableViewSection>
+            </UITableView>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string noteTitle = "New Note";
+    private string noteContent = "";
+    private string lastModified = "November 9, 2013";
+    
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+    
+    private async Task HandleBack()
+    {
+        await OnBack.InvokeAsync();
+    }
+    
+    private void HandleDone()
+    {
+        // Save note
+    }
+    
+    private void HandleCamera()
+    {
+        // Open camera
+    }
+    
+    private void HandlePhoto()
+    {
+        // Open photo picker
+    }
+    
+    private void HandleShare()
+    {
+        // Share note
+    }
+    
+    private void HandlePrint()
+    {
+        // Print note
+    }
+    
+    private void HandleDelete()
+    {
+        // Delete note
+    }
+}

@@ -61,7 +61,10 @@ namespace OldiOSExperience.Services
             {
                 new AppInfo { Id = 15, Name = "Reminders", IconPath = "images/icons/reminders.png", BundleId = "com.apple.reminders" },
                 new AppInfo { Id = 16, Name = "Videos", IconPath = "images/icons/videos.png", BundleId = "com.apple.videos" },
-                new AppInfo { Id = 17, Name = "UIKit Demo", IconPath = "images/icons/settings.png", BundleId = "com.xenthio.uikitdemo", ComponentType = typeof(Apps.UIKit.UIKitDemoApp) }
+                new AppInfo { Id = 17, Name = "UIKit Demo", IconPath = "images/icons/settings.png", BundleId = "com.xenthio.uikitdemo", ComponentType = typeof(Apps.UIKit.UIKitDemoApp) },
+                new AppInfo { Id = 18, Name = "Alarm", IconPath = "images/icons/clock.png", BundleId = "com.xenthio.alarm", ComponentType = typeof(Apps.Clock.ClockAlarmEdit) },
+                new AppInfo { Id = 19, Name = "Note", IconPath = "images/icons/notes.png", BundleId = "com.xenthio.note", ComponentType = typeof(Apps.Notes.NotesEditor) },
+                new AppInfo { Id = 20, Name = "Compose", IconPath = "images/icons/mail.png", BundleId = "com.xenthio.compose", ComponentType = typeof(Apps.Mail.MailCompose) }
             };
 
             Pages.Add(page1);

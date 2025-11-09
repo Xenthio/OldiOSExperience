@@ -1,0 +1,104 @@
+@using OldiOSExperience.Apps.UIKit
+
+<div class="clock-app">
+    <UINavigationBar Title="Add Alarm" 
+                     BackButtonText="Alarm" 
+                     OnBackClick="@HandleBack"
+                     RightButtonText="Save"
+                     OnRightButtonClick="@HandleSave" />
+    
+    <div class="clock-content">
+        <UITableView Grouped="true">
+            <UITableViewSection>
+                <div class="time-picker-section">
+                    <div class="time-display">
+                        <UILabel Text="@selectedTime" Style="UILabelStyle.Title" Alignment="TextAlignment.Center" />
+                    </div>
+                    <div class="time-controls">
+                        <UIButton Text="−" Style="UIButtonStyle.Bordered" OnClick="@DecrementHour" />
+                        <UILabel Text="Hour" Style="UILabelStyle.Subheadline" Alignment="TextAlignment.Center" />
+                        <UIButton Text="+" Style="UIButtonStyle.Bordered" OnClick="@IncrementHour" />
+                    </div>
+                    <div class="time-controls">
+                        <UIButton Text="−" Style="UIButtonStyle.Bordered" OnClick="@DecrementMinute" />
+                        <UILabel Text="Minute" Style="UILabelStyle.Subheadline" Alignment="TextAlignment.Center" />
+                        <UIButton Text="+" Style="UIButtonStyle.Bordered" OnClick="@IncrementMinute" />
+                    </div>
+                </div>
+            </UITableViewSection>
+            
+            <UITableViewSection Header="REPEAT">
+                <UITableViewCell Text="Never" Detail="@repeatText" ShowDisclosure="true" />
+            </UITableViewSection>
+            
+            <UITableViewSection Header="LABEL">
+                <div class="label-input-section">
+                    <UITextField @bind-Value="alarmLabel" Placeholder="Alarm" FullWidth="true" />
+                </div>
+            </UITableViewSection>
+            
+            <UITableViewSection Header="SOUND">
+                <UITableViewCell Text="Sound" Detail="@selectedSound" ShowDisclosure="true" />
+            </UITableViewSection>
+            
+            <UITableViewSection>
+                <UITableViewCell Text="Snooze" ShowToggle="true" ToggleValue="@snoozeEnabled" OnToggleChange="@(v => snoozeEnabled = v)" IsLast="true" />
+            </UITableViewSection>
+            
+            <UITableViewSection>
+                <div class="delete-section">
+                    <UIButton Text="Delete Alarm" Style="UIButtonStyle.Destructive" FullWidth="true" OnClick="@HandleDelete" />
+                </div>
+            </UITableViewSection>
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    private int hours = 7;
+    private int minutes = 0;
+    private string alarmLabel = "Alarm";
+    private bool snoozeEnabled = true;
+    private string selectedSound = "Marimba";
+    private string repeatText = "Never";
+    
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+    
+    private string selectedTime => $"{(hours == 0 ? 12 : hours > 12 ? hours - 12 : hours):D2}:{minutes:D2} {(hours >= 12 ? "PM" : "AM")}";
+    
+    private void IncrementHour()
+    {
+        hours = (hours + 1) % 24;
+    }
+    
+    private void DecrementHour()
+    {
+        hours = hours == 0 ? 23 : hours - 1;
+    }
+    
+    private void IncrementMinute()
+    {
+        minutes = (minutes + 1) % 60;
+    }
+    
+    private void DecrementMinute()
+    {
+        minutes = minutes == 0 ? 59 : minutes - 1;
+    }
+    
+    private async Task HandleBack()
+    {
+        await OnBack.InvokeAsync();
+    }
+    
+    private void HandleSave()
+    {
+        // Save alarm logic
+    }
+    
+    private void HandleDelete()
+    {
+        // Delete alarm logic
+    }
+}
