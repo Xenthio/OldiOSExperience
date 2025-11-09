@@ -174,6 +174,24 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### Home Screen Page Swiping Improvements (Latest)
+- ✅ **Fixed choppy and instant jumping during page swipes**
+  - Replaced simple 50px threshold with iOS-like behavior
+  - Added half-page (50%) threshold for page changes
+  - Implemented velocity-based swiping (>0.5px/ms ≈ 500px/s)
+  - Added smooth rubber-band animation when swipe doesn't complete
+  - Prevents instant jumps by animating back to current page
+- ✅ **Improved touch/mouse tracking**
+  - Track last touch position and time for velocity calculation
+  - Smooth 60fps animation loop for rubber-band effect
+  - Use ease-out cubic easing for natural deceleration
+- ✅ **Enhanced CSS transitions**
+  - Changed from `ease-out` to `cubic-bezier(0.25, 0.46, 0.45, 0.94)` for smoother page snapping
+  - Disable transitions during drag AND during rubber-band animation
+- ✅ **Added DisplaySettings.Width property** for easier width access
+
+## Recent Improvements (Previous Session)
+
 ### Display Settings Implementation (Latest)
 - ✅ **Created DisplaySettings Service** - Dynamic resolution management
   - Converted from static class to singleton service with events
