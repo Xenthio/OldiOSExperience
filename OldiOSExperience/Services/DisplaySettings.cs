@@ -90,8 +90,9 @@ namespace OldiOSExperience.Services
         /// </summary>
         public DeviceType GetDeviceType()
         {
-            // iPad resolutions are typically 768+ width or 1024+ height
-            if (RESOLUTION_X >= 768 || RESOLUTION_Y >= 1024)
+            // iPad resolutions are typically 768+ width AND 1024+ height (in portrait)
+            // iPhone 5 is 640x1136, so we need to check both dimensions
+            if (RESOLUTION_X >= 768 && RESOLUTION_Y >= 1024)
             {
                 return DeviceType.iPad;
             }
