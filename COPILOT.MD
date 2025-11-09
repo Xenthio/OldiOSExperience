@@ -174,7 +174,15 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
-### Home Screen Page Swiping Improvements (Latest)
+### Display Settings - Dynamic Scatter Vector Recalculation (Latest)
+- ✅ **Fixed scatter vectors not updating when display size changes**
+  - AppIcon component now subscribes to DisplaySettings.OnResolutionChanged event
+  - Scatter vectors are recalculated when resolution changes (device preset switch)
+  - Proper cleanup with IDisposable to unsubscribe from events
+  - Prevents incorrect icon animations after display size change
+  - Ensures unlock and app open/close animations use correct vectors for current display size
+
+### Home Screen Page Swiping Improvements
 - ✅ **Fixed choppy and instant jumping during page swipes**
   - Replaced simple 50px threshold with iOS-like behavior
   - Added half-page (50%) threshold for page changes
