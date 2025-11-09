@@ -1,0 +1,284 @@
+@using OldiOS.Shared.Services
+@inject BatteryService BatteryService
+@inject DisplaySettings DisplaySettings
+@implements IDisposable
+
+<div class="debug-menu-container @(IsVisible ? "visible" : "")">
+    <!-- Toggle Button (always visible) -->
+    <button class="debug-menu-toggle" @onclick="ToggleMenu">
+        <span class="debug-menu-icon">⚙️</span>
+    </button>
+    
+    <!-- Debug Menu Panel -->
+    <div class="debug-menu-panel">
+        <div class="debug-menu-header">
+            <h3>Debug Menu</h3>
+            <button class="debug-menu-close" @onclick="ToggleMenu">×</button>
+        </div>
+        
+        <div class="debug-menu-content">
+            <!-- Display Settings Section -->
+            <div class="debug-section">
+                <h4>Display Settings</h4>
+                <div class="debug-control-group">
+                    <label class="debug-label">Device Preset</label>
+                    <select class="debug-select" @bind="SelectedPreset" @bind:event="onchange">
+                        <option value="@DevicePreset.iPhone4">iPhone 4 (640x960)</option>
+                        <option value="@DevicePreset.iPhone5">iPhone 5 (640x1136)</option>
+                        <option value="@DevicePreset.iPhone6">iPhone 6 (750x1334)</option>
+                        <option value="@DevicePreset.iPhone6Plus">iPhone 6 Plus (1080x1920)</option>
+                        <option value="@DevicePreset.iPad">iPad Retina (1536x2048)</option>
+                        <option value="@DevicePreset.iPadMini">iPad mini (768x1024)</option>
+                        <option value="@DevicePreset.Custom">Custom</option>
+                    </select>
+                </div>
+                
+                @if (SelectedPreset == DevicePreset.Custom)
+                {
+                    <div class="debug-control-group">
+                        <label class="debug-label">Width (px)</label>
+                        <input type="number" 
+                               min="320" 
+                               max="2048" 
+                               step="1"
+                               @bind="CustomWidth"
+                               @bind:event="oninput"
+                               class="debug-textbox" />
+                    </div>
+                    
+                    <div class="debug-control-group">
+                        <label class="debug-label">Height (px)</label>
+                        <input type="number" 
+                               min="480" 
+                               max="2732" 
+                               step="1"
+                               @bind="CustomHeight"
+                               @bind:event="oninput"
+                               class="debug-textbox" />
+                    </div>
+                    
+                    <div class="debug-control-group">
+                        <button class="debug-button-full" @onclick="ApplyCustomResolution">
+                            Apply Custom Resolution
+                        </button>
+                    </div>
+                }
+                
+                <div class="debug-control-group">
+                    <div class="debug-info-text">
+                        Current: @((int)DisplaySettings.RESOLUTION_X)x@((int)DisplaySettings.RESOLUTION_Y)
+                        <br />
+                        Grid: @(DisplaySettings.GetIconColumns())x@(DisplaySettings.GetIconRows())
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Battery Controls Section -->
+            <div class="debug-section">
+                <h4>Battery</h4>
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="BatteryService.UseManualOverride" />
+                        <span>Manual Override</span>
+                    </label>
+                </div>
+                
+                @if (BatteryService.UseManualOverride)
+                {
+                    <div class="debug-control-group">
+                        <div class="debug-button-row">
+                            <button class="debug-button" @onclick="UnplugCharger">
+                                🔌 Unplug
+                            </button>
+                            <button class="debug-button" @onclick="PlugCharger">
+                                ⚡ Plug In
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="debug-control-group">
+                        <label class="debug-label">
+                            Battery: @BatteryService.BatteryPercentage%
+                        </label>
+                        <input type="range" 
+                               min="0" 
+                               max="100" 
+                               step="1"
+                               @bind="BatteryService.BatteryPercentage"
+                               @bind:event="oninput"
+                               class="debug-slider" />
+                    </div>
+                }
+            </div>
+            
+            <!-- Animation Debug Section -->
+            <div class="debug-section">
+                <h4>Animation</h4>
+                <div class="debug-control-group">
+                    <button class="debug-button-full" @onclick="ToggleIconsVisibility">
+                        @(ShowIcons ? "Hide Icons" : "Show Icons")
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Device Controls Section -->
+            <div class="debug-section">
+                <h4>Device Controls</h4>
+                <div class="debug-control-group">
+                    <button class="debug-button-full" @onclick="ToggleSleepWake">
+                        @(IsAsleep ? "🌙 Wake" : "😴 Sleep")
+                    </button>
+                </div>
+                
+                <div class="debug-control-group">
+                    <div class="debug-button-row">
+                        <button class="debug-button" @onclick="VolumeDown">
+                            🔉 Vol -
+                        </button>
+                        <button class="debug-button" @onclick="VolumeUp">
+                            🔊 Vol +
+                        </button>
+                    </div>
+                    <div class="debug-volume-display">
+                        Volume: @CurrentVolume%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Debug Section -->
+            <div class="debug-section">
+                <h4>Additional</h4>
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="OrientationLocked" />
+                        <span>🔒 Lock Orientation</span>
+                    </label>
+                </div>
+                
+                <div class="debug-control-group">
+                    <button class="debug-button-full" @onclick="SimulateRotation">
+                        🔄 Rotate Device
+                    </button>
+                </div>
+                
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="TimeOverride" />
+                        <span>⏰ Override Time</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool IsVisible = false;
+    
+    // Animation debug
+    [Parameter]
+    public bool ShowIcons { get; set; } = false;
+    
+    [Parameter]
+    public EventCallback<bool> ShowIconsChanged { get; set; }
+    
+    // Device state
+    private bool IsAsleep = false;
+    private int CurrentVolume = 50;
+    private bool OrientationLocked = false;
+    private bool TimeOverride = false;
+    
+    // Display settings
+    private DevicePreset SelectedPreset
+    {
+        get => DisplaySettings.CurrentPreset;
+        set
+        {
+            DisplaySettings.SetPreset(value);
+            StateHasChanged();
+        }
+    }
+    
+    private double CustomWidth = 640.0;
+    private double CustomHeight = 960.0;
+    
+    protected override void OnInitialized()
+    {
+        BatteryService.OnBatteryStateChanged += HandleBatteryStateChanged;
+        DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
+        
+        // Initialize custom resolution to current resolution
+        CustomWidth = DisplaySettings.RESOLUTION_X;
+        CustomHeight = DisplaySettings.RESOLUTION_Y;
+    }
+    
+    public void Dispose()
+    {
+        BatteryService.OnBatteryStateChanged -= HandleBatteryStateChanged;
+        DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
+    }
+    
+    private void HandleBatteryStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private void HandleResolutionChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private void ToggleMenu()
+    {
+        IsVisible = !IsVisible;
+    }
+    
+    // Battery controls
+    private void UnplugCharger()
+    {
+        BatteryService.IsCharging = false;
+    }
+    
+    private void PlugCharger()
+    {
+        BatteryService.IsCharging = true;
+    }
+    
+    // Display settings
+    private void ApplyCustomResolution()
+    {
+        DisplaySettings.SetCustomResolution(CustomWidth, CustomHeight);
+    }
+    
+    // Animation controls
+    private async Task ToggleIconsVisibility()
+    {
+        ShowIcons = !ShowIcons;
+        await ShowIconsChanged.InvokeAsync(ShowIcons);
+    }
+    
+    // Device controls
+    private void ToggleSleepWake()
+    {
+        IsAsleep = !IsAsleep;
+        // Could trigger screen dimming or lock screen in the future
+    }
+    
+    private void VolumeUp()
+    {
+        CurrentVolume = Math.Min(100, CurrentVolume + 10);
+    }
+    
+    private void VolumeDown()
+    {
+        CurrentVolume = Math.Max(0, CurrentVolume - 10);
+    }
+    
+    private void SimulateRotation()
+    {
+        if (!OrientationLocked)
+        {
+            // Could trigger orientation change animation in the future
+        }
+    }
+}

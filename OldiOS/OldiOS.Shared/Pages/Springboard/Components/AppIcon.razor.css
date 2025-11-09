@@ -1,0 +1,30 @@
+﻿.app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px; /* 8px gap between icon and text */
+    text-align: center;
+    width: 140px; /* Give it a fixed width for alignment */ 
+    filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.3));
+}
+ 
+.icon-image {
+    /* This is the final VISIBLE size of the icon on screen */
+    width: 118px;
+    height: 118px;
+    /* The magic happens here */
+    background-size: cover; /* or 'cover' can also work */
+    background-position: top;
+    background-repeat: no-repeat;
+    /* We can add the mask and other effects here later! */
+    /* For now, a simple border-radius will approximate the look */
+    border-radius: 20px;
+}
+
+.app-icon span {
+    color: white;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 22px; /* 11pt @2x = 22px */
+    text-shadow: 0px 3px 2.5px rgba(0,0,0,0.8);
+}

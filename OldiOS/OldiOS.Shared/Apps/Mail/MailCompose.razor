@@ -1,0 +1,95 @@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="mail-compose-app">
+    <UINavigationBar Title="New Message" 
+                     BackButtonText="Cancel" 
+                     OnBackClick="@HandleCancel"
+                     RightButtonText="Send"
+                     OnRightButtonClick="@HandleSend" />
+    
+    <div class="mail-compose-content">
+        <div class="compose-fields">
+            <div class="compose-field">
+                <UILabel Text="To:" Style="UILabelStyle.Body" />
+                <input type="text" class="field-input" placeholder="email@example.com" @bind="toField" />
+            </div>
+            
+            <div class="compose-field">
+                <UILabel Text="Cc/Bcc:" Style="UILabelStyle.Body" />
+                <input type="text" class="field-input" @bind="ccField" />
+            </div>
+            
+            <div class="compose-field">
+                <UILabel Text="Subject:" Style="UILabelStyle.Body" />
+                <input type="text" class="field-input" placeholder="Subject" @bind="subjectField" />
+            </div>
+        </div>
+        
+        <div class="compose-body">
+            <textarea class="body-textarea" 
+                      placeholder="Message body..."
+                      @bind="messageBody"
+                      @bind:event="oninput"></textarea>
+        </div>
+        
+        <div class="compose-attachments">
+            <UITableView Grouped="true">
+                <UITableViewSection Header="ATTACHMENTS">
+                    <UITableViewCell Text="Add Photo or Video" ShowDisclosure="true" OnClick="@HandleAddPhoto" />
+                    <UITableViewCell Text="Take Photo or Video" ShowDisclosure="true" OnClick="@HandleTakePhoto" IsLast="true" />
+                </UITableViewSection>
+            </UITableView>
+        </div>
+        
+        <div class="compose-actions">
+            <UITableView Grouped="true">
+                <UITableViewSection>
+                    <UITableViewCell Text="Priority" Detail="Normal" ShowDisclosure="true" />
+                    <UITableViewCell Text="Mark as Important" ShowToggle="true" ToggleValue="@isImportant" OnToggleChange="@(v => isImportant = v)" IsLast="true" />
+                </UITableViewSection>
+                
+                <UITableViewSection>
+                    <div class="action-buttons">
+                        <UIButton Text="Save Draft" Style="UIButtonStyle.Bordered" FullWidth="true" OnClick="@HandleSaveDraft" />
+                    </div>
+                </UITableViewSection>
+            </UITableView>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string toField = "";
+    private string ccField = "";
+    private string subjectField = "";
+    private string messageBody = "";
+    private bool isImportant = false;
+    
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+    
+    private async Task HandleCancel()
+    {
+        await OnBack.InvokeAsync();
+    }
+    
+    private void HandleSend()
+    {
+        // Send email
+    }
+    
+    private void HandleAddPhoto()
+    {
+        // Add photo from library
+    }
+    
+    private void HandleTakePhoto()
+    {
+        // Take photo with camera
+    }
+    
+    private void HandleSaveDraft()
+    {
+        // Save as draft
+    }
+}

@@ -18,6 +18,14 @@
     <div id="app">Loading...</div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="_content/OldiOS.Shared/js/app-animations.js"></script>
+    <script src="_content/OldiOS.Shared/js/utils.js"></script>
+    <script src="_content/OldiOS.Shared/js/battery.js"></script>
+    <script>
+        window.getElementWidth = (element) => {
+            return element.getBoundingClientRect().width;
+        };
+    </script>
 
 </body>
 

@@ -13,6 +13,14 @@
 <body>
     <Routes @rendermode="InteractiveWebAssembly" />
     <script src="_framework/blazor.web.js"></script>
+    <script src="_content/OldiOS.Shared/js/app-animations.js"></script>
+    <script src="_content/OldiOS.Shared/js/utils.js"></script>
+    <script src="_content/OldiOS.Shared/js/battery.js"></script>
+    <script>
+        window.getElementWidth = (element) => {
+            return element.getBoundingClientRect().width;
+        };
+    </script>
 </body>
 
 </html>

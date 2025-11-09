@@ -1,0 +1,57 @@
+.ios-table-cell {
+    display: flex;
+    align-items: center;
+    padding: 24px 30px;
+    border-bottom: 1px solid #d1d5db;
+    background-color: white;
+    cursor: pointer;
+    min-height: 88px;
+}
+
+.ios-table-cell.last {
+    border-bottom: none;
+}
+
+.ios-table-cell:active {
+    background-color: #d0d3d9;
+}
+
+.cell-icon {
+    margin-right: 20px;
+}
+
+.cell-icon img {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+}
+
+.cell-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cell-text {
+    color: #000;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 34px;
+}
+
+.cell-detail {
+    color: #4c5c6c;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    margin-top: 4px;
+}
+
+.cell-accessory {
+    color: #b4b8bd;
+    font-size: 56px;
+    font-weight: 300;
+    margin-left: 20px;
+}
+
+.cell-toggle {
+    margin-left: 20px;
+}

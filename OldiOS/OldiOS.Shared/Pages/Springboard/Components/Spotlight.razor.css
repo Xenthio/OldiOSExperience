@@ -1,0 +1,67 @@
+.spotlight-page {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #4a5a75, #2b3644);
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.spotlight-search {
+    margin-bottom: 30px;
+}
+
+.search-bar {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.search-bar input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 32px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #000;
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: #8e8e93;
+}
+
+.spotlight-results {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.spotlight-result-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 20px;
+    background-color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 2px;
+}
+
+.result-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 10px;
+}
+
+.result-name {
+    font-size: 30px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #000;
+}
+
+.no-results {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 32px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin-top: 60px;
+}

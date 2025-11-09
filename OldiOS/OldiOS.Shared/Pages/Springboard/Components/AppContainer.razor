@@ -1,0 +1,146 @@
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Services
+@inject AnimationService AnimationService
+@implements IDisposable
+
+@* App Container - handles app launching and closing animations *@
+
+<div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
+     @onclick:stopPropagation="true">
+    @if (CurrentApp != null || isAnimating)
+    {
+        <!-- Status Bar - shown in all apps -->
+        <OldiOS.Shared.System.StatusBar Style="OldiOS.Shared.System.StatusBarStyle.Coloured" />
+        
+        <div class="app-content">
+            @if (displayedApp != null)
+            {
+                @if (displayedApp.ComponentType != null)
+                {
+                    <DynamicComponent Type="@displayedApp.ComponentType" />
+                }
+                else
+                {
+                    <div style="padding: 40px; color: white; font-size: 32px;">
+                        @displayedApp.Name app coming soon...
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public AppInfo? CurrentApp { get; set; }
+    
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    
+    private bool isVisible = false;
+    private bool isAnimating = false;
+    private string animationClass = "";
+    private AppInfo? previousApp = null;
+    private AppInfo? displayedApp = null; // The app to display during animations
+    private CancellationTokenSource? animationCts = null;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        // Cancel any ongoing animation
+        if (animationCts != null)
+        {
+            animationCts.Cancel();
+            animationCts.Dispose();
+            animationCts = null;
+        }
+        
+        // Check if app changed from something to null (closing)
+        if (previousApp != null && CurrentApp == null && isVisible)
+        {
+            // Closing animation - keep displaying the previous app
+            displayedApp = previousApp;
+            isAnimating = true;
+            animationClass = "app-closing";
+            StateHasChanged();
+            
+            animationCts = new CancellationTokenSource();
+            var token = animationCts.Token;
+            
+            try
+            {
+                var closeSequence = AnimationService.CreateAppCloseSequence();
+                await Task.Delay(closeSequence.TotalDurationMs, token);
+                
+                if (!token.IsCancellationRequested)
+                {
+                    isVisible = false;
+                    isAnimating = false;
+                    displayedApp = null;
+                    StateHasChanged();
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Animation was cancelled - this is expected
+            }
+            finally
+            {
+                if (animationCts != null && !animationCts.IsCancellationRequested)
+                {
+                    animationCts.Dispose();
+                    animationCts = null;
+                }
+            }
+        }
+        // Check if app changed from null to something (opening)
+        else if (CurrentApp != null && !isVisible)
+        {
+            // Opening animation
+            displayedApp = CurrentApp;
+            isVisible = true;
+            isAnimating = true;
+            animationClass = "app-opening";
+            StateHasChanged();
+            
+            animationCts = new CancellationTokenSource();
+            var token = animationCts.Token;
+            
+            try
+            {
+                var openSequence = AnimationService.CreateAppOpenSequence();
+                await Task.Delay(openSequence.TotalDurationMs, token);
+                
+                if (!token.IsCancellationRequested)
+                {
+                    isAnimating = false;
+                    StateHasChanged();
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Animation was cancelled - this is expected
+            }
+            finally
+            {
+                if (animationCts != null && !animationCts.IsCancellationRequested)
+                {
+                    animationCts.Dispose();
+                    animationCts = null;
+                }
+            }
+        }
+        else if (CurrentApp != null)
+        {
+            // Update displayed app when it changes
+            displayedApp = CurrentApp;
+        }
+        
+        previousApp = CurrentApp;
+    }
+    
+    public void Dispose()
+    {
+        animationCts?.Cancel();
+        animationCts?.Dispose();
+    }
+}

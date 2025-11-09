@@ -1,0 +1,54 @@
+@using OldiOS.Shared.Models
+
+<div class="spotlight-page">
+    <div class="spotlight-search">
+        <div class="search-bar">
+            <input type="search" placeholder="Search" @bind="searchQuery" @oninput="OnSearchInput" />
+        </div>
+    </div>
+    
+    @if (!string.IsNullOrWhiteSpace(searchQuery))
+    {
+        <div class="spotlight-results">
+            @if (filteredResults.Any())
+            {
+                @foreach (var result in filteredResults)
+                {
+                    <div class="spotlight-result-item">
+                        <img src="@result.IconPath" alt="@result.Name" class="result-icon" />
+                        <span class="result-name">@result.Name</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-results">No Results</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<AppInfo> AllApps { get; set; } = new();
+    
+    private string searchQuery = "";
+    private List<AppInfo> filteredResults = new();
+    
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? "";
+        
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            filteredResults.Clear();
+        }
+        else
+        {
+            filteredResults = AllApps
+                .Where(app => app.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+                .Take(10)
+                .ToList();
+        }
+    }
+}

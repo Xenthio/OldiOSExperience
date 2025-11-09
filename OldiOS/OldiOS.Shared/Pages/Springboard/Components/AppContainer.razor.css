@@ -1,0 +1,74 @@
+.app-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Status bar styling moved to StatusBar.razor.css */
+
+.app-content {
+    flex: 1;
+    width: 100%;
+    background-color: #c8cdd5;
+    overflow: hidden;
+}
+
+/* App wrapper that gets animated - wraps both status bar and content */
+.app-container.app-opening,
+.app-container.app-closing {
+    transform-origin: center center;
+}
+
+/* Opening Animation - zoom in from small with slight bounce */
+.app-container.app-opening {
+    animation: appOpen 0.4s ease-out forwards;
+}
+
+@keyframes appOpen {
+    0% {
+        transform: scale(0.00);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Closing Animation - zoom out to small with slight ease */
+.app-container.app-closing {
+    animation: appClose 0.4s ease-in forwards;
+}
+
+.app-container ::deep .status-bar {
+    opacity: 1 !important;
+}
+
+@keyframes appClose {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0.00);
+        opacity: 0;
+    }
+}
