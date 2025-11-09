@@ -226,10 +226,10 @@
     height: 100%;
     padding: 26px 15px;
     box-sizing: border-box;
-    /* The famous 4-column icon grid */
+    /* Dynamic grid using CSS variables */
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr); /* iOS 6 on iPhone 4 was 4x4 */
+    grid-template-columns: repeat(var(--icon-columns, 4), 1fr);
+    grid-template-rows: repeat(var(--icon-rows, 4), 1fr);
     align-items: start;
     justify-items: center;
     /* Clip icons that scatter outside page boundaries */

@@ -1,5 +1,6 @@
 @using OldiOSExperience.Services
 @inject BatteryService BatteryService
+@inject DisplaySettings DisplaySettings
 @implements IDisposable
 
 <div class="debug-menu-container @(IsVisible ? "visible" : "")">
@@ -16,6 +17,59 @@
         </div>
         
         <div class="debug-menu-content">
+            <!-- Display Settings Section -->
+            <div class="debug-section">
+                <h4>Display Settings</h4>
+                <div class="debug-control-group">
+                    <label class="debug-label">Device Preset</label>
+                    <select class="debug-select" @bind="SelectedPreset" @bind:event="onchange">
+                        <option value="@DevicePreset.iPhone4">iPhone 4 (640x960)</option>
+                        <option value="@DevicePreset.iPhone5">iPhone 5 (640x1136)</option>
+                        <option value="@DevicePreset.iPad">iPad Retina (1536x2048)</option>
+                        <option value="@DevicePreset.Custom">Custom</option>
+                    </select>
+                </div>
+                
+                @if (SelectedPreset == DevicePreset.Custom)
+                {
+                    <div class="debug-control-group">
+                        <label class="debug-label">Width (px)</label>
+                        <input type="number" 
+                               min="320" 
+                               max="2048" 
+                               step="1"
+                               @bind="CustomWidth"
+                               @bind:event="oninput"
+                               class="debug-textbox" />
+                    </div>
+                    
+                    <div class="debug-control-group">
+                        <label class="debug-label">Height (px)</label>
+                        <input type="number" 
+                               min="480" 
+                               max="2732" 
+                               step="1"
+                               @bind="CustomHeight"
+                               @bind:event="oninput"
+                               class="debug-textbox" />
+                    </div>
+                    
+                    <div class="debug-control-group">
+                        <button class="debug-button-full" @onclick="ApplyCustomResolution">
+                            Apply Custom Resolution
+                        </button>
+                    </div>
+                }
+                
+                <div class="debug-control-group">
+                    <div class="debug-info-text">
+                        Current: @((int)DisplaySettings.RESOLUTION_X)x@((int)DisplaySettings.RESOLUTION_Y)
+                        <br />
+                        Grid: @DisplaySettings.GetIconColumns()x@DisplaySettings.GetIconRows()
+                    </div>
+                </div>
+            </div>
+            
             <!-- Battery Controls Section -->
             <div class="debug-section">
                 <h4>Battery</h4>
@@ -131,17 +185,42 @@
     private bool OrientationLocked = false;
     private bool TimeOverride = false;
     
+    // Display settings
+    private DevicePreset SelectedPreset
+    {
+        get => DisplaySettings.CurrentPreset;
+        set
+        {
+            DisplaySettings.SetPreset(value);
+            StateHasChanged();
+        }
+    }
+    
+    private double CustomWidth = 640.0;
+    private double CustomHeight = 960.0;
+    
     protected override void OnInitialized()
     {
         BatteryService.OnBatteryStateChanged += HandleBatteryStateChanged;
+        DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
+        
+        // Initialize custom resolution to current resolution
+        CustomWidth = DisplaySettings.RESOLUTION_X;
+        CustomHeight = DisplaySettings.RESOLUTION_Y;
     }
     
     public void Dispose()
     {
         BatteryService.OnBatteryStateChanged -= HandleBatteryStateChanged;
+        DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
     }
     
     private void HandleBatteryStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private void HandleResolutionChanged()
     {
         StateHasChanged();
     }
@@ -160,6 +239,12 @@
     private void PlugCharger()
     {
         BatteryService.IsCharging = true;
+    }
+    
+    // Display settings
+    private void ApplyCustomResolution()
+    {
+        DisplaySettings.SetCustomResolution(CustomWidth, CustomHeight);
     }
     
     // Animation controls

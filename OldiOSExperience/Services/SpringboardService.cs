@@ -10,11 +10,13 @@ namespace OldiOSExperience.Services
     {
         private readonly BackgroundAppManager _appManager;
         private readonly AnimationService _animationService;
+        private readonly DisplaySettings _displaySettings;
         
-        public SpringboardService(BackgroundAppManager appManager, AnimationService animationService)
+        public SpringboardService(BackgroundAppManager appManager, AnimationService animationService, DisplaySettings displaySettings)
         {
             _appManager = appManager;
             _animationService = animationService;
+            _displaySettings = displaySettings;
         }
         
         public List<List<AppInfo>> Pages { get; private set; } = new();
@@ -37,8 +39,8 @@ namespace OldiOSExperience.Services
                 new AppInfo { Id = 104, Name = "Music", IconPath = "images/icons/music.png", BundleId = "com.apple.music" }
             };
 
-            // Page 1
-            var page1 = new List<AppInfo>
+            // All available apps
+            var allApps = new List<AppInfo>
             {
                 new AppInfo { Id = 1, Name = "Messages", IconPath = "images/icons/messages.png", BundleId = "com.apple.mobilesms" },
                 new AppInfo { Id = 2, Name = "Calendar", IconPath = "images/icons/calendar.png", BundleId = "com.apple.mobilecal" },
@@ -53,12 +55,7 @@ namespace OldiOSExperience.Services
                 new AppInfo { Id = 11, Name = "App Store", IconPath = "images/icons/appstore.png", BundleId = "com.apple.AppStore" },
                 new AppInfo { Id = 12, Name = "iTunes", IconPath = "images/icons/itunes.png", BundleId = "com.apple.MobileStore" },
                 new AppInfo { Id = 13, Name = "Game Center", IconPath = "images/icons/gamecenter.png", BundleId = "com.apple.gamecenter" },
-                new AppInfo { Id = 14, Name = "Settings", IconPath = "images/icons/settings.png", BundleId = "com.apple.Preferences", ComponentType = typeof(Apps.Settings.SettingsApp) }
-            };
-
-            // Page 2
-            var page2 = new List<AppInfo>
-            {
+                new AppInfo { Id = 14, Name = "Settings", IconPath = "images/icons/settings.png", BundleId = "com.apple.Preferences", ComponentType = typeof(Apps.Settings.SettingsApp) },
                 new AppInfo { Id = 15, Name = "Reminders", IconPath = "images/icons/reminders.png", BundleId = "com.apple.reminders" },
                 new AppInfo { Id = 16, Name = "Videos", IconPath = "images/icons/videos.png", BundleId = "com.apple.videos" },
                 new AppInfo { Id = 17, Name = "UIKit Demo", IconPath = "images/icons/settings.png", BundleId = "com.xenthio.uikitdemo", ComponentType = typeof(Apps.UIKit.UIKitDemoApp) },
@@ -67,8 +64,18 @@ namespace OldiOSExperience.Services
                 new AppInfo { Id = 20, Name = "Compose", IconPath = "images/icons/mail.png", BundleId = "com.xenthio.compose", ComponentType = typeof(Apps.Mail.MailCompose) }
             };
 
-            Pages.Add(page1);
-            Pages.Add(page2);
+            // Calculate apps per page based on current resolution
+            var rows = _displaySettings.GetIconRows();
+            var columns = _displaySettings.GetIconColumns();
+            var appsPerPage = rows * columns;
+
+            // Distribute apps into pages
+            Pages.Clear();
+            for (int i = 0; i < allApps.Count; i += appsPerPage)
+            {
+                var pageApps = allApps.Skip(i).Take(appsPerPage).ToList();
+                Pages.Add(pageApps);
+            }
             
             // Create combined list of all apps for Spotlight search
             AllApps = DockApps.Concat(Pages.SelectMany(page => page)).ToList();
