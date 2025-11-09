@@ -178,6 +178,8 @@ The animation system is designed for complex, multi-element animations:
 - ✅ **Fixed scatter vectors not updating when display size changes**
   - AppIcon component now subscribes to DisplaySettings.OnResolutionChanged event
   - Scatter vectors are recalculated when resolution changes (device preset switch)
+  - **Fixed timing issue**: Recalculation now happens in OnAfterRenderAsync after DOM updates with new dimensions
+  - Uses needsRecalculation flag to defer calculation until after Blazor re-renders
   - Proper cleanup with IDisposable to unsubscribe from events
   - Prevents incorrect icon animations after display size change
   - Ensures unlock and app open/close animations use correct vectors for current display size

@@ -18,6 +18,7 @@
     
     private ElementReference iconElement;
     private bool isInitialized = false;
+    private bool needsRecalculation = false;
 
     private async Task HandleClick()
     {
@@ -38,14 +39,22 @@
             await JSRuntime.InvokeVoidAsync("calculateScatterVector", iconElement);
             isInitialized = true;
         }
+        else if (needsRecalculation)
+        {
+            // Recalculate after DOM has updated with new dimensions
+            needsRecalculation = false;
+            await JSRuntime.InvokeVoidAsync("calculateScatterVector", iconElement);
+        }
     }
 
-    private async void HandleResolutionChanged()
+    private void HandleResolutionChanged()
     {
-        // Recalculate scatter vector when resolution changes
+        // Mark for recalculation and trigger re-render
+        // Actual recalculation happens in OnAfterRenderAsync after DOM updates
         if (isInitialized)
         {
-            await JSRuntime.InvokeVoidAsync("calculateScatterVector", iconElement);
+            needsRecalculation = true;
+            StateHasChanged();
         }
     }
 
