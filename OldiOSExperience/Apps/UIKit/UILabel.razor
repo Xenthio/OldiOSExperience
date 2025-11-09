@@ -1,0 +1,55 @@
+@* iOS 5 UILabel Component *@
+@using OldiOSExperience.Apps.UIKit
+
+<div class="uilabel @StyleClass @AlignmentClass @(Bold ? "bold" : "") @(Italic ? "italic" : "")">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @Text
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Text { get; set; }
+    
+    [Parameter]
+    public UILabelStyle Style { get; set; } = UILabelStyle.Body;
+    
+    [Parameter]
+    public TextAlignment Alignment { get; set; } = TextAlignment.Left;
+    
+    [Parameter]
+    public bool Bold { get; set; } = false;
+    
+    [Parameter]
+    public bool Italic { get; set; } = false;
+    
+    [Parameter]
+    public string? Color { get; set; }
+    
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    
+    private string StyleClass => Style switch
+    {
+        UILabelStyle.Title => "title",
+        UILabelStyle.Headline => "headline",
+        UILabelStyle.Body => "body",
+        UILabelStyle.Subheadline => "subheadline",
+        UILabelStyle.Footnote => "footnote",
+        UILabelStyle.Caption => "caption",
+        _ => "body"
+    };
+    
+    private string AlignmentClass => Alignment switch
+    {
+        TextAlignment.Left => "align-left",
+        TextAlignment.Center => "align-center",
+        TextAlignment.Right => "align-right",
+        _ => "align-left"
+    };
+}

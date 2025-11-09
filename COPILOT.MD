@@ -16,6 +16,7 @@ OldiOSExperience/
 │       └── Components/ # Springboard-specific components (LockScreen, AppSwitcher, AppIcon, etc.)
 ├── Apps/             # Individual app implementations
 │   ├── Settings/
+│   ├── UIKit/        # iOS 5 UIKit components library
 │   └── Shared/       # Shared app UI components
 ├── Components/       # Reusable UI components (future)
 └── wwwroot/          # Static assets
@@ -87,6 +88,65 @@ OldiOSExperience/
 - Springboard status bar fades out when app opens
 - AppContainer provides independent status bar for apps
 - Uses placeholder image paths for WiFi and battery icons
+
+### UIKit Components (Apps/UIKit/)
+iOS 5 styled reusable UI components library for building apps:
+
+#### UIButton (UIButton.razor, UIButton.razor.css)
+- Implements iOS 5 glossy button styles
+- **Styles**: Default (blue gradient), Bordered (white), Destructive (red), Custom
+- Supports disabled state, full-width mode, and icons
+- Authentic iOS 5 gradients and shadows
+
+#### UITextField (UITextField.razor, UITextField.razor.css)
+- iOS 5 styled text input with rounded borders
+- Features: placeholder text, clear button, left/right icons
+- Focus state with blue border highlight
+- Supports all input types (text, email, password, etc.)
+
+#### UILabel (UILabel.razor, UILabel.razor.css)
+- Text display with iOS 5 typography
+- **Styles**: Title (44px), Headline (38px), Body (34px), Subheadline (30px), Footnote (26px), Caption (22px)
+- **Alignments**: Left, Center, Right
+- Bold and italic variants
+
+#### UISwitch (UISwitch.razor, UISwitch.razor.css)
+- Standalone iOS 5 toggle switch component
+- Green gradient when ON, gray when OFF
+- Animated sliding knob with ON/OFF text
+- Disabled state support
+
+#### UISegmentedControl (UISegmentedControl.razor, UISegmentedControl.razor.css)
+- iOS 5 segmented control for multiple options
+- Metallic gradient styling matching iOS 5 navigation bars
+- Full-width and auto-width modes
+- Selected state with inset shadow
+
+#### UISlider (UISlider.razor, UISlider.razor.css)
+- Range slider with iOS 5 styling
+- Blue gradient fill track
+- Optional min/max icons (e.g., volume icons)
+- Smooth dragging with white circular thumb
+
+#### UIActivityIndicator (UIActivityIndicator.razor, UIActivityIndicator.razor.css)
+- Loading spinner matching iOS 5 design
+- **Sizes**: Small (40px), Medium (60px), Large (80px)
+- 12-spoke radial animation
+- Can be toggled on/off
+
+#### UIKitDemoApp (UIKitDemoApp.razor)
+- Demo application showcasing all UIKit components
+- Interactive examples of each component
+- Can be registered as an app to test components in the simulator
+
+**Usage Example**:
+```razor
+@using OldiOSExperience.Apps.UIKit
+
+<UIButton Text="Save" Style="UIButtonStyle.Default" OnClick="@HandleSave" />
+<UITextField @bind-Value="username" Placeholder="Username" />
+<UISwitch @bind-Value="enabled" />
+```
 
 ## Animation Framework
 

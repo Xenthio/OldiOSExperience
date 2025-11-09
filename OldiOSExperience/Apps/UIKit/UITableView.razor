@@ -1,0 +1,13 @@
+@* iOS 5 UITableView Component *@
+
+<div class="uitableview @(Grouped ? "grouped" : "plain")">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    
+    [Parameter]
+    public bool Grouped { get; set; } = true;
+}
