@@ -102,7 +102,7 @@
         get
         {
             // Don't show a fill if the battery is charging (it has the lightning bolt)
-            if (BatteryState == BatteryState.Charging) return "display: none;";
+            if (BatteryState == BatteryState.Charging || BatteryState == BatteryState.Full) return "display: none;";
 
             // Determine if we should use the red "low" battery fill
             string fillImage = (BatteryPercentage <= 20) 
@@ -142,11 +142,11 @@
 
             if (isCharging)
             {
-                BatteryState = BatteryState.Charging;
+                BatteryState = (level == 1.0) ? BatteryState.Full : BatteryState.Charging;
             }
             else
             {
-                BatteryState = (level == 1.0) ? BatteryState.Full : BatteryState.Draining;
+                BatteryState = BatteryState.Draining;
             }
 
             // Tell Blazor to re-render with the new data

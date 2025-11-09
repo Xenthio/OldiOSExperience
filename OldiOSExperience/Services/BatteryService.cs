@@ -68,11 +68,11 @@ namespace OldiOSExperience.Services
         {
             if (IsCharging)
             {
+                if (BatteryPercentage == 100)
+                {
+                    return OldiOSExperience.System.BatteryState.Full;
+                }
                 return OldiOSExperience.System.BatteryState.Charging;
-            }
-            else if (BatteryPercentage == 100)
-            {
-                return OldiOSExperience.System.BatteryState.Full;
             }
             else
             {
