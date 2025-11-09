@@ -79,32 +79,41 @@
     [JSInvokable]
     public void OnHomeButtonPressure(double pressure)
     {
+        var previousPressure = pressureLevel;
         pressureLevel = pressure;
         
         // 3D Touch activation threshold (0.5 = 50% pressure)
         if (pressure > 0.5 && !is3DTouchActive)
         {
+            // 3D Touch "click down" - feels like the button clicked in
             is3DTouchActive = true;
             isHomeButtonPressed = true;
             
-            // Trigger haptic feedback for 3D Touch activation
+            // Trigger strong haptic feedback for 3D Touch activation (mechanical click feel)
             HapticService.ImpactHeavy();
+            
+            // This counts as a press-in event for multi-tap detection
+            HandleHomeButtonPressIn(new PointerEventArgs());
             
             StateHasChanged();
         }
         else if (pressure <= 0.3 && is3DTouchActive)
         {
+            // 3D Touch "click up" - feels like the button released
             is3DTouchActive = false;
             isHomeButtonPressed = false;
+            
+            // Trigger medium haptic feedback for 3D Touch deactivation (mechanical release feel)
+            HapticService.ImpactMedium();
+            
+            // This counts as a press-out event for multi-tap detection
+            HandleHomeButtonPressOut(new PointerEventArgs());
+            
             StateHasChanged();
         }
-        else if (pressure > 0.1 && pressure <= 0.5 && !is3DTouchActive)
+        else if (pressure > 0)
         {
-            // Light haptic for normal press
-            if (pressure > 0.1 && pressureLevel <= 0.1)
-            {
-                HapticService.ImpactLight();
-            }
+            // Just update the visual pressure indicator, no action
             StateHasChanged();
         }
     }
@@ -133,6 +142,12 @@
 
     private void HandleHomeButtonPressIn(PointerEventArgs e)
     {
+        // If 3D Touch is active, this is already handled by pressure detection
+        if (is3DTouchActive)
+        {
+            return;
+        }
+        
         isHomeButtonPressed = true;
         pressInTime = DateTime.Now;
         
@@ -167,6 +182,13 @@
     
     private void HandleHomeButtonPressOut(PointerEventArgs e)
     {
+        // If 3D Touch was active, don't process regular pointer events
+        // The pressure handler will manage the press-out
+        if (is3DTouchActive)
+        {
+            return;
+        }
+        
         isHomeButtonPressed = false;
         var pressDuration = (DateTime.Now - pressInTime).TotalMilliseconds;
         
