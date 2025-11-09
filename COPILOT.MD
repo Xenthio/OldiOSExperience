@@ -564,6 +564,36 @@ dotnet build -f net9.0-windows   # For Windows
 - Some platform-specific features may need conditional compilation
 - Image assets work best when optimized for each platform
 
+## Bug Fixes
+
+### 3D Touch Detection Fix (November 2025)
+
+**Issue:** On non-3D Touch devices, the home button became unresponsive because the pressure detection logic incorrectly identified them as pressure-sensitive devices.
+
+**Root Cause:** The detection logic in `Index.razor` assumed devices without pressure support would report `pressure = 0.5`. However, many devices report `pressure = 0` instead. The original logic `if (pressure != 0.5)` would incorrectly mark these devices as supporting pressure.
+
+**Mozilla Documentation Insight:** Per MDN Web Docs, hardware without pressure support reports:
+- `pressure = 0` when pointer is inactive (no buttons pressed)
+- `pressure = 0.5` when pointer is active (buttons pressed)
+- Always exactly 0 or 0.5, never intermediate values
+
+Pressure-sensitive hardware reports continuous values between 0 and 1 based on applied force.
+
+**Fix Evolution:**
+- Original: `if (pressure != 0.5)` → incorrectly triggers on devices reporting 0
+- First attempt: `if (pressure > 0.6)` → too high, missed 3D Touch devices with light initial touch
+- Second attempt: `if (pressure > 0.51)` → incorrectly triggers on non-pressure devices reporting 0.5 when pressed
+- Final fix: `if (pressure != 0 && pressure != 0.5)` → only triggers on intermediate values, correctly identifying pressure-capable devices
+
+This ensures:
+- Non-pressure devices (reporting exactly 0 or 0.5) fall back to pointer events
+- Pressure-capable devices (reporting intermediate values like 0.51, 0.6, 0.8) use pressure detection
+- Home button works correctly on all device types
+
+**Files Modified:**
+- `OldiOS.Shared/Pages/Index.razor` - Updated C# detection logic
+- `OldiOS.Shared/wwwroot/js/pressure.js` - Updated JS comments for clarity
+
 ## References
 
 - iOS Human Interface Guidelines (iOS 5 era)
