@@ -248,7 +248,6 @@
     private async void HandleTouchEnd(TouchEventArgs e)
     {
         if (!isDragging) return;
-        isDragging = false;
 
         // Calculate velocity (pixels per millisecond)
         var timeDiff = (DateTime.Now - lastTouchTime).TotalMilliseconds;
@@ -282,6 +281,11 @@
                 await AnimateRubberBandBack();
                 return;
             }
+            
+            // End drag and reset offset for page change
+            isDragging = false;
+            dragOffset = 0;
+            StateHasChanged();
         }
         else
         {
@@ -289,16 +293,14 @@
             await AnimateRubberBandBack();
             return;
         }
-
-        // Reset drag offset to snap to the new page
-        dragOffset = 0;
-        StateHasChanged();
     }
     
     private async Task AnimateRubberBandBack()
     {
-        // Smoothly animate back to current page position
+        // Set animation flag BEFORE ending drag to prevent CSS transition jitter
         isAnimatingBack = true;
+        isDragging = false;
+        
         var startOffset = dragOffset;
         var duration = 300; // ms
         var startTime = DateTime.Now;
@@ -359,7 +361,6 @@
     {
         if (!isMouseDown) return;
         isMouseDown = false;
-        isDragging = false;
 
         // Calculate velocity (pixels per millisecond)
         var timeDiff = (DateTime.Now - lastTouchTime).TotalMilliseconds;
@@ -389,6 +390,11 @@
                 await AnimateRubberBandBack();
                 return;
             }
+            
+            // End drag and reset offset for page change
+            isDragging = false;
+            dragOffset = 0;
+            StateHasChanged();
         }
         else
         {
@@ -396,8 +402,5 @@
             await AnimateRubberBandBack();
             return;
         }
-
-        dragOffset = 0;
-        StateHasChanged();
     }
 }
