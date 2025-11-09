@@ -10,11 +10,13 @@ namespace OldiOSExperience.Services
     {
         private readonly BackgroundAppManager _appManager;
         private readonly AnimationService _animationService;
+        private readonly DisplaySettings _displaySettings;
         
-        public SpringboardService(BackgroundAppManager appManager, AnimationService animationService)
+        public SpringboardService(BackgroundAppManager appManager, AnimationService animationService, DisplaySettings displaySettings)
         {
             _appManager = appManager;
             _animationService = animationService;
+            _displaySettings = displaySettings;
         }
         
         public List<List<AppInfo>> Pages { get; private set; } = new();
@@ -67,6 +69,7 @@ namespace OldiOSExperience.Services
                 new AppInfo { Id = 20, Name = "Compose", IconPath = "images/icons/mail.png", BundleId = "com.xenthio.compose", ComponentType = typeof(Apps.Mail.MailCompose) }
             };
 
+            Pages.Clear();
             Pages.Add(page1);
             Pages.Add(page2);
             

@@ -10,6 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 // Register iOS system services
+builder.Services.AddSingleton<DisplaySettings>();
 builder.Services.AddSingleton<AnimationService>();
 builder.Services.AddSingleton<BackgroundAppManager>();
 builder.Services.AddSingleton<SpringboardService>();

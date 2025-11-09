@@ -3,9 +3,11 @@
 @inject SpringboardService SpringboardService
 @inject BackgroundAppManager AppManager
 @inject AnimationService AnimationService
+@inject DisplaySettings DisplaySettings
 @implements IDisposable
 
-<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(DebugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")">
+<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(DebugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")"
+     style="--icon-rows: @DisplaySettings.GetIconRows(); --icon-columns: @DisplaySettings.GetIconColumns();">
     <!-- Wallpaper -->
     <div class="wallpaper" alt="Wallpaper"/>
 
@@ -113,11 +115,22 @@
         
         // Subscribe to app state changes
         AppManager.OnAppStatesChanged += HandleAppStateChanged;
+        
+        // Subscribe to resolution changes
+        DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
     }
     
     public void Dispose()
     {
         AppManager.OnAppStatesChanged -= HandleAppStateChanged;
+        DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
+    }
+    
+    private void HandleResolutionChanged()
+    {
+        // Reinitialize layout when resolution changes
+        SpringboardService.InitializeLayout();
+        StateHasChanged();
     }
     
     private void HandleAppStateChanged()

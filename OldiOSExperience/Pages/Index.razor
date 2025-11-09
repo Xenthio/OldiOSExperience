@@ -1,11 +1,12 @@
 @page "/"
 @using OldiOSExperience.Services
 @inject IJSRuntime JSRuntime
+@inject DisplaySettings DisplaySettings
 @implements IDisposable
 
 <div class="simulation-wrapper" @ref="simulationWrapperElement">
-    <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString()">
-        <div class="screen-viewport">
+    <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString(); width: @(DisplaySettings.RESOLUTION_X)px;">
+        <div class="screen-viewport" style="width: @(DisplaySettings.RESOLUTION_X)px; height: @(DisplaySettings.RESOLUTION_Y)px;">
             <div class="screen-content">
                 <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" DebugAnimationActive="@debugAnimationActive" />
             </div>
@@ -35,7 +36,16 @@
             objRef = DotNetObjectReference.Create(this);
             await JSRuntime.InvokeVoidAsync("addResizeListener", objRef);
             await CalculateAndApplyScaleFactor();
+            
+            // Subscribe to resolution changes
+            DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
         }
+    }
+
+    private async void HandleResolutionChanged()
+    {
+        await CalculateAndApplyScaleFactor();
+        StateHasChanged();
     }
 
     [JSInvokable]
@@ -50,10 +60,10 @@
 
         if (viewport.Width > 0 && viewport.Height > 0)
         {
-            // Define the native dimensions of the phone model
-            const double phoneModelWidth = 640.0;
-            // Height of screen (960) + gap (25) + home button (100)
-            const double phoneModelHeight = 1085.0; 
+            // Use resolution from DisplaySettings service
+            var phoneModelWidth = DisplaySettings.RESOLUTION_X;
+            // Height of screen + gap (25) + home button (100)
+            var phoneModelHeight = DisplaySettings.RESOLUTION_Y + 125.0; 
 
             // Calculate scale factor based on width and height, leaving 5% padding
             var scaleX = (viewport.Width * 0.95) / phoneModelWidth;
@@ -78,5 +88,7 @@
             JSRuntime.InvokeVoidAsync("removeResizeListener", objRef);
             objRef.Dispose();
         }
+        
+        DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
     }
 }
