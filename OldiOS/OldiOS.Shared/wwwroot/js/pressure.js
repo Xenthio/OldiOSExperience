@@ -46,19 +46,18 @@ window.homeButtonPressure = {
         // Note: Only some devices support pressure (like Apple Pencil, 3D Touch, Force Touch trackpads)
         let pressure = 0;
         
-        // Check if pressure is actually supported and available
-        // event.pressure is a number from 0.0 to 1.0
-        // Devices WITHOUT pressure support typically report:
-        //   - 0 (touch events on most mobile devices)
-        //   - 0.5 (default for some pointer events)
-        // Devices WITH pressure support report varying values, especially > 0.6 when pressed hard
+        // Per Mozilla docs, pressure behavior:
+        // - Non-pressure devices (mouse, standard touch): exactly 0 or 0.5
+        //   * 0 when not pressed
+        //   * 0.5 when pressed (active buttons state)
+        // - Pressure-sensitive devices: continuous values (0.01-0.49, 0.51-1.0)
+        //   * Can report any value between 0 and 1 based on applied force
         if (typeof event.pressure === 'number') {
             pressure = event.pressure;
         }
 
         // Send pressure to Blazor
-        // C# code will distinguish between pressure-capable devices (pressure > 0.6)
-        // and non-pressure devices (pressure stays at 0 or 0.5)
+        // C# code detects pressure support by finding values != 0 and != 0.5
         if (this.dotNetHelper) {
             this.dotNetHelper.invokeMethodAsync('OnHomeButtonPressure', pressure);
         }
