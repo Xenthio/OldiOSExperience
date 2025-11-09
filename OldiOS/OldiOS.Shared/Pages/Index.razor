@@ -82,39 +82,112 @@
         var previousPressure = pressureLevel;
         pressureLevel = pressure;
         
-        // 3D Touch activation threshold (0.5 = 50% pressure)
-        if (pressure > 0.5 && !is3DTouchActive)
+        // Detect if this device supports variable pressure
+        // If pressure is NOT 0.5, it's a pressure-sensitive device
+        // If pressure varies from the previous value, it supports pressure
+        if (!hasDetectedPressureSupport && pressure != 0.5)
         {
-            // 3D Touch "click down" - feels like the button clicked in
-            is3DTouchActive = true;
-            isHomeButtonPressed = true;
+            deviceSupportsPressure = true;
+            hasDetectedPressureSupport = true;
             
-            // Trigger strong haptic feedback for 3D Touch activation (mechanical click feel)
-            HapticService.ImpactHeavy();
-            
-            // This counts as a press-in event for multi-tap detection
-            HandleHomeButtonPressIn(new PointerEventArgs());
-            
-            StateHasChanged();
+            // Cancel any pending pointer event timers
+            isWaitingForPressureDetection = false;
+            pointerDelayTimer?.Dispose();
+            pointerDelayTimer = null;
         }
-        else if (pressure <= 0.3 && is3DTouchActive)
+        
+        // On pressure-sensitive devices, only force press counts as activation
+        if (deviceSupportsPressure)
         {
-            // 3D Touch "click up" - feels like the button released
-            is3DTouchActive = false;
-            isHomeButtonPressed = false;
-            
-            // Trigger medium haptic feedback for 3D Touch deactivation (mechanical release feel)
-            HapticService.ImpactMedium();
-            
-            // This counts as a press-out event for multi-tap detection
-            HandleHomeButtonPressOut(new PointerEventArgs());
-            
-            StateHasChanged();
+            // 3D Touch activation threshold (0.5 = 50% pressure)
+            if (pressure > 0.5 && !is3DTouchActive)
+            {
+                // 3D Touch "click down" - feels like the button clicked in
+                is3DTouchActive = true;
+                isHomeButtonPressed = true;
+                pressInTime = DateTime.Now;
+                
+                // Trigger strong haptic feedback for 3D Touch activation (mechanical click feel)
+                HapticService.ImpactHeavy();
+                
+                // Cancel any pending single-press action from a previous tap
+                actionTimer?.Dispose();
+                actionTimer = null;
+                
+                pressCount++;
+                
+                if (pressCount == 2)
+                {
+                    // This is a confirmed double-press, fire the action immediately
+                    if (!momentaryDisable)
+                    {
+                        momentaryDisable = true;
+                        PerformDoubleHomeAction();
+                        
+                        // Reset momentary disable after short delay
+                        _ = Task.Run(async () =>
+                        {
+                            await Task.Delay(500);
+                            momentaryDisable = false;
+                        });
+                    }
+                }
+                
+                StateHasChanged();
+            }
+            else if (pressure <= 0.3 && is3DTouchActive)
+            {
+                // 3D Touch "click up" - feels like the button released
+                is3DTouchActive = false;
+                isHomeButtonPressed = false;
+                var pressDuration = (DateTime.Now - pressInTime).TotalMilliseconds;
+                
+                // Trigger medium haptic feedback for 3D Touch deactivation (mechanical release feel)
+                HapticService.ImpactMedium();
+                
+                // Check if this was a long press
+                if (pressDuration >= LongPressThresholdMs)
+                {
+                    HandleLongPress();
+                    pressCount = 0;
+                    StateHasChanged();
+                    return;
+                }
+                
+                if (pressCount == 1)
+                {
+                    // The user has lifted their finger after one press.
+                    // Schedule the single-press action to happen after a short delay.
+                    actionTimer = new Timer(_ =>
+                    {
+                        InvokeAsync(() =>
+                        {
+                            PerformHomeAction();
+                            pressCount = 0;
+                        });
+                    }, null, MultiTapWindowMs, Timeout.Infinite);
+                }
+                else if (pressCount >= 2)
+                {
+                    // If it was a double-press or more, just reset the count immediately on release.
+                    pressCount = 0;
+                }
+                
+                StateHasChanged();
+            }
+            else if (pressure > 0)
+            {
+                // Just update the visual pressure indicator, no action
+                StateHasChanged();
+            }
         }
-        else if (pressure > 0)
+        else if (hasDetectedPressureSupport)
         {
-            // Just update the visual pressure indicator, no action
-            StateHasChanged();
+            // Device confirmed to not support pressure, just update visual if any
+            if (pressure > 0)
+            {
+                StateHasChanged();
+            }
         }
     }
 
@@ -140,10 +213,54 @@
         }
     }
 
+    private bool deviceSupportsPressure = false;
+    private bool hasDetectedPressureSupport = false;
+    private Timer? pointerDelayTimer;
+    private bool isWaitingForPressureDetection = false;
+    
     private void HandleHomeButtonPressIn(PointerEventArgs e)
     {
+        // If we've detected pressure support, ignore pointer events in favor of pressure detection
+        if (deviceSupportsPressure)
+        {
+            return;
+        }
+        
         // If 3D Touch is active, this is already handled by pressure detection
         if (is3DTouchActive)
+        {
+            return;
+        }
+        
+        // Wait briefly on first touch to see if pressure varies (indicates pressure support)
+        if (!hasDetectedPressureSupport)
+        {
+            isWaitingForPressureDetection = true;
+            pointerDelayTimer?.Dispose();
+            pointerDelayTimer = new Timer(_ =>
+            {
+                InvokeAsync(() =>
+                {
+                    // If we still haven't detected pressure support, assume device doesn't have it
+                    if (!deviceSupportsPressure)
+                    {
+                        hasDetectedPressureSupport = true;
+                        ExecutePointerPressIn();
+                    }
+                    isWaitingForPressureDetection = false;
+                });
+            }, null, 150, Timeout.Infinite); // 150ms delay to detect pressure
+            return;
+        }
+        
+        // Device confirmed to not support pressure, process immediately
+        ExecutePointerPressIn();
+    }
+    
+    private void ExecutePointerPressIn()
+    {
+        // If 3D Touch is active, this is already handled by pressure detection
+        if (is3DTouchActive || deviceSupportsPressure)
         {
             return;
         }
@@ -182,9 +299,26 @@
     
     private void HandleHomeButtonPressOut(PointerEventArgs e)
     {
+        // If device supports pressure, ignore pointer events
+        if (deviceSupportsPressure)
+        {
+            return;
+        }
+        
+        // Cancel any pending pointer delay
+        isWaitingForPressureDetection = false;
+        pointerDelayTimer?.Dispose();
+        pointerDelayTimer = null;
+        
         // If 3D Touch was active, don't process regular pointer events
         // The pressure handler will manage the press-out
         if (is3DTouchActive)
+        {
+            return;
+        }
+        
+        // If we're still waiting for pressure detection, don't process yet
+        if (isWaitingForPressureDetection)
         {
             return;
         }
