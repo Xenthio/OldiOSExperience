@@ -205,10 +205,12 @@ The animation system is designed for complex, multi-element animations:
 ## Recent Improvements (Current Session)
 
 ### Performance Optimizations for Mobile Devices (Latest - November 2025)
-- ✅ **Optimized CSS drop-shadow filter placement**
-  - Moved `filter: drop-shadow()` from `.app-icon` parent to `.icon-image` element only
-  - Respects icon transparency (PNG alpha channel) unlike box-shadow
-  - More performant than original (doesn't affect text label, only icon image)
+- ✅ **Using iOS native shadow images (Final Solution)**
+  - Replaced CSS `filter: drop-shadow()` with authentic iOS shadow images
+  - `icon_shadow.png` (206×206px) for regular icons, positioned 40px lower
+  - `icon_shadow_dock.png` (118×120px) for dock icons, positioned directly behind
+  - **Zero CSS filter overhead** - static images are the most performant solution
+  - Authentic iOS 5 appearance using original shadow assets from iOS
   - Tested and confirmed smooth performance on iPhone X
 - ✅ **Removed dynamic scatter vector JavaScript calculations**
   - AppIcon component no longer subscribes to DisplaySettings changes
@@ -229,10 +231,16 @@ The animation system is designed for complex, multi-element animations:
   
 **Performance Impact:**
 - Eliminates 30+ JavaScript interop calls on initial render
-- More targeted drop-shadow (icon-image only, not entire container)
+- **Removes all CSS filter overhead** - uses static images for best performance
 - Enables hardware acceleration for all major animated elements
 - Confirmed smooth performance on iPhone X during page swiping, multitasking, and home button press
-- Maintains proper shadow rendering for transparent icon images
+- Authentic iOS 5 appearance with native shadow assets
+
+**Shadow Implementation Evolution:**
+1. Original: `filter: drop-shadow()` on parent container (slow, affected text too)
+2. First optimization: `box-shadow` on icon (fast but didn't respect transparency)
+3. Second optimization: `filter: drop-shadow()` on icon only (better but still had filter overhead)
+4. **Final solution**: Static iOS shadow images (best performance + authentic look)
 
 ### Display Settings - Dynamic Scatter Vector Recalculation (Removed for Performance)
 - ❌ **Removed dynamic scatter vector calculation** (see Performance Optimizations above)
