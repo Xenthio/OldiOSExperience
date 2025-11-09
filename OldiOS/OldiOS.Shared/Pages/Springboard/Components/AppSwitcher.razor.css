@@ -28,13 +28,13 @@
     overflow-x: auto;
     overflow-y: hidden;
     box-sizing: border-box;
-    background-image: url('/images/folderswitcher_bg.png');
+    background-image: url('/_content/OldiOS.Shared/images/folderswitcher_bg.png');
     background-repeat: repeat-x;
-    box-shadow: 
-        /* Top inner shadow for depth */
-        inset 0px 8px 8px -6px rgba(0, 0, 0, 1),
-        /* Bottom inner highlight for a crisp edge */
-        inset 0px -8px 8px -6px rgba(0, 0, 0, 1);
+    box-shadow:
+    /* Top inner shadow for depth */
+    inset 0px 8px 8px -6px rgba(0, 0, 0, 1),
+    /* Bottom inner highlight for a crisp edge */
+    inset 0px -8px 8px -6px rgba(0, 0, 0, 1);
 }
 
 @keyframes slideUp {
