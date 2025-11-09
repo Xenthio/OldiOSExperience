@@ -92,6 +92,8 @@
     private double touchCurrentX = 0;
     private double dragOffset = 0;
     private bool isDragging = false;
+    private DateTime touchStartTime = DateTime.MinValue;
+    private bool isAnimatingBack = false;
     
     // --- APP SWITCHER STATE ---
     private bool isAppSwitcherVisible = false;
@@ -106,7 +108,7 @@
     
     // We now have spotlight page, so total pages = spotlight + app pages
     // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
-    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging ? "none" : "transform 0.3s ease-out")};";
+    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging || isAnimatingBack ? "none" : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)")};";
 
     protected override void OnInitialized()
     {
@@ -213,7 +215,9 @@
     private void HandleTouchStart(TouchEventArgs e)
     {
         isDragging = true;
+        isAnimatingBack = false;
         touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
+        touchStartTime = DateTime.Now;
     }
 
     private void HandleTouchMove(TouchEventArgs e)
@@ -221,31 +225,125 @@
         if (!isDragging) return;
 
         touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
-        dragOffset = touchCurrentX - touchStartX;
+        var rawOffset = touchCurrentX - touchStartX;
+        
+        // Apply resistance at boundaries
+        if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
+            (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
+        {
+            // Apply rubber-band resistance (reduce drag effect by 30%)
+            dragOffset = rawOffset * 0.3;
+        }
+        else
+        {
+            dragOffset = rawOffset;
+        }
     }
 
-    private void HandleTouchEnd(TouchEventArgs e)
+    private async void HandleTouchEnd(TouchEventArgs e)
     {
         if (!isDragging) return;
-        isDragging = false;
 
-        // Check if swipe was significant enough
-        if (Math.Abs(dragOffset) > 50) // Swiped more than 50px
+        // Calculate velocity based on total drag distance and total time
+        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
+        var velocity = 0.0;
+        
+        // Only calculate velocity if drag lasted long enough (at least 30ms)
+        // This prevents erratic velocity from very short touches
+        if (totalTime >= 30)
+        {
+            velocity = dragOffset / totalTime; // pixels per millisecond
+        }
+
+        // Get viewport width for threshold calculation
+        var viewportWidth = DisplaySettings.Width;
+        var halfPage = viewportWidth / 2.0;
+
+        // Determine if we should change pages based on:
+        // 1. Distance threshold (> 50% of screen width)
+        // 2. Velocity threshold (> 0.5 pixels per ms, roughly 500px/s)
+        var shouldChangePage = Math.Abs(dragOffset) > halfPage || Math.Abs(velocity) > 0.5;
+
+        if (shouldChangePage)
         {
             if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
             {
                 // Swiped left, go to next page
                 currentPageIndex++;
+                await AnimatePageTransition();
             }
             else if (dragOffset > 0 && currentPageIndex > -1)
             {
                 // Swiped right, go to previous page (can go to spotlight at -1)
                 currentPageIndex--;
+                await AnimatePageTransition();
+            }
+            else
+            {
+                // At boundary, rubber band back
+                await AnimateRubberBandBack();
+                return;
             }
         }
-
-        // Reset drag offset to snap back
+        else
+        {
+            // Not enough distance or velocity, rubber band back to current page
+            await AnimateRubberBandBack();
+            return;
+        }
+    }
+    
+    private async Task AnimatePageTransition()
+    {
+        // Smoothly animate the remaining drag offset to 0 as the page transitions
+        // This creates an elastic/smooth completion of the page change
+        isAnimatingBack = true;
+        isDragging = false;
+        
+        var startOffset = dragOffset;
+        var duration = 300; // ms
+        var startTime = DateTime.Now;
+        
+        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = elapsed / duration;
+            // Use ease-out cubic for smooth deceleration
+            var eased = 1 - Math.Pow(1 - progress, 3);
+            dragOffset = startOffset * (1 - eased);
+            StateHasChanged();
+            await Task.Delay(16); // ~60fps
+        }
+        
         dragOffset = 0;
+        isAnimatingBack = false;
+        StateHasChanged();
+    }
+    
+    private async Task AnimateRubberBandBack()
+    {
+        // Set animation flag BEFORE ending drag to prevent CSS transition jitter
+        isAnimatingBack = true;
+        isDragging = false;
+        
+        var startOffset = dragOffset;
+        var duration = 300; // ms
+        var startTime = DateTime.Now;
+        
+        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = elapsed / duration;
+            // Use ease-out cubic for smooth deceleration
+            var eased = 1 - Math.Pow(1 - progress, 3);
+            dragOffset = startOffset * (1 - eased);
+            StateHasChanged();
+            await Task.Delay(16); // ~60fps
+        }
+        
+        dragOffset = 0;
+        isAnimatingBack = false;
+        StateHasChanged();
     }
     
     // --- MOUSE EVENT HANDLERS (for desktop testing) ---
@@ -255,7 +353,9 @@
     {
         isMouseDown = true;
         isDragging = true;
+        isAnimatingBack = false;
         touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
+        touchStartTime = DateTime.Now;
     }
 
     private void HandleMouseMove(MouseEventArgs e)
@@ -263,28 +363,68 @@
         if (!isMouseDown || !isDragging) return;
 
         touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
-        dragOffset = touchCurrentX - touchStartX;
+        var rawOffset = touchCurrentX - touchStartX;
+        
+        // Apply resistance at boundaries
+        if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
+            (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
+        {
+            // Apply rubber-band resistance (reduce drag effect by 30%)
+            dragOffset = rawOffset * 0.3;
+        }
+        else
+        {
+            dragOffset = rawOffset;
+        }
     }
 
-    private void HandleMouseUp(MouseEventArgs e)
+    private async void HandleMouseUp(MouseEventArgs e)
     {
         if (!isMouseDown) return;
         isMouseDown = false;
-        isDragging = false;
 
-        // Check if swipe was significant enough
-        if (Math.Abs(dragOffset) > 50)
+        // Calculate velocity based on total drag distance and total time
+        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
+        var velocity = 0.0;
+        
+        // Only calculate velocity if drag lasted long enough (at least 30ms)
+        // This prevents erratic velocity from very short touches
+        if (totalTime >= 30)
+        {
+            velocity = dragOffset / totalTime; // pixels per millisecond
+        }
+
+        // Get viewport width for threshold calculation
+        var viewportWidth = DisplaySettings.Width;
+        var halfPage = viewportWidth / 2.0;
+
+        // Determine if we should change pages
+        var shouldChangePage = Math.Abs(dragOffset) > halfPage || Math.Abs(velocity) > 0.5;
+
+        if (shouldChangePage)
         {
             if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
             {
                 currentPageIndex++;
+                await AnimatePageTransition();
             }
             else if (dragOffset > 0 && currentPageIndex > -1)
             {
                 currentPageIndex--;
+                await AnimatePageTransition();
+            }
+            else
+            {
+                // At boundary, rubber band back
+                await AnimateRubberBandBack();
+                return;
             }
         }
-
-        dragOffset = 0;
+        else
+        {
+            // Not enough distance or velocity, rubber band back
+            await AnimateRubberBandBack();
+            return;
+        }
     }
 }

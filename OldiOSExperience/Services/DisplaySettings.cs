@@ -52,6 +52,11 @@ namespace OldiOSExperience.Services
         }
 
         /// <summary>
+        /// Alias for RESOLUTION_X - the screen width
+        /// </summary>
+        public double Width => RESOLUTION_X;
+
+        /// <summary>
         /// The native vertical resolution of the simulated screen.
         /// </summary>
         public double RESOLUTION_Y
