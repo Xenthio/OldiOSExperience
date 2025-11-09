@@ -1,4 +1,6 @@
-.ios-table-cell {
+/* iOS 5 UITableViewCell Styles */
+
+.uitableviewcell {
     display: flex;
     align-items: center;
     padding: 24px 30px;
@@ -6,13 +8,14 @@
     background-color: white;
     cursor: pointer;
     min-height: 88px;
+    transition: background-color 0.1s ease;
 }
 
-.ios-table-cell.last {
+.uitableviewcell.last {
     border-bottom: none;
 }
 
-.ios-table-cell:active {
+.uitableviewcell:active {
     background-color: #d0d3d9;
 }
 
@@ -46,10 +49,19 @@
 }
 
 .cell-accessory {
+    margin-left: 20px;
+    font-weight: 300;
+}
+
+.cell-accessory.disclosure {
     color: #b4b8bd;
     font-size: 56px;
-    font-weight: 300;
-    margin-left: 20px;
+}
+
+.cell-accessory.checkmark {
+    color: #007aff;
+    font-size: 44px;
+    font-weight: bold;
 }
 
 .cell-toggle {

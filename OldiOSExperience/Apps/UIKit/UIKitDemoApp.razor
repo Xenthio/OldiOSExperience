@@ -1,12 +1,11 @@
-@using OldiOSExperience.Apps.Shared
 @using OldiOSExperience.Apps.UIKit
 
 <div class="uikit-demo-app">
-    <NavigationBar Title="UIKit Demo" />
+    <UINavigationBar Title="UIKit Demo" />
     
     <div class="demo-content">
-        <TableView Grouped="true">
-            <TableSection Header="BUTTONS">
+        <UITableView Grouped="true">
+            <UITableViewSection Header="BUTTONS">
                 <div class="demo-section">
                     <UIButton Text="Default Button" OnClick="@(() => Console.WriteLine("Default clicked"))" />
                     <UIButton Text="Bordered Button" Style="UIButtonStyle.Bordered" OnClick="@(() => Console.WriteLine("Bordered clicked"))" />
@@ -14,17 +13,17 @@
                     <UIButton Text="Disabled Button" Disabled="true" />
                     <UIButton Text="Full Width Button" FullWidth="true" />
                 </div>
-            </TableSection>
+            </UITableViewSection>
             
-            <TableSection Header="TEXT FIELDS">
+            <UITableViewSection Header="TEXT FIELDS">
                 <div class="demo-section">
                     <UITextField @bind-Value="textValue" Placeholder="Enter text..." Label="Text Field" />
                     <UITextField @bind-Value="emailValue" Placeholder="Email" InputType="email" />
                     <UITextField @bind-Value="passwordValue" Placeholder="Password" InputType="password" ShowClearButton="false" />
                 </div>
-            </TableSection>
+            </UITableViewSection>
             
-            <TableSection Header="LABELS">
+            <UITableViewSection Header="LABELS">
                 <div class="demo-section">
                     <UILabel Text="Title Label" Style="UILabelStyle.Title" />
                     <UILabel Text="Headline Label" Style="UILabelStyle.Headline" />
@@ -34,9 +33,9 @@
                     <UILabel Text="Caption Label" Style="UILabelStyle.Caption" />
                     <UILabel Text="Centered Text" Alignment="TextAlignment.Center" Bold="true" />
                 </div>
-            </TableSection>
+            </UITableViewSection>
             
-            <TableSection Header="SWITCHES">
+            <UITableViewSection Header="SWITCHES">
                 <div class="demo-section">
                     <div class="switch-row">
                         <UILabel Text="Enable Feature" />
@@ -47,24 +46,24 @@
                         <UISwitch Value="true" Disabled="true" />
                     </div>
                 </div>
-            </TableSection>
+            </UITableViewSection>
             
-            <TableSection Header="SEGMENTED CONTROLS">
+            <UITableViewSection Header="SEGMENTED CONTROLS">
                 <div class="demo-section">
                     <UISegmentedControl Segments="@segmentOptions" @bind-SelectedIndex="selectedSegment" FullWidth="true" />
                 </div>
-            </TableSection>
+            </UITableViewSection>
             
-            <TableSection Header="SLIDERS">
+            <UITableViewSection Header="SLIDERS">
                 <div class="demo-section">
                     <UILabel Text="@($"Volume: {volumeValue:F0}%")" Style="UILabelStyle.Subheadline" />
                     <UISlider @bind-Value="volumeValue" Min="0" Max="100" />
                     <UILabel Text="@($"Brightness: {brightnessValue:F0}%")" Style="UILabelStyle.Subheadline" />
                     <UISlider @bind-Value="brightnessValue" Min="0" Max="100" />
                 </div>
-            </TableSection>
+            </UITableViewSection>
             
-            <TableSection Header="ACTIVITY INDICATORS">
+            <UITableViewSection Header="ACTIVITY INDICATORS">
                 <div class="demo-section demo-row">
                     <div class="activity-group">
                         <UILabel Text="Small" Style="UILabelStyle.Caption" Alignment="TextAlignment.Center" />
@@ -79,8 +78,8 @@
                         <UIActivityIndicator Size="UIActivityIndicatorSize.Large" />
                     </div>
                 </div>
-            </TableSection>
-        </TableView>
+            </UITableViewSection>
+        </UITableView>
     </div>
 </div>
 

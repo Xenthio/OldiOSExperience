@@ -1,7 +1,7 @@
-@* iOS Table Cell Component *@
+@* iOS 5 UITableViewCell Component *@
 @using OldiOSExperience.Apps.UIKit
 
-<div class="ios-table-cell @(IsLast ? "last" : "")" @onclick="OnClick">
+<div class="uitableviewcell @(IsLast ? "last" : "")" @onclick="OnClick">
     @if (!string.IsNullOrEmpty(Icon))
     {
         <div class="cell-icon">
@@ -19,7 +19,11 @@
     
     @if (ShowDisclosure)
     {
-        <div class="cell-accessory">›</div>
+        <div class="cell-accessory disclosure">›</div>
+    }
+    else if (ShowCheckmark)
+    {
+        <div class="cell-accessory checkmark">✓</div>
     }
     else if (ShowToggle)
     {
@@ -41,6 +45,9 @@
     
     [Parameter]
     public bool ShowDisclosure { get; set; } = false;
+    
+    [Parameter]
+    public bool ShowCheckmark { get; set; } = false;
     
     [Parameter]
     public bool ShowToggle { get; set; } = false;

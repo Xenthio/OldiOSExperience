@@ -1,45 +1,45 @@
-@using OldiOSExperience.Apps.Shared
+@using OldiOSExperience.Apps.UIKit
 
 <div class="settings-app">
-    <NavigationBar Title="Settings" />
+    <UINavigationBar Title="Settings" />
     
     <div class="settings-content">
-        <TableView Grouped="true">
-            <TableSection>
-                <TableCell Text="Airplane Mode" ShowToggle="true" ToggleValue="false" Icon="images/icons/settings/airplane.png" />
-                <TableCell Text="Wi-Fi" Detail="Not Connected" ShowDisclosure="true" Icon="images/icons/settings/wifi.png" />
-                <TableCell Text="Bluetooth" Detail="Off" ShowDisclosure="true" Icon="images/icons/settings/bluetooth.png" />
-                <TableCell Text="Cellular" ShowDisclosure="true" Icon="images/icons/settings/cellular.png" IsLast="true" />
-            </TableSection>
+        <UITableView Grouped="true">
+            <UITableViewSection>
+                <UITableViewCell Text="Airplane Mode" ShowToggle="true" ToggleValue="false" Icon="images/icons/settings/airplane.png" />
+                <UITableViewCell Text="Wi-Fi" Detail="Not Connected" ShowDisclosure="true" Icon="images/icons/settings/wifi.png" />
+                <UITableViewCell Text="Bluetooth" Detail="Off" ShowDisclosure="true" Icon="images/icons/settings/bluetooth.png" />
+                <UITableViewCell Text="Cellular" ShowDisclosure="true" Icon="images/icons/settings/cellular.png" IsLast="true" />
+            </UITableViewSection>
             
-            <TableSection>
-                <TableCell Text="Notifications" ShowDisclosure="true" Icon="images/icons/settings/notifications.png" />
-                <TableCell Text="Control Center" ShowDisclosure="true" Icon="images/icons/settings/controlcenter.png" />
-                <TableCell Text="Do Not Disturb" ShowDisclosure="true" Icon="images/icons/settings/dnd.png" IsLast="true" />
-            </TableSection>
+            <UITableViewSection>
+                <UITableViewCell Text="Notifications" ShowDisclosure="true" Icon="images/icons/settings/notifications.png" />
+                <UITableViewCell Text="Control Center" ShowDisclosure="true" Icon="images/icons/settings/controlcenter.png" />
+                <UITableViewCell Text="Do Not Disturb" ShowDisclosure="true" Icon="images/icons/settings/dnd.png" IsLast="true" />
+            </UITableViewSection>
             
-            <TableSection>
-                <TableCell Text="General" ShowDisclosure="true" Icon="images/icons/settings/general.png" />
-                <TableCell Text="Sounds" ShowDisclosure="true" Icon="images/icons/settings/sounds.png" />
-                <TableCell Text="Brightness & Wallpaper" ShowDisclosure="true" Icon="images/icons/settings/brightness.png" />
-                <TableCell Text="Privacy" ShowDisclosure="true" Icon="images/icons/settings/privacy.png" IsLast="true" />
-            </TableSection>
+            <UITableViewSection>
+                <UITableViewCell Text="General" ShowDisclosure="true" Icon="images/icons/settings/general.png" />
+                <UITableViewCell Text="Sounds" ShowDisclosure="true" Icon="images/icons/settings/sounds.png" />
+                <UITableViewCell Text="Brightness & Wallpaper" ShowDisclosure="true" Icon="images/icons/settings/brightness.png" />
+                <UITableViewCell Text="Privacy" ShowDisclosure="true" Icon="images/icons/settings/privacy.png" IsLast="true" />
+            </UITableViewSection>
             
-            <TableSection>
-                <TableCell Text="iCloud" ShowDisclosure="true" Icon="images/icons/settings/icloud.png" />
-                <TableCell Text="Mail, Contacts, Calendars" ShowDisclosure="true" Icon="images/icons/settings/mail.png" />
-                <TableCell Text="Notes" ShowDisclosure="true" Icon="images/icons/settings/notes.png" />
-                <TableCell Text="Reminders" ShowDisclosure="true" Icon="images/icons/settings/reminders.png" />
-                <TableCell Text="Phone" ShowDisclosure="true" Icon="images/icons/settings/phone.png" />
-                <TableCell Text="Messages" ShowDisclosure="true" Icon="images/icons/settings/messages.png" />
-                <TableCell Text="FaceTime" ShowDisclosure="true" Icon="images/icons/settings/facetime.png" />
-                <TableCell Text="Maps" ShowDisclosure="true" Icon="images/icons/settings/maps.png" />
-                <TableCell Text="Safari" ShowDisclosure="true" Icon="images/icons/settings/safari.png" />
-                <TableCell Text="Music" ShowDisclosure="true" Icon="images/icons/settings/music.png" />
-                <TableCell Text="Videos" ShowDisclosure="true" Icon="images/icons/settings/videos.png" />
-                <TableCell Text="Photos & Camera" ShowDisclosure="true" Icon="images/icons/settings/photos.png" IsLast="true" />
-            </TableSection>
-        </TableView>
+            <UITableViewSection>
+                <UITableViewCell Text="iCloud" ShowDisclosure="true" Icon="images/icons/settings/icloud.png" />
+                <UITableViewCell Text="Mail, Contacts, Calendars" ShowDisclosure="true" Icon="images/icons/settings/mail.png" />
+                <UITableViewCell Text="Notes" ShowDisclosure="true" Icon="images/icons/settings/notes.png" />
+                <UITableViewCell Text="Reminders" ShowDisclosure="true" Icon="images/icons/settings/reminders.png" />
+                <UITableViewCell Text="Phone" ShowDisclosure="true" Icon="images/icons/settings/phone.png" />
+                <UITableViewCell Text="Messages" ShowDisclosure="true" Icon="images/icons/settings/messages.png" />
+                <UITableViewCell Text="FaceTime" ShowDisclosure="true" Icon="images/icons/settings/facetime.png" />
+                <UITableViewCell Text="Maps" ShowDisclosure="true" Icon="images/icons/settings/maps.png" />
+                <UITableViewCell Text="Safari" ShowDisclosure="true" Icon="images/icons/settings/safari.png" />
+                <UITableViewCell Text="Music" ShowDisclosure="true" Icon="images/icons/settings/music.png" />
+                <UITableViewCell Text="Videos" ShowDisclosure="true" Icon="images/icons/settings/videos.png" />
+                <UITableViewCell Text="Photos & Camera" ShowDisclosure="true" Icon="images/icons/settings/photos.png" IsLast="true" />
+            </UITableViewSection>
+        </UITableView>
     </div>
 </div>
 

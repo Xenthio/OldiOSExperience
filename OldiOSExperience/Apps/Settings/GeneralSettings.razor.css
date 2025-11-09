@@ -1,0 +1,30 @@
+.settings-general-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #c8cdd5;
+}
+
+.settings-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.settings-section-content {
+    padding: 30px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.text-size-preview {
+    padding: 20px 0;
+    text-align: center;
+}
+
+.text-size-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: -10px;
+}
