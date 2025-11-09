@@ -174,7 +174,31 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
-### Debug Menu Implementation (Latest)
+### Display Settings Implementation (Latest)
+- ✅ **Created DisplaySettings Service** - Dynamic resolution management
+  - Converted from static class to singleton service with events
+  - DevicePreset enum: iPhone4, iPhone5, iPad, Custom
+  - DeviceType enum: iPhone, iPad
+  - OnResolutionChanged event for reactive updates
+  - Methods to calculate grid layout based on resolution
+- ✅ **Resolution Controls** in Debug Menu
+  - Device Preset dropdown (iPhone 4, iPhone 5, iPad Retina, Custom)
+  - Custom resolution textboxes (Width/Height in pixels)
+  - Apply Custom Resolution button
+  - Real-time display of current resolution and grid size
+- ✅ **Dynamic Grid Layout** on Springboard
+  - CSS variables (--icon-rows, --icon-columns) for dynamic sizing
+  - Automatic app distribution across pages based on grid capacity
+  - iPhone 4 (640×960): 4×4 grid (16 apps per page)
+  - iPhone 5 (640×1136): 4×5 grid (20 apps per page)
+  - iPad Retina (1536×2048): 5×5 grid (25 apps per page)
+- ✅ **Scale Factor Recalculation** in Index.razor
+  - Subscribes to resolution changes
+  - Automatically adjusts viewport scaling
+  - Maintains proper aspect ratio for all resolutions
+- ✅ **Bug Fix**: Device type detection (iPhone 5 was incorrectly detected as iPad)
+
+### Debug Menu Implementation
 - ✅ **Created DebugMenu.razor component** - Side popover accessible from anywhere
   - Positioned on the right side of the screen with slide-in animation
   - Toggle button with gear icon always visible
