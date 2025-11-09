@@ -10,8 +10,7 @@
 
 /* This is now the element that gets scaled */
 .phone-container {
-    /* Set the base size of the entire phone, including the home button */
-    width: 640px;
+    /* Width is set inline from C# DisplaySettings */
     
     /* Arrange the screen and button vertically */
     display: flex;
@@ -30,8 +29,7 @@
 
 /* The screen viewport is now just a simple box */
 .screen-viewport {
-    width: 640px;
-    height: 960px;
+    /* Width and height are set inline from C# DisplaySettings */
     background-color: #000;
     overflow: hidden;
     position: relative; /* Important for child positioning */

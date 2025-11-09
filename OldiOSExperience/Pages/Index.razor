@@ -5,8 +5,8 @@
 @implements IDisposable
 
 <div class="simulation-wrapper" @ref="simulationWrapperElement">
-    <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString()">
-        <div class="screen-viewport">
+    <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString(); width: @(DisplaySettings.RESOLUTION_X)px;">
+        <div class="screen-viewport" style="width: @(DisplaySettings.RESOLUTION_X)px; height: @(DisplaySettings.RESOLUTION_Y)px;">
             <div class="screen-content">
                 <OldiOSExperience.Pages.Springboard.Springboard @ref="springboard" DebugAnimationActive="@debugAnimationActive" />
             </div>
