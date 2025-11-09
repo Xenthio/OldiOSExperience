@@ -227,7 +227,20 @@
         if (!isDragging) return;
 
         touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
-        dragOffset = touchCurrentX - touchStartX;
+        var rawOffset = touchCurrentX - touchStartX;
+        
+        // Apply resistance at boundaries
+        if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
+            (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
+        {
+            // Apply rubber-band resistance (reduce drag effect by 30%)
+            dragOffset = rawOffset * 0.3;
+        }
+        else
+        {
+            dragOffset = rawOffset;
+        }
+        
         lastTouchX = touchCurrentX;
         lastTouchTime = DateTime.Now;
     }
@@ -324,7 +337,20 @@
         if (!isMouseDown || !isDragging) return;
 
         touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
-        dragOffset = touchCurrentX - touchStartX;
+        var rawOffset = touchCurrentX - touchStartX;
+        
+        // Apply resistance at boundaries
+        if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
+            (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
+        {
+            // Apply rubber-band resistance (reduce drag effect by 30%)
+            dragOffset = rawOffset * 0.3;
+        }
+        else
+        {
+            dragOffset = rawOffset;
+        }
+        
         lastTouchX = touchCurrentX;
         lastTouchTime = DateTime.Now;
     }
