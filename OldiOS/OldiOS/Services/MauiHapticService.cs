@@ -22,7 +22,7 @@ namespace OldiOS.Services
         {
             if (IsAvailable)
             {
-                HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+                HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
             }
         }
 
@@ -30,7 +30,7 @@ namespace OldiOS.Services
         {
             if (IsAvailable)
             {
-                HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
+                HapticFeedback.Default.Perform(HapticFeedbackType.Click);
             }
         }
 

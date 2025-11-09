@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using OldiOS.Shared.Services;
 using OldiOS.Services;
+using OldiOS.Services.Platforms.iOS;
 
 namespace OldiOS
 {
@@ -29,7 +30,12 @@ namespace OldiOS
 			builder.Services.AddSingleton<BatteryService>();
 			
 			// Register native haptic service for MAUI
-			builder.Services.AddSingleton<IHapticService, MauiHapticService>();
+			#if IOS
+				// iOS platform registration (in Platforms/iOS/HapticsRegistration_iOS.cs)
+				builder.UseiOSHaptics();
+			#else
+				builder.Services.AddSingleton<IHapticService, MauiHapticService>();
+			#endif
 
 #if DEBUG
 	        builder.Services.AddBlazorWebViewDeveloperTools();
