@@ -205,11 +205,11 @@ The animation system is designed for complex, multi-element animations:
 ## Recent Improvements (Current Session)
 
 ### Performance Optimizations for Mobile Devices (Latest - November 2025)
-- ✅ **Removed expensive CSS drop-shadow filter from icons**
-  - Replaced `filter: drop-shadow()` with `box-shadow` on icon-image element
-  - drop-shadow causes expensive repaints on every frame during animations
-  - box-shadow is hardware-accelerated and much more performant
-  - Maintains visual appearance while reducing GPU load
+- ✅ **Optimized CSS drop-shadow filter placement**
+  - Moved `filter: drop-shadow()` from `.app-icon` parent to `.icon-image` element only
+  - Respects icon transparency (PNG alpha channel) unlike box-shadow
+  - More performant than original (doesn't affect text label, only icon image)
+  - Tested and confirmed smooth performance on iPhone X
 - ✅ **Removed dynamic scatter vector JavaScript calculations**
   - AppIcon component no longer subscribes to DisplaySettings changes
   - Removed OnAfterRenderAsync JavaScript interop calls (calculateScatterVector)
@@ -229,10 +229,10 @@ The animation system is designed for complex, multi-element animations:
   
 **Performance Impact:**
 - Eliminates 30+ JavaScript interop calls on initial render
-- Removes expensive drop-shadow repaints during scrolling/animations
+- More targeted drop-shadow (icon-image only, not entire container)
 - Enables hardware acceleration for all major animated elements
-- Should significantly improve frame rate on iPhone X and other mobile devices
-- Particularly improves page swiping, multitasking transitions, and home button press
+- Confirmed smooth performance on iPhone X during page swiping, multitasking, and home button press
+- Maintains proper shadow rendering for transparent icon images
 
 ### Display Settings - Dynamic Scatter Vector Recalculation (Removed for Performance)
 - ❌ **Removed dynamic scatter vector calculation** (see Performance Optimizations above)
