@@ -61,7 +61,7 @@ namespace OldiOSExperience.Services
             {
                 new AppInfo { Id = 15, Name = "Reminders", IconPath = "images/icons/reminders.png", BundleId = "com.apple.reminders" },
                 new AppInfo { Id = 16, Name = "Videos", IconPath = "images/icons/videos.png", BundleId = "com.apple.videos" },
-
+                new AppInfo { Id = 17, Name = "UIKit Demo", IconPath = "images/icons/settings.png", BundleId = "com.xenthio.uikitdemo", ComponentType = typeof(Apps.UIKit.UIKitDemoApp) }
             };
 
             Pages.Add(page1);
