@@ -99,8 +99,8 @@
         // On pressure-sensitive devices, only force press counts as activation
         if (deviceSupportsPressure)
         {
-            // 3D Touch activation threshold (0.5 = 50% pressure)
-            if (pressure > 0.5 && !is3DTouchActive)
+            // 3D Touch activation threshold (0.25 = 25% pressure, matching iOS behavior)
+            if (pressure > 0.25 && !is3DTouchActive)
             {
                 // 3D Touch "click down" - feels like the button clicked in
                 is3DTouchActive = true;
@@ -135,7 +135,7 @@
                 
                 StateHasChanged();
             }
-            else if (pressure <= 0.3 && is3DTouchActive)
+            else if (pressure <= 0.15 && is3DTouchActive)
             {
                 // 3D Touch "click up" - feels like the button released
                 is3DTouchActive = false;
