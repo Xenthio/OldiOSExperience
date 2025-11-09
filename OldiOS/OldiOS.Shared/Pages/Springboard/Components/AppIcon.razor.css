@@ -22,8 +22,8 @@
     /* We can add the mask and other effects here later! */
     /* For now, a simple border-radius will approximate the look */
     border-radius: 20px;
-    /* Use box-shadow instead of filter drop-shadow for better performance */
-    box-shadow: 0px 10px 10px rgba(0,0,0,0.3);
+    /* Use filter drop-shadow to respect icon transparency */
+    filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.3));
 }
 
 .app-icon span {
