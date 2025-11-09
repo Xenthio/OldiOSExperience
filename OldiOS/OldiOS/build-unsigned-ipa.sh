@@ -2,7 +2,7 @@
 
 # Define variables
 PROJECT_DIR="$(pwd)"
-CONFIG="Release"
+CONFIG="Debug"
 FRAMEWORK="net9.0-ios"
 RID="ios-arm64"
 BUILD_DIR="$PROJECT_DIR/bin/$CONFIG/$FRAMEWORK/$RID"
