@@ -92,8 +92,7 @@
     private double touchCurrentX = 0;
     private double dragOffset = 0;
     private bool isDragging = false;
-    private DateTime lastTouchTime = DateTime.MinValue;
-    private double lastTouchX = 0;
+    private DateTime touchStartTime = DateTime.MinValue;
     private bool isAnimatingBack = false;
     
     // --- APP SWITCHER STATE ---
@@ -218,8 +217,7 @@
         isDragging = true;
         isAnimatingBack = false;
         touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
-        lastTouchX = touchStartX;
-        lastTouchTime = DateTime.Now;
+        touchStartTime = DateTime.Now;
     }
 
     private void HandleTouchMove(TouchEventArgs e)
@@ -240,19 +238,22 @@
         {
             dragOffset = rawOffset;
         }
-        
-        lastTouchX = touchCurrentX;
-        lastTouchTime = DateTime.Now;
     }
 
     private async void HandleTouchEnd(TouchEventArgs e)
     {
         if (!isDragging) return;
 
-        // Calculate velocity (pixels per millisecond)
-        var timeDiff = (DateTime.Now - lastTouchTime).TotalMilliseconds;
-        if (timeDiff < 1) timeDiff = 1; // Prevent division by zero
-        var velocity = dragOffset / timeDiff;
+        // Calculate velocity based on total drag distance and total time
+        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
+        var velocity = 0.0;
+        
+        // Only calculate velocity if drag lasted long enough (at least 30ms)
+        // This prevents erratic velocity from very short touches
+        if (totalTime >= 30)
+        {
+            velocity = dragOffset / totalTime; // pixels per millisecond
+        }
 
         // Get viewport width for threshold calculation
         var viewportWidth = DisplaySettings.Width;
@@ -330,8 +331,7 @@
         isDragging = true;
         isAnimatingBack = false;
         touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
-        lastTouchX = touchStartX;
-        lastTouchTime = DateTime.Now;
+        touchStartTime = DateTime.Now;
     }
 
     private void HandleMouseMove(MouseEventArgs e)
@@ -352,9 +352,6 @@
         {
             dragOffset = rawOffset;
         }
-        
-        lastTouchX = touchCurrentX;
-        lastTouchTime = DateTime.Now;
     }
 
     private async void HandleMouseUp(MouseEventArgs e)
@@ -362,10 +359,16 @@
         if (!isMouseDown) return;
         isMouseDown = false;
 
-        // Calculate velocity (pixels per millisecond)
-        var timeDiff = (DateTime.Now - lastTouchTime).TotalMilliseconds;
-        if (timeDiff < 1) timeDiff = 1; // Prevent division by zero
-        var velocity = dragOffset / timeDiff;
+        // Calculate velocity based on total drag distance and total time
+        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
+        var velocity = 0.0;
+        
+        // Only calculate velocity if drag lasted long enough (at least 30ms)
+        // This prevents erratic velocity from very short touches
+        if (totalTime >= 30)
+        {
+            velocity = dragOffset / totalTime; // pixels per millisecond
+        }
 
         // Get viewport width for threshold calculation
         var viewportWidth = DisplaySettings.Width;
