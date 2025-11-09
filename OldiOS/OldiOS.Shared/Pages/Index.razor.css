@@ -6,6 +6,11 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    /* Ensure no selection happens in the wrapper */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* This is now the element that gets scaled */
@@ -25,6 +30,12 @@
     /* Add back the transform properties */
     transform-origin: center center;
     transform: scale(var(--phone-scale, 1.0));
+    
+    /* Disable selection on the phone container */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* The screen viewport is now just a simple box */
@@ -33,6 +44,11 @@
     background-color: #000;
     overflow: hidden;
     position: relative; /* Important for child positioning */
+    /* Disable selection on the screen */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* The screen content takes up the full space of the viewport */
@@ -41,6 +57,11 @@
     height: 100%;
     position: relative;
     /* NO MORE TRANSFORM HERE */
+    /* Disable selection on screen content */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* Simple styling for the physical home button */
@@ -58,6 +79,16 @@
     transition: all 0.1s ease;
     background: radial-gradient(circle at 30% 30%, #090909, #000000);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    /* Disable selection on home button */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Prevent default touch behaviors */
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent context menu on long press */
+    touch-action: manipulation;
 }
 
 .home-button.pressed {

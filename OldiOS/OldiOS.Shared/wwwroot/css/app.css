@@ -5,7 +5,16 @@ html, body {
     height: 100%;
     width: 100%;
     overflow: hidden; /* Prevents scrollbars */
-    font-family: "Helvetica Neue", Helvetica, Arial,sans-serif
+    font-family: "Helvetica Neue", Helvetica, Arial,sans-serif;
+    /* Disable text selection to prevent interference with 3D Touch */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Disable tap highlight on touch devices */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent callout menu on long press in iOS Safari */
+    -webkit-touch-callout: none;
 }
 
 

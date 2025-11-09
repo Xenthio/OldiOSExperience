@@ -17,17 +17,23 @@ window.homeButtonPressure = {
     },
 
     handlePointerDown: function (event) {
+        // Prevent default to avoid text selection and other default behaviors
+        event.preventDefault();
         this.isPressing = true;
         this.updatePressure(event);
     },
 
     handlePointerMove: function (event) {
         if (this.isPressing) {
+            // Prevent default to avoid selection during drag
+            event.preventDefault();
             this.updatePressure(event);
         }
     },
 
     handlePointerUp: function (event) {
+        // Prevent default behaviors
+        event.preventDefault();
         this.isPressing = false;
         // Reset pressure to 0
         if (this.dotNetHelper) {
