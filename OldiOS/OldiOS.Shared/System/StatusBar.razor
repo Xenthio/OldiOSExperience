@@ -1,0 +1,202 @@
+@implements IDisposable
+@using OldiOS.Shared.System 
+@using OldiOS.Shared.Services
+@inject IJSRuntime JSRuntime
+@inject BatteryService BatteryService
+
+@* iOS 5 Status Bar Component *@
+
+<div class="status-bar @StatusBarStyleClass">
+    <div class="status-bar-left">
+        <!-- Carrier -->
+        <span class="carrier-text">@Carrier</span>
+        
+        <!-- WiFi Icon -->
+        <img src="@WifiIconPath" class="wifi-icon" alt="WiFi" />
+    </div>
+    
+    <div class="status-bar-center">
+        <!-- Time -->
+        <span class="time-text">@currentTime</span>
+    </div>
+    
+    <div class="status-bar-right">
+        <!-- Battery Percentage (optional) -->
+        @if (ShowBatteryPercentage)
+        {
+            <span class="battery-percentage">@BatteryPercentage%</span>
+        }
+        
+        <!-- Battery Icon: Changed from <img> to a styled <div> with an inner fill -->
+        <div class="battery-icon" style="background-image: url('@BatteryFrameIconPath')">
+            <div class="battery-fill" style="@BatteryFillStyle"></div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public StatusBarStyle Style { get; set; } = StatusBarStyle.Coloured;
+    
+    [Parameter]
+    public string Carrier { get; set; } = "No SIM";
+    
+    [Parameter]
+    public string WifiIconPath { get; set; } = "_content/OldiOS.Shared/images/status-bar/wifi.png";
+    
+    [Parameter]
+    public int BatteryPercentage { get; set; } = 100;
+
+    [Parameter]
+    public BatteryState BatteryState { get; set; } = BatteryState.Draining;
+    
+    [Parameter]
+    public bool ShowBatteryPercentage { get; set; } = false;
+
+    private string currentTime = "";
+    private global::System.Threading.Timer? clockTimer;
+    private DotNetObjectReference<StatusBar>? objRef; // <-- Add this
+
+    /// <summary>
+    /// Gets the CSS class for the status bar based on the Style enum.
+    /// </summary>
+    private string StatusBarStyleClass => Style switch
+    {
+        StatusBarStyle.WhiteOnBlackShadow => "status-bar-white-on-black-shadow",
+        StatusBarStyle.WhiteOnBlackEtch => "status-bar-white-on-black-etch",
+        _ => "status-bar-coloured"
+    };
+
+    /// <summary>
+    /// Gets the folder name for the current theme's assets.
+    /// </summary>
+    private string ThemeFolder => Style switch
+    {
+        StatusBarStyle.WhiteOnBlackShadow => "white_on_black_shadow",
+        StatusBarStyle.WhiteOnBlackEtch => "white_on_black_etch",
+        _ => "coloured" // Default/fallback folder
+    };
+
+    /// <summary>
+    /// Calculates the path to the correct battery FRAME icon.
+    /// </summary>
+    private string BatteryFrameIconPath
+    {
+        get
+        {
+            string iconName = BatteryState switch
+            {
+                BatteryState.Charging => "battery_charging.png",
+                BatteryState.Full => "battery_charged.png",
+                _ => "battery_draining.png"
+            };
+            return $"_content/OldiOS.Shared/images/status/{ThemeFolder}/{iconName}";
+        }
+    }
+
+    /// <summary>
+    /// Calculates the inline style for the battery's inner fill level.
+    /// </summary>
+    private string BatteryFillStyle
+    {
+        get
+        {
+            // Don't show a fill if the battery is charging (it has the lightning bolt)
+            if (BatteryState == BatteryState.Charging || BatteryState == BatteryState.Full) return "display: none;";
+
+            // Determine if we should use the red "low" battery fill
+            string fillImage = (BatteryPercentage <= 20) 
+                ? "battery_insides_low.png" 
+                : "battery_insides.png";
+            
+            string fillImagePath = $"_content/OldiOS.Shared/images/status/{ThemeFolder}/{fillImage}";
+
+            // Calculate the width of the fill based on the percentage.
+            // The fill area of the icon is ~90% of its total width.
+            double fillWidthPercent = (double)BatteryPercentage * 0.72;
+
+            return $"width: {fillWidthPercent.ToString()}%; background-image: url('{fillImagePath}');";
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Start the battery monitoring
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("batteryManager.start", objRef);
+        }
+    }
+
+    /// <summary>
+    /// This method is called from JavaScript with real battery data.
+    /// </summary>
+    [JSInvokable]
+    public void UpdateBatteryStatus(bool isCharging, double level)
+    {
+        // Only update from browser API if manual override is not enabled
+        if (!BatteryService.UseManualOverride)
+        {
+            BatteryPercentage = (int)(level * 100);
+
+            if (isCharging)
+            {
+                BatteryState = (level == 1.0) ? BatteryState.Full : BatteryState.Charging;
+            }
+            else
+            {
+                BatteryState = BatteryState.Draining;
+            }
+
+            // Tell Blazor to re-render with the new data
+            StateHasChanged();
+        }
+    }
+    
+    private void HandleBatteryServiceChanged()
+    {
+        // Update battery display from service when manual override is enabled
+        if (BatteryService.UseManualOverride)
+        {
+            BatteryPercentage = BatteryService.BatteryPercentage;
+            BatteryState = BatteryService.GetBatteryState();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    protected override void OnInitialized()
+    {
+        UpdateTime();
+        
+        clockTimer = new global::System.Threading.Timer(_ => 
+        {
+            UpdateTime();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+        
+        // Subscribe to battery service changes
+        BatteryService.OnBatteryStateChanged += HandleBatteryServiceChanged;
+    }
+    
+    public void Dispose()
+    {
+        clockTimer?.Dispose();
+        
+        // Clean up the JavaScript interop
+        if (objRef != null)
+        {
+            JSRuntime.InvokeVoidAsync("batteryManager.stop");
+            objRef.Dispose();
+        }
+        
+        // Unsubscribe from battery service
+        BatteryService.OnBatteryStateChanged -= HandleBatteryServiceChanged;
+    }
+    
+    private void UpdateTime()
+    {
+        var now = DateTime.Now;
+        currentTime = now.ToString("h:mm tt");
+    }
+}

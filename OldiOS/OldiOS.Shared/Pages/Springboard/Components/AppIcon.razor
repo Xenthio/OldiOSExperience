@@ -1,0 +1,65 @@
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Services
+@inject IJSRuntime JSRuntime
+@inject DisplaySettings DisplaySettings
+@implements IDisposable
+
+<div @ref="iconElement" class="app-icon" @onclick="HandleClick">
+    <div class="icon-image" style="background-image: url(@App.IconPath)"></div>
+    <span>@App.Name</span>
+</div>
+
+@code {
+    [Parameter]
+    public required AppInfo App { get; set; }
+    
+    [Parameter]
+    public EventCallback<AppInfo> OnAppClick { get; set; }
+    
+    private ElementReference iconElement;
+    private bool isInitialized = false;
+    private bool needsRecalculation = false;
+
+    private async Task HandleClick()
+    {
+        await OnAppClick.InvokeAsync(App);
+    }
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to resolution changes
+        DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Calculate and set the scatter vector for this specific icon
+            await JSRuntime.InvokeVoidAsync("calculateScatterVector", iconElement);
+            isInitialized = true;
+        }
+        else if (needsRecalculation)
+        {
+            // Recalculate after DOM has updated with new dimensions
+            needsRecalculation = false;
+            await JSRuntime.InvokeVoidAsync("calculateScatterVector", iconElement);
+        }
+    }
+
+    private void HandleResolutionChanged()
+    {
+        // Mark for recalculation and trigger re-render
+        // Actual recalculation happens in OnAfterRenderAsync after DOM updates
+        if (isInitialized)
+        {
+            needsRecalculation = true;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
+    }
+}

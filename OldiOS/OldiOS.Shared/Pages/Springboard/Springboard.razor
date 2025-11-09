@@ -1,0 +1,412 @@
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Services
+@inject SpringboardService SpringboardService
+@inject BackgroundAppManager AppManager
+@inject AnimationService AnimationService
+@inject DisplaySettings DisplaySettings
+@implements IDisposable
+
+<div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(DebugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")"
+     style="--icon-rows: @DisplaySettings.GetIconRows(); --icon-columns: @DisplaySettings.GetIconColumns();">
+    <!-- Wallpaper -->
+    <div class="wallpaper" alt="Wallpaper"/>
+
+    <!-- Status Bar -->
+    <OldiOS.Shared.System.StatusBar Style="OldiOS.Shared.System.StatusBarStyle.WhiteOnBlackEtch" />
+
+    <!-- Pages Container (the part that swipes) -->
+    <div class="springboard-pages-container"
+         @ontouchstart="HandleTouchStart"
+         @ontouchmove="HandleTouchMove"
+         @ontouchend="HandleTouchEnd"
+         @onmousedown="HandleMouseDown"
+         @onmousemove="HandleMouseMove"
+         @onmouseup="HandleMouseUp"
+         @onmouseleave="HandleMouseUp">
+        
+        <div class="springboard-pages-filmstrip" style="@filmstripStyle">
+            <!-- Spotlight Page (index -1) -->
+            <div class="springboard-page spotlight-container">
+                <OldiOS.Shared.Pages.Springboard.Components.Spotlight AllApps="AllApps" />
+            </div>
+            
+            <!-- Regular App Pages -->
+            @foreach (var page in Pages)
+            {
+                <div class="springboard-page">
+                    @foreach (var app in page)
+                    {
+                        <OldiOS.Shared.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Page Indicator Dots -->
+    <div class="page-indicator">
+        @for (int i = 0; i < Pages.Count; i++)
+        {
+            <div class="dot @(i == currentPageIndex ? "active" : "")"></div>
+        }
+    </div>
+
+    <!-- The Dock -->
+    <div class="dock">
+        <div class="dock-background"></div>
+        <div class="dock-icons">
+            @foreach (var app in DockApps)
+            {
+                <OldiOS.Shared.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
+            }
+        </div>
+    </div>
+    
+    <!-- App Container for launching apps -->
+    <OldiOS.Shared.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
+    
+    <!-- App Switcher (multitasking tray) -->
+    <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible" 
+                                          OnClose="HandleAppSwitcherClose"
+                                          OnAppSelected="HandleAppSwitcherSelect" />
+    
+    <!-- Lock Screen -->
+    <OldiOS.Shared.Pages.Springboard.Components.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
+</div>
+
+@code {
+    // --- PARAMETERS ---
+    [Parameter]
+    public bool DebugAnimationActive { get; set; } = false;
+    
+    // --- DATA from Services ---
+    private List<List<AppInfo>> Pages => SpringboardService.Pages;
+    private List<AppInfo> DockApps => SpringboardService.DockApps;
+    private List<AppInfo> AllApps => SpringboardService.AllApps;
+    private AppInfo? openedApp => AppManager.ForegroundApp?.App;
+    private bool isAppOpen => openedApp != null;
+
+    // --- STATE for SWIPING ---
+    private int currentPageIndex = 0; // 0 = first app page, -1 = spotlight
+    private double touchStartX = 0;
+    private double touchCurrentX = 0;
+    private double dragOffset = 0;
+    private bool isDragging = false;
+    private DateTime touchStartTime = DateTime.MinValue;
+    private bool isAnimatingBack = false;
+    
+    // --- APP SWITCHER STATE ---
+    private bool isAppSwitcherVisible = false;
+    
+    // --- LOCK SCREEN STATE ---
+    private bool isLocked = true;
+    private bool isUnlocking = false;
+    
+    // We now have spotlight page, so total pages = spotlight + app pages
+    // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
+    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging || isAnimatingBack ? "none" : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)")};";
+
+    protected override void OnInitialized()
+    {
+        // Initialize springboard layout via service
+        SpringboardService.InitializeLayout();
+        
+        // Subscribe to app state changes
+        AppManager.OnAppStatesChanged += HandleAppStateChanged;
+        
+        // Subscribe to resolution changes
+        DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
+    }
+    
+    public void Dispose()
+    {
+        AppManager.OnAppStatesChanged -= HandleAppStateChanged;
+        DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
+    }
+    
+    private void HandleResolutionChanged()
+    {
+        // Reinitialize layout when resolution changes
+        SpringboardService.InitializeLayout();
+        StateHasChanged();
+    }
+    
+    private void HandleAppStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private async void HandleUnlocked()
+    {
+        // Start unlock animation - icons/dock fly in
+        isUnlocking = true;
+        StateHasChanged();
+        
+        // Wait for animation to complete
+        await Task.Delay(400);
+        
+        // Finish unlock
+        isLocked = false;
+        isUnlocking = false;
+        StateHasChanged();
+    }
+    
+    private void HandleAppSwitcherClose()
+    {
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+    }
+    
+    private void HandleAppSwitcherSelect(AppInfo app)
+    {
+        // Launch the selected app
+        AppManager.LaunchApp(app);
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+    }
+    
+    // --- APP LAUNCHING ---
+    private void HandleAppClick(AppInfo app)
+    {
+        SpringboardService.LaunchApp(app);
+    }
+    
+    private void CloseApp()
+    {
+        AppManager.ReturnToSpringboard();
+    }
+    
+    // Public methods to handle home button presses from parent
+    public void HandleHomeButtonSinglePress()
+    {
+        if (isLocked)
+        {
+            // If locked, home button wakes the screen but doesn't unlock
+            return;
+        }
+        
+        // Single tap - normal home button behavior
+        SpringboardService.HandleHomeButton();
+        StateHasChanged();
+    }
+    
+    public void HandleHomeButtonDoublePress()
+    {
+        if (isLocked)
+        {
+            return;
+        }
+        
+        // Double-tap - show app switcher
+        isAppSwitcherVisible = true;
+        StateHasChanged();
+    }
+    
+    public void HandleHomeButtonLongPress()
+    {
+        if (isLocked)
+        {
+            return;
+        }
+        
+        // Long press - could activate Siri or voice control in the future
+        // For now, do nothing
+        StateHasChanged();
+    }
+
+    // --- TOUCH EVENT HANDLERS ---
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        isDragging = true;
+        isAnimatingBack = false;
+        touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
+        touchStartTime = DateTime.Now;
+    }
+
+    private void HandleTouchMove(TouchEventArgs e)
+    {
+        if (!isDragging) return;
+
+        touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
+        var rawOffset = touchCurrentX - touchStartX;
+        
+        // Apply resistance at boundaries
+        if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
+            (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
+        {
+            // Apply rubber-band resistance (reduce drag effect by 30%)
+            dragOffset = rawOffset * 0.3;
+        }
+        else
+        {
+            dragOffset = rawOffset;
+        }
+    }
+
+    private async void HandleTouchEnd(TouchEventArgs e)
+    {
+        if (!isDragging) return;
+
+        // Calculate velocity based on total drag distance and total time
+        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
+        var velocity = 0.0;
+        
+        // Only calculate velocity if drag lasted long enough (at least 30ms)
+        // This prevents erratic velocity from very short touches
+        if (totalTime >= 30)
+        {
+            velocity = dragOffset / totalTime; // pixels per millisecond
+        }
+
+        // Get viewport width for threshold calculation
+        var viewportWidth = DisplaySettings.Width;
+        var halfPage = viewportWidth / 2.0;
+
+        // Determine if we should change pages based on:
+        // 1. Distance threshold (> 50% of screen width)
+        // 2. Velocity threshold (> 0.5 pixels per ms, roughly 500px/s)
+        var shouldChangePage = Math.Abs(dragOffset) > halfPage || Math.Abs(velocity) > 0.5;
+
+        if (shouldChangePage)
+        {
+            if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
+            {
+                // Swiped left, go to next page
+                currentPageIndex++;
+            }
+            else if (dragOffset > 0 && currentPageIndex > -1)
+            {
+                // Swiped right, go to previous page (can go to spotlight at -1)
+                currentPageIndex--;
+            }
+            else
+            {
+                // At boundary, rubber band back
+                await AnimateRubberBandBack();
+                return;
+            }
+            
+            // End drag and reset offset for page change
+            isDragging = false;
+            dragOffset = 0;
+            StateHasChanged();
+        }
+        else
+        {
+            // Not enough distance or velocity, rubber band back to current page
+            await AnimateRubberBandBack();
+            return;
+        }
+    }
+    
+    private async Task AnimateRubberBandBack()
+    {
+        // Set animation flag BEFORE ending drag to prevent CSS transition jitter
+        isAnimatingBack = true;
+        isDragging = false;
+        
+        var startOffset = dragOffset;
+        var duration = 300; // ms
+        var startTime = DateTime.Now;
+        
+        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = elapsed / duration;
+            // Use ease-out cubic for smooth deceleration
+            var eased = 1 - Math.Pow(1 - progress, 3);
+            dragOffset = startOffset * (1 - eased);
+            StateHasChanged();
+            await Task.Delay(16); // ~60fps
+        }
+        
+        dragOffset = 0;
+        isAnimatingBack = false;
+        StateHasChanged();
+    }
+    
+    // --- MOUSE EVENT HANDLERS (for desktop testing) ---
+    private bool isMouseDown = false;
+    
+    private void HandleMouseDown(MouseEventArgs e)
+    {
+        isMouseDown = true;
+        isDragging = true;
+        isAnimatingBack = false;
+        touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
+        touchStartTime = DateTime.Now;
+    }
+
+    private void HandleMouseMove(MouseEventArgs e)
+    {
+        if (!isMouseDown || !isDragging) return;
+
+        touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
+        var rawOffset = touchCurrentX - touchStartX;
+        
+        // Apply resistance at boundaries
+        if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
+            (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
+        {
+            // Apply rubber-band resistance (reduce drag effect by 30%)
+            dragOffset = rawOffset * 0.3;
+        }
+        else
+        {
+            dragOffset = rawOffset;
+        }
+    }
+
+    private async void HandleMouseUp(MouseEventArgs e)
+    {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+
+        // Calculate velocity based on total drag distance and total time
+        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
+        var velocity = 0.0;
+        
+        // Only calculate velocity if drag lasted long enough (at least 30ms)
+        // This prevents erratic velocity from very short touches
+        if (totalTime >= 30)
+        {
+            velocity = dragOffset / totalTime; // pixels per millisecond
+        }
+
+        // Get viewport width for threshold calculation
+        var viewportWidth = DisplaySettings.Width;
+        var halfPage = viewportWidth / 2.0;
+
+        // Determine if we should change pages
+        var shouldChangePage = Math.Abs(dragOffset) > halfPage || Math.Abs(velocity) > 0.5;
+
+        if (shouldChangePage)
+        {
+            if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
+            {
+                currentPageIndex++;
+            }
+            else if (dragOffset > 0 && currentPageIndex > -1)
+            {
+                currentPageIndex--;
+            }
+            else
+            {
+                // At boundary, rubber band back
+                await AnimateRubberBandBack();
+                return;
+            }
+            
+            // End drag and reset offset for page change
+            isDragging = false;
+            dragOffset = 0;
+            StateHasChanged();
+        }
+        else
+        {
+            // Not enough distance or velocity, rubber band back
+            await AnimateRubberBandBack();
+            return;
+        }
+    }
+}

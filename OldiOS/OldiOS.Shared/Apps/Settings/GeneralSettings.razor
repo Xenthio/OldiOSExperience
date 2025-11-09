@@ -1,0 +1,114 @@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="settings-general-app">
+    <UINavigationBar Title="General" BackButtonText="Settings" OnBackClick="@HandleBack" />
+    
+    <div class="settings-content">
+        <UITableView Grouped="true">
+            <UITableViewSection Header="ABOUT">
+                <UITableViewCell Text="Name" Detail="@deviceName" ShowDisclosure="true" />
+                <UITableViewCell Text="Software Version" Detail="iOS 5.1.1" ShowDisclosure="true" />
+                <UITableViewCell Text="Carrier" Detail="No SIM" />
+                <UITableViewCell Text="Model" Detail="iPhone 4" />
+                <UITableViewCell Text="Serial Number" Detail="DLXK12345678" IsLast="true" />
+            </UITableViewSection>
+            
+            <UITableViewSection Header="ACCESSIBILITY">
+                <UITableViewCell Text="VoiceOver" ShowToggle="true" ToggleValue="@voiceOverEnabled" OnToggleChange="@(v => voiceOverEnabled = v)" />
+                <UITableViewCell Text="Zoom" ShowToggle="true" ToggleValue="@zoomEnabled" OnToggleChange="@(v => zoomEnabled = v)" />
+                <UITableViewCell Text="Large Text" ShowToggle="true" ToggleValue="@largeTextEnabled" OnToggleChange="@(v => largeTextEnabled = v)" IsLast="true" />
+            </UITableViewSection>
+            
+            <UITableViewSection Header="AUTO-LOCK">
+                <div class="settings-section-content">
+                    <UISegmentedControl 
+                        Segments="@autoLockOptions" 
+                        @bind-SelectedIndex="autoLockIndex" 
+                        FullWidth="true" />
+                </div>
+            </UITableViewSection>
+            
+            <UITableViewSection Header="BRIGHTNESS" Footer="Adjust screen brightness for better battery life">
+                <div class="settings-section-content">
+                    <UISlider 
+                        @bind-Value="brightness" 
+                        Min="0" 
+                        Max="100" 
+                        FullWidth="true" />
+                </div>
+            </UITableViewSection>
+            
+            <UITableViewSection Header="TEXT SIZE">
+                <div class="settings-section-content">
+                    <div class="text-size-preview">
+                        <UILabel Text="Sample Text" Style="@currentTextStyle" Alignment="TextAlignment.Center" />
+                    </div>
+                    <UISlider 
+                        @bind-Value="textSize" 
+                        Min="0" 
+                        Max="5" 
+                        Step="1"
+                        OnChange="@HandleTextSizeChange"
+                        FullWidth="true" />
+                    <div class="text-size-labels">
+                        <UILabel Text="Smaller" Style="UILabelStyle.Caption" />
+                        <UILabel Text="Larger" Style="UILabelStyle.Caption" Alignment="TextAlignment.Right" />
+                    </div>
+                </div>
+            </UITableViewSection>
+            
+            <UITableViewSection>
+                <div class="settings-section-content">
+                    <UIButton Text="Reset All Settings" Style="UIButtonStyle.Destructive" FullWidth="true" OnClick="@HandleReset" />
+                </div>
+            </UITableViewSection>
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    private string deviceName = "iPhone";
+    private bool voiceOverEnabled = false;
+    private bool zoomEnabled = false;
+    private bool largeTextEnabled = false;
+    private int autoLockIndex = 2;
+    private double brightness = 75;
+    private double textSize = 2;
+    private UILabelStyle currentTextStyle = UILabelStyle.Body;
+    
+    private List<string> autoLockOptions = new() { "1 Min", "2 Min", "3 Min", "5 Min", "Never" };
+    
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+    
+    private async Task HandleBack()
+    {
+        await OnBack.InvokeAsync();
+    }
+    
+    private void HandleTextSizeChange(double size)
+    {
+        currentTextStyle = size switch
+        {
+            0 => UILabelStyle.Caption,
+            1 => UILabelStyle.Footnote,
+            2 => UILabelStyle.Body,
+            3 => UILabelStyle.Subheadline,
+            4 => UILabelStyle.Headline,
+            5 => UILabelStyle.Title,
+            _ => UILabelStyle.Body
+        };
+    }
+    
+    private void HandleReset()
+    {
+        // Reset all settings to defaults
+        voiceOverEnabled = false;
+        zoomEnabled = false;
+        largeTextEnabled = false;
+        autoLockIndex = 2;
+        brightness = 75;
+        textSize = 2;
+        currentTextStyle = UILabelStyle.Body;
+    }
+}

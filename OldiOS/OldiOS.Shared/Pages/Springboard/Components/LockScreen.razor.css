@@ -1,0 +1,217 @@
+.lock-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    background-color: transparent; /* Changed from #000 to transparent */
+    display: none;
+}
+
+.lock-screen.visible {
+    display: flex;
+    flex-direction: column;
+}
+
+.lock-screen.unlocking {
+    /* Don't fade the lock screen container, only the wallpaper */
+}
+
+.lock-screen.unlocking .lock-wallpaper {
+    animation: fadeOut 0.4s ease-out forwards;
+}
+
+.lock-screen.unlocking .lock-status-bar {
+    animation: lockStatusSlideUp 0.4s ease-out forwards;
+}
+
+.lock-screen.unlocking .slide-to-unlock-container {
+    animation: lockSlideDown 0.4s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes lockStatusSlideUp {
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes lockSlideDown {
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.lock-wallpaper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(/_content/OldiOS.Shared/images/lockscreen/lock-wallpaper.png);
+    background-size: cover;
+    z-index: 0;
+}
+.lock-wallpaper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(/_content/OldiOS.Shared/images/wallpaper_gradient_bottom.png);
+    background-repeat: repeat-x;
+    background-size: auto;
+    background-position: bottom;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.lock-status-bar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 1;
+    text-align: center;
+    color: white;
+    text-shadow: 0 -2px 2px rgba(0,0,0,0.8);
+    background-image: url(/_content/OldiOS.Shared/images/lockscreen/controls_small.png);
+    background-repeat: repeat-x;
+    background-size: auto;
+    background-position: top;
+    min-height: 192px;
+}
+
+.status-time {
+    font-size: 120px;
+    font-weight: 200;
+    line-height: 1;
+}
+
+.status-date {
+    font-size: 30px;
+    font-weight: 400;
+}
+
+.slide-to-unlock-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 40px;
+    height: 190px;
+    border-top: 2px solid black;
+    background-image: url(/_content/OldiOS.Shared/images/lockscreen/controls_small.png);
+    background-repeat: repeat-x;
+    background-size: auto;
+    background-position: top;
+}
+
+.slide-track {
+    padding: 6px;
+    position: relative; /* Crucial for containing the ::before element */
+    width: 100%;
+    max-width: 600px;
+    height: 104px; /* The height is now exactly what you want for the content area */
+    
+    /* Remove all border properties from the main element */
+    border: none;
+
+    /* Keep border-radius and overflow to clip the inner content and the pseudo-element */
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+/* New pseudo-element to draw the frame */
+.slide-track::before {
+    content: '';
+    position: absolute;
+    /* Stretch to fill the entire parent .slide-track element */
+    inset: 0;
+
+    /* Move all the border-image properties here */
+    border-width: 25px;
+    border-style: solid;
+    border-image-source: url(/_content/OldiOS.Shared/images/lockscreen/slide_well.png);
+    border-image-slice: 25 fill;
+    border-image-repeat: stretch;
+
+    /* The border-radius must also be applied here to round the border-image itself */
+    border-radius: 25px;
+
+    /* Place the frame behind the parent's actual content (text, button) */
+    z-index: -1;
+}
+
+.slide-text {
+    position: absolute;
+    top: 0;
+    left: 124px;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+    line-height: 104px; /* Vertically centers text in the 104px track */
+    font-size: 41px;
+    letter-spacing: 1px;
+    color: #555555; /* Base color for the text */
+
+    /* --- Shimmer Effect --- */
+    background: linear-gradient(
+        -75deg,
+        #555555 30%,
+        #fff 50%,
+        #555555 70%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2.5s linear infinite;
+}
+
+/* Keyframes for the shimmer animation */
+@keyframes shimmer {
+    to {
+        background-position: -200% center;
+    }
+}
+
+.slide-button {
+    position: absolute;
+    left: 6px;                        /* inset by track padding */
+    top: 8px;                         /* inset by track padding */
+    width: 116px;
+    height: calc(100% - 16px);
+    border-radius: calc(25px - 8px);
+    background-image: url(/_content/OldiOS.Shared/images/lockscreen/slide_knob_grey.png);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.slide-button:active {
+    cursor: grabbing;
+}
+
+.slide-arrow {
+    font-size: 60px;
+    color: #333;
+    font-weight: 300;
+    line-height: 1;
+}

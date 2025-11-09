@@ -1,25 +1,55 @@
 # OldiOSExperience - Architecture Notes
 
 ## Overview
-This project is an iOS 5 replica built with Blazor WebAssembly, simulating an iPhone 4. The architecture is designed to mirror real iOS components and services for authenticity and maintainability.
+This project is an iOS 5 replica built with Blazor, simulating an iPhone 4. The architecture is designed to mirror real iOS components and services for authenticity and maintainability.
+
+**As of November 2025**: The project has been migrated to a .NET MAUI Blazor Hybrid and Web App structure, enabling it to run as both a web app and native mobile/desktop applications.
+
+## Project Structure (Post-Migration)
+
+The project now consists of:
+- **OldiOS/**: .NET MAUI project for native apps (iOS, Android, Windows, macOS)
+- **OldiOS.Shared/**: Shared Razor component library (used by all platforms)
+- **OldiOS.Web/**: ASP.NET Core web server
+- **OldiOS.Web.Client/**: Blazor WebAssembly client
+- **OldiOSExperience/**: Original Blazor WebAssembly project (preserved for reference)
+
+All iOS 5 replica code now lives in **OldiOS.Shared** and is shared across web and native platforms.
 
 ## Architecture
 
 ### Folder Structure
 ```
-OldiOSExperience/
-├── Models/           # Data models (AppInfo, AppState, Animation)
-├── Services/         # Core system services (iOS-inspired)
-├── System/           # System UI components (StatusBar)
-├── Pages/            # Page-level components
-│   └── Springboard/  # Home screen implementation
-│       └── Components/ # Springboard-specific components (LockScreen, AppSwitcher, AppIcon, etc.)
-├── Apps/             # Individual app implementations
-│   ├── Settings/
-│   ├── UIKit/        # iOS 5 UIKit components library
-│   └── Shared/       # Shared app UI components
-├── Components/       # Reusable UI components (future)
-└── wwwroot/          # Static assets
+OldiOS/
+├── OldiOS/                    # .NET MAUI native app project
+│   ├── Platforms/             # Platform-specific code (iOS, Android, Windows, Mac)
+│   ├── Resources/             # App icons, splash screens, fonts
+│   ├── wwwroot/               # MAUI-specific static files
+│   ├── MauiProgram.cs         # MAUI app configuration and DI
+│   └── MainPage.xaml          # MAUI page hosting BlazorWebView
+├── OldiOS.Shared/             # Shared Blazor component library
+│   ├── Models/                # Data models (AppInfo, AppState, Animation)
+│   ├── Services/              # Core system services (iOS-inspired)
+│   ├── System/                # System UI components (StatusBar, DebugMenu)
+│   ├── Pages/                 # Page-level components
+│   │   ├── Index.razor        # Main entry point
+│   │   └── Springboard/       # Home screen implementation
+│   │       └── Components/    # Springboard components (LockScreen, AppSwitcher, etc.)
+│   ├── Apps/                  # Individual app implementations
+│   │   ├── Settings/
+│   │   ├── UIKit/             # iOS 5 UIKit components library
+│   │   └── Shared/            # Shared app UI components
+│   ├── Layout/                # Layout components (MainLayout)
+│   ├── wwwroot/               # Static assets (CSS, JS, images)
+│   └── Routes.razor           # Blazor routing configuration
+├── OldiOS.Web/                # ASP.NET Core web server
+│   ├── Components/
+│   │   └── App.razor          # Web app root component
+│   └── Program.cs             # Web server configuration
+└── OldiOS.Web.Client/         # Blazor WebAssembly client
+    └── Program.cs             # WebAssembly client DI configuration
+
+OldiOSExperience/              # Original project (preserved for reference)
 ```
 
 ### Core Services
@@ -402,9 +432,24 @@ AppSwitcher currently shows app icons instead of preview snapshots. To implement
 
 ## Testing Notes
 
-- Build project: `dotnet build`
-- Run project: `dotnet run`
-- Project uses .NET 9.0 and Blazor WebAssembly
+**Original Project (OldiOSExperience):**
+- Build: `cd OldiOSExperience && dotnet build`
+- Run: `cd OldiOSExperience && dotnet run`
+- Uses .NET 9.0 and Blazor WebAssembly
+
+**New Web App (OldiOS.Web):**
+- Build: `cd OldiOS/OldiOS.Web && dotnet build`
+- Run: `cd OldiOS/OldiOS.Web && dotnet run`
+- Navigate to http://localhost:5000 or https://localhost:5001
+
+**Shared Library (OldiOS.Shared):**
+- Build: `cd OldiOS/OldiOS.Shared && dotnet build`
+- Contains all reusable components
+
+**MAUI Native App (OldiOS):**
+- Requires .NET MAUI workloads: `dotnet workload install maui`
+- Build for specific platform: `dotnet build -f net9.0-android`
+- Note: May not build in CI/CD without platform SDKs
 
 ## Contributing Guidelines
 
@@ -416,9 +461,76 @@ AppSwitcher currently shows app icons instead of preview snapshots. To implement
 6. Use services for state management
 7. Test on both touch and mouse input
 
+## Migration to MAUI Blazor Hybrid and Web App (November 2025)
+
+### Overview
+The project was successfully migrated from a standalone Blazor WebAssembly project to a .NET MAUI Blazor Hybrid and Web App architecture. This enables the iOS 5 replica to run as:
+- **Web App**: Blazor WebAssembly hosted via ASP.NET Core
+- **Native Apps**: iOS, Android, Windows, and macOS via .NET MAUI
+
+### Migration Steps Completed
+
+1. **Created OldiOS.Shared Project**
+   - Copied all source code from OldiOSExperience to OldiOS.Shared
+   - Updated all namespaces from `OldiOSExperience.*` to `OldiOS.Shared.*`
+   - Updated using statements and component references
+   - Added comprehensive `_Imports.razor` with all necessary namespaces
+
+2. **Service Registration**
+   - Registered iOS system services in `OldiOS/MauiProgram.cs` for MAUI apps
+   - Registered services in `OldiOS.Web.Client/Program.cs` for WebAssembly
+   - Services include: DisplaySettings, AnimationService, BackgroundAppManager, SpringboardService, BatteryService
+
+3. **Static Assets**
+   - Copied all wwwroot assets (CSS, JavaScript, images) to OldiOS.Shared/wwwroot
+   - Updated HTML files to reference scripts from `_content/OldiOS.Shared/`
+   - Added JavaScript interop scripts: app-animations.js, utils.js, battery.js
+
+4. **Render Mode Configuration**
+   - Disabled server-side pre-rendering using `InteractiveWebAssemblyRenderMode(prerender: false)`
+   - Ensures all services run on the client side where they belong
+   - Prevents DI errors during server-side pre-rendering
+
+5. **Removed Template Files**
+   - Removed default Home.razor page that conflicted with Index.razor
+   - Kept original OldiOSExperience folder for reference
+
+### Running the Projects
+
+**Web App:**
+```bash
+cd OldiOS/OldiOS.Web
+dotnet run
+# Navigate to https://localhost:5001 or http://localhost:5000
+```
+
+**MAUI App (requires MAUI workloads):**
+```bash
+cd OldiOS/OldiOS
+dotnet build -f net9.0-android   # For Android
+dotnet build -f net9.0-ios       # For iOS
+dotnet build -f net9.0-windows   # For Windows
+```
+
+### Benefits of New Architecture
+
+1. **Code Sharing**: All iOS 5 replica code is in one place (OldiOS.Shared)
+2. **Multi-Platform**: Same codebase runs on web and native platforms
+3. **Better Performance**: Native apps can leverage platform-specific optimizations
+4. **Easier Maintenance**: Single source of truth for all components
+5. **Future Ready**: Easy to add more platforms or deployment targets
+
+### Known Limitations
+
+- MAUI workloads must be installed to build native apps
+- Some platform-specific features may need conditional compilation
+- Image assets work best when optimized for each platform
+
 ## References
 
 - iOS Human Interface Guidelines (iOS 5 era)
 - UIKit Framework documentation
 - Core Animation programming guide
 - SpringBoard reverse engineering resources
+- .NET MAUI Blazor Hybrid documentation
+- Blazor WebAssembly documentation

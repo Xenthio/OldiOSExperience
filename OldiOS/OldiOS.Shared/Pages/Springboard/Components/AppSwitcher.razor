@@ -1,0 +1,78 @@
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Services
+@inject BackgroundAppManager AppManager
+@implements IDisposable
+
+@* iOS 5 App Switcher - shown when double-tapping home button *@
+
+<div class="app-switcher @(isVisible ? "visible" : "")">
+    <div class="app-switcher-dismiss" @onclick="HandleBackgroundClick"></div>
+    <div class="app-switcher-tray">
+        <div class="recent-apps-container">
+            @if (recentApps.Any())
+            {
+                @foreach (var appState in recentApps)
+                {
+                    <div class="recent-app-card" @onclick="() => HandleAppSelect(appState)">
+                        <div class="recent-app-icon">
+                            <img src="@appState.App.IconPath" alt="@appState.App.Name" />
+                        </div>
+                        <div class="recent-app-name">@appState.App.Name</div>
+                        <div class="recent-app-close" @onclick="() => HandleAppClose(appState)" @onclick:stopPropagation="true">
+                            <span>×</span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-recent-apps">No recent apps</div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; } = false;
+    
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+    
+    [Parameter]
+    public EventCallback<AppInfo> OnAppSelected { get; set; }
+    
+    private bool isVisible => IsVisible;
+    private IReadOnlyList<AppState> recentApps => AppManager.RecentApps;
+    
+    protected override void OnInitialized()
+    {
+        AppManager.OnAppStatesChanged += HandleAppStateChanged;
+    }
+    
+    public void Dispose()
+    {
+        AppManager.OnAppStatesChanged -= HandleAppStateChanged;
+    }
+    
+    private void HandleAppStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    private async Task HandleBackgroundClick()
+    {
+        await OnClose.InvokeAsync();
+    }
+    
+    private async Task HandleAppSelect(AppState appState)
+    {
+        await OnAppSelected.InvokeAsync(appState.App);
+        await OnClose.InvokeAsync();
+    }
+    
+    private void HandleAppClose(AppState appState)
+    {
+        AppManager.CloseApp(appState.App.Id);
+    }
+}

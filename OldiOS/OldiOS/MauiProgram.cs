@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using OldiOS.Shared.Services;
+using OldiOS.Services;
+using OldiOS.Services.Platforms.iOS;
 
 namespace OldiOS
 {
@@ -15,6 +18,24 @@ namespace OldiOS
 				});
 
 			builder.Services.AddMauiBlazorWebView();
+
+			// Register iOS system services
+			builder.Services.AddSingleton<DisplaySettings>();
+			builder.Services.AddSingleton<AnimationService>();
+			builder.Services.AddSingleton<BackgroundAppManager>();
+			builder.Services.AddSingleton<SpringboardService>();
+			
+			// Register native battery service for MAUI
+			builder.Services.AddSingleton<INativeBatteryService, MauiNativeBatteryService>();
+			builder.Services.AddSingleton<BatteryService>();
+			
+			// Register native haptic service for MAUI
+			#if IOS
+				// iOS platform registration (in Platforms/iOS/HapticsRegistration_iOS.cs)
+				builder.UseiOSHaptics();
+			#else
+				builder.Services.AddSingleton<IHapticService, MauiHapticService>();
+			#endif
 
 #if DEBUG
 	        builder.Services.AddBlazorWebViewDeveloperTools();

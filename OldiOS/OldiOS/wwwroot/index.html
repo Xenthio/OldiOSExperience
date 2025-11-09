@@ -5,19 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>OldiOS</title>
     <base href="/" />
-    <link rel="stylesheet" href="_content/OldiOS.Shared/app.css" />
+    <link rel="stylesheet" href="_content/OldiOS.Shared/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="_content/OldiOS.Shared/css/app.css" />
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="OldiOS.styles.css" />
-    <link rel="icon" href="data:,">
+    <link rel="icon" type="image/png" href="_content/OldiOS.Shared/favicon.png" />
 </head>
 
 <body>
-
-    <div class="status-bar-safe-area"></div>
-
     <div id="app">Loading...</div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="_content/OldiOS.Shared/js/app-animations.js"></script>
+    <script src="_content/OldiOS.Shared/js/utils.js"></script>
+    <script src="_content/OldiOS.Shared/js/battery.js"></script>
+    <script src="_content/OldiOS.Shared/js/pressure.js"></script>
+    <script>
+        window.getElementWidth = (element) => {
+            return element.getBoundingClientRect().width;
+        };
+    </script>
 
 </body>
 
