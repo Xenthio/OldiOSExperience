@@ -56,7 +56,7 @@
     flex-shrink: 0; /* Prevents the button from shrinking */
     position: relative;
     transition: all 0.1s ease;
-    background: radial-gradient(circle at 30% 30%, #4a4a4a, #2a2a2a);
+    background: radial-gradient(circle at 30% 30%, #090909, #000000);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
