@@ -181,6 +181,7 @@ The animation system is designed for complex, multi-element animations:
   - Implemented velocity-based swiping (>0.5px/ms ≈ 500px/s)
   - Added smooth rubber-band animation when swipe doesn't complete
   - Prevents instant jumps by animating back to current page
+  - Added boundary resistance (30% dampening) when dragging past edges
 - ✅ **Improved touch/mouse tracking**
   - Track last touch position and time for velocity calculation
   - Smooth 60fps animation loop for rubber-band effect
@@ -189,6 +190,13 @@ The animation system is designed for complex, multi-element animations:
   - Changed from `ease-out` to `cubic-bezier(0.25, 0.46, 0.45, 0.94)` for smoother page snapping
   - Disable transitions during drag AND during rubber-band animation
 - ✅ **Added DisplaySettings.Width property** for easier width access
+
+**How it works (iOS-like behavior):**
+1. **During drag**: Pages follow finger with smooth tracking, with 30% resistance at boundaries
+2. **On release**: 
+   - If dragged > 50% of screen width OR velocity > 500px/s → change page
+   - Otherwise → smooth rubber-band animation back to current page (300ms, ease-out cubic)
+3. **At boundaries**: Attempting to swipe past first/last page shows resistance and rubber-bands back
 
 ## Recent Improvements (Previous Session)
 
