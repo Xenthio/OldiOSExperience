@@ -102,10 +102,6 @@
     private bool isLocked = true;
     private bool isUnlocking = false;
     
-    // --- HOME BUTTON STATE ---
-    private DateTime lastHomeButtonPress = DateTime.MinValue;
-    private const int DoubleTapWindowMs = 400;
-    
     // We now have spotlight page, so total pages = spotlight + app pages
     // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
     private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging || isAnimatingBack ? "none" : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)")};";
@@ -180,8 +176,8 @@
         AppManager.ReturnToSpringboard();
     }
     
-    // Public method to handle home button press from parent
-    public void HandleHomeButtonPress()
+    // Public methods to handle home button presses from parent
+    public void HandleHomeButtonSinglePress()
     {
         if (isLocked)
         {
@@ -189,26 +185,33 @@
             return;
         }
         
-        var now = DateTime.Now;
-        var timeSinceLastPress = (now - lastHomeButtonPress).TotalMilliseconds;
-        
-        // Check for double-tap
-        if (timeSinceLastPress <= DoubleTapWindowMs && AppManager.ForegroundApp == null)
-        {
-            // Double-tap detected on springboard - show app switcher
-            isAppSwitcherVisible = true;
-            lastHomeButtonPress = DateTime.MinValue; // Reset to prevent triple tap
-        }
-        else
-        {
-            // Single tap - normal home button behavior
-            SpringboardService.HandleHomeButton();
-            lastHomeButtonPress = now;
-        }
-        
+        // Single tap - normal home button behavior
+        SpringboardService.HandleHomeButton();
         StateHasChanged();
-        // In real iOS, if no app is open, home button does nothing on springboard
-        // Could add "bounce" animation here in the future
+    }
+    
+    public void HandleHomeButtonDoublePress()
+    {
+        if (isLocked)
+        {
+            return;
+        }
+        
+        // Double-tap - show app switcher
+        isAppSwitcherVisible = true;
+        StateHasChanged();
+    }
+    
+    public void HandleHomeButtonLongPress()
+    {
+        if (isLocked)
+        {
+            return;
+        }
+        
+        // Long press - could activate Siri or voice control in the future
+        // For now, do nothing
+        StateHasChanged();
     }
 
     // --- TOUCH EVENT HANDLERS ---
