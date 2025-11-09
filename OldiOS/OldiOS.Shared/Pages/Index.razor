@@ -83,9 +83,10 @@
         pressureLevel = pressure;
         
         // Detect if this device supports variable pressure
-        // If pressure is NOT 0.5, it's a pressure-sensitive device
-        // If pressure varies from the previous value, it supports pressure
-        if (!hasDetectedPressureSupport && pressure != 0.5)
+        // Devices WITH pressure support: pressure > 0.6 when pressed hard (3D Touch)
+        // Devices WITHOUT pressure support: pressure is 0 or 0.5 (default values)
+        // Only treat pressure > 0.6 as indication of actual pressure sensitivity
+        if (!hasDetectedPressureSupport && pressure > 0.6)
         {
             deviceSupportsPressure = true;
             hasDetectedPressureSupport = true;

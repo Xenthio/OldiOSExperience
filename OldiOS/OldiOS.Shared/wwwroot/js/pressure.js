@@ -48,19 +48,17 @@ window.homeButtonPressure = {
         
         // Check if pressure is actually supported and available
         // event.pressure is a number from 0.0 to 1.0
-        // 0.5 is the default for devices that don't support pressure
-        // But we need to check if it's actually changing to know if it's supported
+        // Devices WITHOUT pressure support typically report:
+        //   - 0 (touch events on most mobile devices)
+        //   - 0.5 (default for some pointer events)
+        // Devices WITH pressure support report varying values, especially > 0.6 when pressed hard
         if (typeof event.pressure === 'number') {
             pressure = event.pressure;
-            
-            // For devices without pressure support, pressure will always be 0.5
-            // We don't want to activate 3D Touch for these devices
-            // Only use pressure if it's NOT the default 0.5 OR if it is 0.5 but the device supports pressure
-            // The safest approach: use the actual pressure value as-is
-            // If device doesn't support pressure, it will be 0.5 and won't reach our 0.5 threshold (we use >0.5)
         }
 
         // Send pressure to Blazor
+        // C# code will distinguish between pressure-capable devices (pressure > 0.6)
+        // and non-pressure devices (pressure stays at 0 or 0.5)
         if (this.dotNetHelper) {
             this.dotNetHelper.invokeMethodAsync('OnHomeButtonPressure', pressure);
         }

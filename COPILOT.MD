@@ -564,6 +564,27 @@ dotnet build -f net9.0-windows   # For Windows
 - Some platform-specific features may need conditional compilation
 - Image assets work best when optimized for each platform
 
+## Bug Fixes
+
+### 3D Touch Detection Fix (November 2025)
+
+**Issue:** On non-3D Touch devices, the home button became unresponsive because the pressure detection logic incorrectly identified them as pressure-sensitive devices.
+
+**Root Cause:** The detection logic in `Index.razor` assumed devices without pressure support would report `pressure = 0.5`. However, many devices report `pressure = 0` instead. The original logic `if (pressure != 0.5)` would incorrectly mark these devices as supporting pressure.
+
+**Fix:** Changed the detection threshold to only recognize actual pressure-sensitive input:
+- Original: `if (pressure != 0.5)` → marks device as pressure-capable
+- Fixed: `if (pressure > 0.6)` → only high pressure values indicate real pressure support
+
+This ensures:
+- Non-pressure devices (reporting 0 or 0.5) fall back to pointer events
+- Pressure-capable devices (reporting > 0.6 when pressed) use pressure detection
+- Home button works correctly on all device types
+
+**Files Modified:**
+- `OldiOS.Shared/Pages/Index.razor` - Updated C# detection logic
+- `OldiOS.Shared/wwwroot/js/pressure.js` - Updated JS comments for clarity
+
 ## References
 
 - iOS Human Interface Guidelines (iOS 5 era)
