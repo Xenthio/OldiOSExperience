@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using OldiOS.Shared.Services;
+using OldiOS.Services;
 
 namespace OldiOS
 {
@@ -22,6 +23,9 @@ namespace OldiOS
 			builder.Services.AddSingleton<AnimationService>();
 			builder.Services.AddSingleton<BackgroundAppManager>();
 			builder.Services.AddSingleton<SpringboardService>();
+			
+			// Register native battery service for MAUI
+			builder.Services.AddSingleton<INativeBatteryService, MauiNativeBatteryService>();
 			builder.Services.AddSingleton<BatteryService>();
 
 #if DEBUG

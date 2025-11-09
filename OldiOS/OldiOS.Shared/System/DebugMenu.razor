@@ -76,6 +76,20 @@
             <!-- Battery Controls Section -->
             <div class="debug-section">
                 <h4>Battery</h4>
+                
+                @if (BatteryService.HasNativeSupport)
+                {
+                    <div class="debug-info">
+                        <span style="color: #4ade80;">✓ Native battery API available</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="debug-info">
+                        <span style="color: #fbbf24;">ℹ Using JavaScript Battery API</span>
+                    </div>
+                }
+                
                 <div class="debug-control-group">
                     <label class="debug-checkbox">
                         <input type="checkbox" @bind="BatteryService.UseManualOverride" />
@@ -107,6 +121,15 @@
                                @bind="BatteryService.BatteryPercentage"
                                @bind:event="oninput"
                                class="debug-slider" />
+                    </div>
+                }
+                else if (BatteryService.HasNativeSupport)
+                {
+                    <div class="debug-info">
+                        <div style="margin-top: 8px;">
+                            <span>Current: @BatteryService.BatteryPercentage%</span>
+                            <span style="margin-left: 12px;">@(BatteryService.IsCharging ? "⚡ Charging" : "🔋 Draining")</span>
+                        </div>
                     </div>
                 }
             </div>
