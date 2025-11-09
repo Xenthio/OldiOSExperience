@@ -7,7 +7,10 @@ namespace OldiOSExperience.Services
     {
         iPhone4,
         iPhone5,
+        iPhone6,
+        iPhone6Plus,
         iPad,
+        iPadMini,
         Custom
     }
 
@@ -95,12 +98,30 @@ namespace OldiOSExperience.Services
         /// </summary>
         public DeviceType GetDeviceType()
         {
-            // iPad resolutions are typically 768+ width AND 1024+ height (in portrait)
-            // iPhone 5 is 640x1136, so we need to check both dimensions
-            if (RESOLUTION_X >= 768 && RESOLUTION_Y >= 1024)
+            // Use the preset for a more reliable check
+            if (CurrentPreset != DevicePreset.Custom)
+            {
+                switch (CurrentPreset)
+                {
+                    case DevicePreset.iPhone4:
+                    case DevicePreset.iPhone5:
+                    case DevicePreset.iPhone6:
+                    case DevicePreset.iPhone6Plus:
+                        return DeviceType.iPhone;
+                    case DevicePreset.iPad:
+                    case DevicePreset.iPadMini:
+                        return DeviceType.iPad;
+                }
+            }
+
+            // Fallback for custom resolutions: check aspect ratio.
+            // iPads are 4:3, iPhones are taller.
+            double aspectRatio = Math.Max(RESOLUTION_X, RESOLUTION_Y) / Math.Min(RESOLUTION_X, RESOLUTION_Y);
+            if (aspectRatio < 1.5) // 4:3 is ~1.33. 3:2 (iPhone 4) is 1.5. 16:9 is ~1.77
             {
                 return DeviceType.iPad;
             }
+            
             return DeviceType.iPhone;
         }
 
@@ -110,16 +131,19 @@ namespace OldiOSExperience.Services
         public int GetIconRows()
         {
             var deviceType = GetDeviceType();
-            
+            bool isLandscape = RESOLUTION_X > RESOLUTION_Y;
+
             if (deviceType == DeviceType.iPad)
             {
-                // iPad has 5 rows
-                return 5;
+                // iPad: 5 rows in portrait, 4 in landscape
+                return isLandscape ? 4 : 5;
             }
             else
             {
                 // iPhone: 4 rows for iPhone 4 (960px), 5 rows for iPhone 5+ (1136px+)
-                return RESOLUTION_Y >= 1136 ? 5 : 4;
+                // Use the portrait height for this check
+                double portraitHeight = Math.Max(RESOLUTION_X, RESOLUTION_Y);
+                return portraitHeight >= 1136 ? 5 : 4;
             }
         }
 
@@ -129,7 +153,16 @@ namespace OldiOSExperience.Services
         public int GetIconColumns()
         {
             var deviceType = GetDeviceType();
-            return deviceType == DeviceType.iPad ? 5 : 4;
+            bool isLandscape = RESOLUTION_X > RESOLUTION_Y;
+
+            if (deviceType == DeviceType.iPad && isLandscape)
+            {
+                // iPads in landscape have 5 columns
+                return 5;
+            }
+            
+            // iPhones and iPads in portrait have 4 columns
+            return 4;
         }
 
         /// <summary>
@@ -148,9 +181,21 @@ namespace OldiOSExperience.Services
                     RESOLUTION_X = 640.0;
                     RESOLUTION_Y = 1136.0;
                     break;
+                case DevicePreset.iPhone6:
+                    RESOLUTION_X = 750.0;
+                    RESOLUTION_Y = 1334.0;
+                    break;
+                case DevicePreset.iPhone6Plus:
+                    RESOLUTION_X = 1080.0;
+                    RESOLUTION_Y = 1920.0;
+                    break;
                 case DevicePreset.iPad:
                     RESOLUTION_X = 1536.0;
                     RESOLUTION_Y = 2048.0;
+                    break;
+                case DevicePreset.iPadMini:
+                    RESOLUTION_X = 768;
+                    RESOLUTION_Y = 1024;
                     break;
                 case DevicePreset.Custom:
                     // Custom - don't change resolution
