@@ -9,6 +9,31 @@
     transform: translateZ(0);
     /* Enable GPU acceleration for animations */
     will-change: transform, opacity;
+    position: relative; /* For positioning the shadow */
+}
+
+.icon-shadow {
+    position: absolute;
+    width: 206px;
+    height: 206px;
+    background-image: url(/_content/OldiOS.Shared/images/icon_shadow.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Position shadow behind and slightly below the icon */
+    top: 40px; /* Lowered by 40px as mentioned */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Use different shadow for dock icons */
+.dock-icons .icon-shadow {
+    width: 118px;
+    height: 120px;
+    background-image: url(/_content/OldiOS.Shared/images/icon_shadow_dock.png);
+    top: 0; /* Dock shadow is directly behind, not lowered */
 }
  
 .icon-image {
@@ -22,8 +47,8 @@
     /* We can add the mask and other effects here later! */
     /* For now, a simple border-radius will approximate the look */
     border-radius: 20px;
-    /* Use filter drop-shadow to respect icon transparency */
-    filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.3));
+    position: relative;
+    z-index: 1;
 }
 
 .app-icon span {
@@ -32,4 +57,6 @@
     font-weight: bold;
     font-size: 22px; /* 11pt @2x = 22px */
     text-shadow: 0px 3px 2.5px rgba(0,0,0,0.8);
+    position: relative;
+    z-index: 1;
 }
