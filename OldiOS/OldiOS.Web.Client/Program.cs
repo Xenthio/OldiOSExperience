@@ -14,4 +14,7 @@ builder.Services.AddSingleton<SpringboardService>();
 builder.Services.AddSingleton<INativeBatteryService, NullNativeBatteryService>();
 builder.Services.AddSingleton<BatteryService>();
 
+// Register null haptic service for web
+builder.Services.AddSingleton<IHapticService, NullHapticService>();
+
 await builder.Build().RunAsync();

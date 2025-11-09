@@ -2,6 +2,7 @@
 @using OldiOS.Shared.Services
 @inject IJSRuntime JSRuntime
 @inject DisplaySettings DisplaySettings
+@inject IHapticService HapticService
 @implements IDisposable
 
 <div class="simulation-wrapper" @ref="simulationWrapperElement">
@@ -11,8 +12,14 @@
                 <OldiOS.Shared.Pages.Springboard.Springboard @ref="springboard" DebugAnimationActive="@debugAnimationActive" />
             </div>
         </div>
-        <div class="home-button" @onclick="HandleHomeButtonClick">
+        <div class="home-button @(isHomeButtonPressed ? "pressed" : "")" 
+             @ref="homeButtonElement"
+             @onclick="HandleHomeButtonClick">
             <div class="home-button-square"></div>
+            @if (pressureLevel > 0)
+            {
+                <div class="pressure-indicator" style="opacity: @(pressureLevel)"></div>
+            }
         </div>
     </div>
 </div>
@@ -22,9 +29,13 @@
 
 @code {
     private ElementReference simulationWrapperElement;
+    private ElementReference homeButtonElement;
     private OldiOS.Shared.Pages.Springboard.Springboard? springboard;
     private DotNetObjectReference<Index>? objRef;
     private bool debugAnimationActive = false;
+    private bool isHomeButtonPressed = false;
+    private double pressureLevel = 0;
+    private bool is3DTouchActive = false;
 
     // Helper record to receive dimensions from JS
     public record ElementDimensions(double Width, double Height);
@@ -35,6 +46,7 @@
         {
             objRef = DotNetObjectReference.Create(this);
             await JSRuntime.InvokeVoidAsync("addResizeListener", objRef);
+            await JSRuntime.InvokeVoidAsync("initializeHomeButtonPressure", homeButtonElement, objRef);
             await CalculateAndApplyScaleFactor();
             
             // Subscribe to resolution changes
@@ -52,6 +64,39 @@
     public async Task OnBrowserResize()
     {
         await CalculateAndApplyScaleFactor();
+    }
+
+    [JSInvokable]
+    public void OnHomeButtonPressure(double pressure)
+    {
+        pressureLevel = pressure;
+        
+        // 3D Touch activation threshold (0.5 = 50% pressure)
+        if (pressure > 0.5 && !is3DTouchActive)
+        {
+            is3DTouchActive = true;
+            isHomeButtonPressed = true;
+            
+            // Trigger haptic feedback for 3D Touch activation
+            HapticService.ImpactHeavy();
+            
+            StateHasChanged();
+        }
+        else if (pressure <= 0.3 && is3DTouchActive)
+        {
+            is3DTouchActive = false;
+            isHomeButtonPressed = false;
+            StateHasChanged();
+        }
+        else if (pressure > 0.1 && pressure <= 0.5 && !is3DTouchActive)
+        {
+            // Light haptic for normal press
+            if (pressure > 0.1 && pressureLevel <= 0.1)
+            {
+                HapticService.ImpactLight();
+            }
+            StateHasChanged();
+        }
     }
 
     private async Task CalculateAndApplyScaleFactor()
@@ -78,6 +123,8 @@
 
     private void HandleHomeButtonClick()
     {
+        // Provide haptic feedback on click
+        HapticService.ImpactMedium();
         springboard?.HandleHomeButtonPress();
     }
 
@@ -86,6 +133,7 @@
         if (objRef != null)
         {
             JSRuntime.InvokeVoidAsync("removeResizeListener", objRef);
+            JSRuntime.InvokeVoidAsync("cleanupHomeButtonPressure");
             objRef.Dispose();
         }
         

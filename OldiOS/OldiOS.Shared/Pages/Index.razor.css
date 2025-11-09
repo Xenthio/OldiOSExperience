@@ -54,6 +54,15 @@
     align-items: center;
     cursor: pointer;
     flex-shrink: 0; /* Prevents the button from shrinking */
+    position: relative;
+    transition: all 0.1s ease;
+    background: radial-gradient(circle at 30% 30%, #4a4a4a, #2a2a2a);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.home-button.pressed {
+    transform: scale(0.95);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), inset 0 2px 8px rgba(255, 255, 255, 0.1);
 }
 
 .home-button-square {
@@ -61,4 +70,18 @@
     height: 33px;
     border: 1px solid #555;
     border-radius: 5px;
+    z-index: 2;
+}
+
+.pressure-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100, 150, 255, 0.4), rgba(100, 150, 255, 0) 70%);
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+    z-index: 1;
 }

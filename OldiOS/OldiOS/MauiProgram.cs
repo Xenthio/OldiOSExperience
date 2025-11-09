@@ -27,6 +27,9 @@ namespace OldiOS
 			// Register native battery service for MAUI
 			builder.Services.AddSingleton<INativeBatteryService, MauiNativeBatteryService>();
 			builder.Services.AddSingleton<BatteryService>();
+			
+			// Register native haptic service for MAUI
+			builder.Services.AddSingleton<IHapticService, MauiHapticService>();
 
 #if DEBUG
 	        builder.Services.AddBlazorWebViewDeveloperTools();
