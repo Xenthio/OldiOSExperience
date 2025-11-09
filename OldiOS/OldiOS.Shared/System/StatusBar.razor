@@ -42,7 +42,7 @@
     public string Carrier { get; set; } = "No SIM";
     
     [Parameter]
-    public string WifiIconPath { get; set; } = "images/status-bar/wifi.png";
+    public string WifiIconPath { get; set; } = "_content/OldiOS.Shared/images/status-bar/wifi.png";
     
     [Parameter]
     public int BatteryPercentage { get; set; } = 100;
@@ -90,7 +90,7 @@
                 BatteryState.Full => "battery_charged.png",
                 _ => "battery_draining.png"
             };
-            return $"images/status/{ThemeFolder}/{iconName}";
+            return $"_content/OldiOS.Shared/images/status/{ThemeFolder}/{iconName}";
         }
     }
 
@@ -109,7 +109,7 @@
                 ? "battery_insides_low.png" 
                 : "battery_insides.png";
             
-            string fillImagePath = $"images/status/{ThemeFolder}/{fillImage}";
+            string fillImagePath = $"_content/OldiOS.Shared/images/status/{ThemeFolder}/{fillImage}";
 
             // Calculate the width of the fill based on the percentage.
             // The fill area of the icon is ~90% of its total width.
