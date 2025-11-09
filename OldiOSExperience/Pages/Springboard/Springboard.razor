@@ -270,11 +270,13 @@
             {
                 // Swiped left, go to next page
                 currentPageIndex++;
+                await AnimatePageTransition();
             }
             else if (dragOffset > 0 && currentPageIndex > -1)
             {
                 // Swiped right, go to previous page (can go to spotlight at -1)
                 currentPageIndex--;
+                await AnimatePageTransition();
             }
             else
             {
@@ -282,11 +284,6 @@
                 await AnimateRubberBandBack();
                 return;
             }
-            
-            // End drag and reset offset for page change
-            isDragging = false;
-            dragOffset = 0;
-            StateHasChanged();
         }
         else
         {
@@ -294,6 +291,33 @@
             await AnimateRubberBandBack();
             return;
         }
+    }
+    
+    private async Task AnimatePageTransition()
+    {
+        // Smoothly animate the remaining drag offset to 0 as the page transitions
+        // This creates an elastic/smooth completion of the page change
+        isAnimatingBack = true;
+        isDragging = false;
+        
+        var startOffset = dragOffset;
+        var duration = 300; // ms
+        var startTime = DateTime.Now;
+        
+        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = elapsed / duration;
+            // Use ease-out cubic for smooth deceleration
+            var eased = 1 - Math.Pow(1 - progress, 3);
+            dragOffset = startOffset * (1 - eased);
+            StateHasChanged();
+            await Task.Delay(16); // ~60fps
+        }
+        
+        dragOffset = 0;
+        isAnimatingBack = false;
+        StateHasChanged();
     }
     
     private async Task AnimateRubberBandBack()
@@ -382,10 +406,12 @@
             if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
             {
                 currentPageIndex++;
+                await AnimatePageTransition();
             }
             else if (dragOffset > 0 && currentPageIndex > -1)
             {
                 currentPageIndex--;
+                await AnimatePageTransition();
             }
             else
             {
@@ -393,11 +419,6 @@
                 await AnimateRubberBandBack();
                 return;
             }
-            
-            // End drag and reset offset for page change
-            isDragging = false;
-            dragOffset = 0;
-            StateHasChanged();
         }
         else
         {
