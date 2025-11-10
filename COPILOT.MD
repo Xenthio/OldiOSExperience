@@ -250,22 +250,22 @@ The animation system is designed for complex, multi-element animations:
 
 ### Home Screen Page Swiping Improvements
 
-#### Fourth Iteration (November 2025) - Simplified to Use Native CSS Transitions
-- ✅ **Fixed persistent sliding/bouncing by using native CSS transitions (November 2025)**
+#### Fourth Iteration (November 2025) - Swiping Animation via JavaScript requestAnimationFrame
+- ✅ **Fixed persistent sliding/bouncing by using JavaScript requestAnimationFrame-based animations (November 2025)**
   - **Problem**: Despite multiple animation attempts, pages still slid over instantly and bounced off edges
   - **Root Cause**: Custom animation logic was fighting with CSS transitions and page index changes
-  - **Solution**: Removed all custom `AnimatePageChange()` logic and let native CSS handle page transitions
+  - **Solution**: Removed conflicting CSS transition logic and implemented smooth page swiping using custom JavaScript animation (`springboardAnimation.js`) with `requestAnimationFrame`
   - **Implementation**:
     - When page change threshold is met, simply:
-      1. Update `currentPageIndex` (which moves filmstrip via CSS)
+      1. Update `currentPageIndex` (which moves filmstrip via JS animation)
       2. Reset `dragOffset = 0`
       3. Set `isDragging = false`
-    - CSS transition (`0.3s cubic-bezier`) handles the smooth animation automatically
+    - The JavaScript animation smoothly transitions the filmstrip position, mimicking iOS-like deceleration and bounce
   - **Result**: Clean, smooth page transitions with no overshoot, bounce, or instant sliding
   - **Why This Works**: 
-    - The filmstrip style already has proper CSS transitions built in
+    - The filmstrip style is animated via JavaScript for precise control and iOS-like feel
     - By resetting dragOffset to 0 immediately, we avoid conflicting transforms
-    - CSS transitions provide the exact iOS-like feel we want without custom animation code
+    - JavaScript requestAnimationFrame animation provides the exact iOS-like feel we want, outperforming native CSS transitions for this use case
 
 #### Third Iteration (November 2025) - Fixed "Instant Speed Up" and Improved Tiny Swipe Detection
 - ✅ **Fixed "instant speed up" when lifting finger during swipe (November 2025)**
