@@ -250,18 +250,22 @@ The animation system is designed for complex, multi-element animations:
 
 ### Home Screen Page Swiping Improvements
 
-#### Fourth Iteration (November 2025) - Fixed Excessive Velocity in Page Transitions  
-- ✅ **Fixed excessive velocity causing overshoot and bounce (November 2025)**
-  - **Problem**: Pages would move "across the whole page, bouncing off and showing the full page after before rubber-banding back"
-  - **Root Cause**: Animating to full viewport width created too much movement when page index had already changed
-  - **Solution**: Changed to gentle settling animation - animate from current dragOffset back to 0
+#### Fourth Iteration (November 2025) - Simplified to Use Native CSS Transitions
+- ✅ **Fixed persistent sliding/bouncing by using native CSS transitions (November 2025)**
+  - **Problem**: Despite multiple animation attempts, pages still slid over instantly and bounced off edges
+  - **Root Cause**: Custom animation logic was fighting with CSS transitions and page index changes
+  - **Solution**: Removed all custom `AnimatePageChange()` logic and let native CSS handle page transitions
   - **Implementation**:
-    - Page index changes immediately (CSS moves filmstrip)
-    - Animation gently settles dragOffset from current position to 0
-    - Uses ease-out quadratic (gentler than cubic) for smoother deceleration
-    - Reduced duration to 200ms for quick, controlled settling
-  - **Result**: Smooth, controlled page transitions with no overshoot or bounce
-  - **Why This Works**: The page has already changed via currentPageIndex, so we only need a subtle settling animation, not a continuation of the swipe motion
+    - When page change threshold is met, simply:
+      1. Update `currentPageIndex` (which moves filmstrip via CSS)
+      2. Reset `dragOffset = 0`
+      3. Set `isDragging = false`
+    - CSS transition (`0.3s cubic-bezier`) handles the smooth animation automatically
+  - **Result**: Clean, smooth page transitions with no overshoot, bounce, or instant sliding
+  - **Why This Works**: 
+    - The filmstrip style already has proper CSS transitions built in
+    - By resetting dragOffset to 0 immediately, we avoid conflicting transforms
+    - CSS transitions provide the exact iOS-like feel we want without custom animation code
 
 #### Third Iteration (November 2025) - Fixed "Instant Speed Up" and Improved Tiny Swipe Detection
 - ✅ **Fixed "instant speed up" when lifting finger during swipe (November 2025)**

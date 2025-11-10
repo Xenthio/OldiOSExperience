@@ -309,9 +309,10 @@
                 return;
             }
             
-            // Animate to the new page smoothly instead of instant snap
-            await AnimatePageChange();
-            return;
+            // Reset state and let CSS transition handle the page change
+            isDragging = false;
+            dragOffset = 0;
+            StateHasChanged();
         }
         else
         {
@@ -381,38 +382,6 @@
             await Task.Delay(16); // ~60fps
         }
         
-        dragOffset = 0;
-        isAnimatingBack = false;
-        StateHasChanged();
-    }
-    
-    private async Task AnimatePageChange()
-    {
-        // Smoothly complete the page change with a gentle settling animation
-        // This prevents the "instant speed up" when lifting finger
-        isAnimatingBack = true;
-        isDragging = false;
-        
-        var startOffset = dragOffset;
-        // Instead of animating to full viewport width, just animate back to 0
-        // The page index has already changed, so we just need to settle smoothly
-        var targetOffset = 0.0;
-        
-        var duration = 200; // ms - quick settling animation
-        var startTime = DateTime.Now;
-        
-        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
-        {
-            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
-            var progress = elapsed / duration;
-            // Use ease-out for smooth deceleration
-            var eased = 1 - Math.Pow(1 - progress, 2);
-            dragOffset = startOffset + (targetOffset - startOffset) * eased;
-            StateHasChanged();
-            await Task.Delay(16); // ~60fps
-        }
-        
-        // Reset to 0 after the page has fully transitioned
         dragOffset = 0;
         isAnimatingBack = false;
         StateHasChanged();
@@ -503,9 +472,10 @@
                 return;
             }
             
-            // Animate to the new page smoothly
-            await AnimatePageChange();
-            return;
+            // Reset state and let CSS transition handle the page change
+            isDragging = false;
+            dragOffset = 0;
+            StateHasChanged();
         }
         else
         {
