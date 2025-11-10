@@ -16,7 +16,7 @@
     position: absolute;
     width: 206px;
     height: 206px;
-    background-image: url(/_content/OldiOS.Shared/images/icon_shadow.png);
+    background-image: url(/_content/OldiOS.Shared/images/icon_shadow@2x.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -33,7 +33,7 @@
 .dock-icons .icon-shadow {
     width: 118px;
     height: 120px;
-    background-image: url(/_content/OldiOS.Shared/images/icon_shadow_dock.png);
+    background-image: url(/_content/OldiOS.Shared/images/icon_shadow_dock@2x.png);
     top: 0; /* Dock shadow is directly behind, not lowered */
 }
  
