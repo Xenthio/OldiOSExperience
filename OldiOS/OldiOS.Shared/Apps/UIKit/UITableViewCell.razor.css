@@ -12,11 +12,11 @@
     transition: background-color 0.1s ease;
 }
 
-.uitableviewcell.first {
+.uitableviewcell:first-child {
     border-top: none;
 }
 
-.uitableviewcell.last {
+.uitableviewcell:last-child {
     border-bottom: none;
 }
 
