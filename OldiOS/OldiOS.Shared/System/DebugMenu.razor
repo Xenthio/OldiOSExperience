@@ -23,12 +23,13 @@
                 <div class="debug-control-group">
                     <label class="debug-label">Device Preset</label>
                     <select class="debug-select" @bind="SelectedPreset" @bind:event="onchange">
-                        <option value="@DevicePreset.iPhone4">iPhone 4 (640x960)</option>
-                        <option value="@DevicePreset.iPhone5">iPhone 5 (640x1136)</option>
-                        <option value="@DevicePreset.iPhone6">iPhone 6 (750x1334)</option>
-                        <option value="@DevicePreset.iPhone6Plus">iPhone 6 Plus (1080x1920)</option>
-                        <option value="@DevicePreset.iPad">iPad Retina (1536x2048)</option>
-                        <option value="@DevicePreset.iPadMini">iPad mini (768x1024)</option>
+                        <option value="@DevicePreset.iPhoneOriginal">iPhone 2G/3G/3GS (320x480 @@1x)</option>
+                        <option value="@DevicePreset.iPhone4">iPhone 4/4S (640x960 @@2x)</option>
+                        <option value="@DevicePreset.iPhone5">iPhone 5/5S (640x1136 @@2x)</option>
+                        <option value="@DevicePreset.iPhone6">iPhone 6/7/8 (750x1334 @@2x)</option>
+                        <option value="@DevicePreset.iPhone6Plus">iPhone 6+/7+/8+ (1080x1920 @@3x)</option>
+                        <option value="@DevicePreset.iPadOriginal">iPad 1/2/mini (768x1024 @@1x)</option>
+                        <option value="@DevicePreset.iPad">iPad 3+/mini 2+ (1536x2048 @@2x)</option>
                         <option value="@DevicePreset.Custom">Custom</option>
                     </select>
                 </div>
@@ -58,6 +59,15 @@
                     </div>
                     
                     <div class="debug-control-group">
+                        <label class="debug-label">Content Scale (@@1x, @@2x, @@3x)</label>
+                        <select class="debug-select" @bind="CustomScale" @bind:event="onchange">
+                            <option value="1">@@1x</option>
+                            <option value="2">@@2x</option>
+                            <option value="3">@@3x</option>
+                        </select>
+                    </div>
+                    
+                    <div class="debug-control-group">
                         <button class="debug-button-full" @onclick="ApplyCustomResolution">
                             Apply Custom Resolution
                         </button>
@@ -66,7 +76,9 @@
                 
                 <div class="debug-control-group">
                     <div class="debug-info-text">
-                        Current: @((int)DisplaySettings.RESOLUTION_X)x@((int)DisplaySettings.RESOLUTION_Y)
+                        Resolution: @((int)DisplaySettings.RESOLUTION_X)x@((int)DisplaySettings.RESOLUTION_Y) px
+                        <br />
+                        Scale: @("@" + DisplaySettings.ContentScaleFactor)x (@((int)DisplaySettings.WidthInPoints)x@((int)DisplaySettings.HeightInPoints) pt)
                         <br />
                         Grid: @(DisplaySettings.GetIconColumns())x@(DisplaySettings.GetIconRows())
                     </div>
@@ -224,6 +236,7 @@
     
     private double CustomWidth = 640.0;
     private double CustomHeight = 960.0;
+    private double CustomScale = 2.0;
     
     protected override void OnInitialized()
     {
@@ -270,7 +283,7 @@
     // Display settings
     private void ApplyCustomResolution()
     {
-        DisplaySettings.SetCustomResolution(CustomWidth, CustomHeight);
+        DisplaySettings.SetCustomResolution(CustomWidth, CustomHeight, CustomScale);
     }
     
     // Animation controls
