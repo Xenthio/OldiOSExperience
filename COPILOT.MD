@@ -250,6 +250,18 @@ The animation system is designed for complex, multi-element animations:
 
 ### Home Screen Page Swiping Improvements
 
+#### Fourth Iteration (November 2025) - Fixed "Super Fast" Page Transitions
+- ✅ **Fixed pages snapping/bouncing too fast after crossing threshold (November 2025)**
+  - **Problem**: Pages would "instantly snap and bounce off the other edge" with excessive velocity
+  - **Root Cause**: `AnimatePageChange()` was animating from dragOffset back to 0, but currentPageIndex had already changed, causing conflicting offsets
+  - **Solution**: Changed animation to complete the swipe motion by animating to full screen width in swipe direction
+  - **Implementation**: 
+    - If swiping left (negative offset), animate to `-viewportWidth`
+    - If swiping right (positive offset), animate to `+viewportWidth`
+    - Then reset to 0 after transition completes
+  - **Result**: Smooth, controlled page transitions that complete the swipe gesture naturally
+- ✅ **Reduced animation duration to 250ms** for snappier feel (down from 300ms)
+
 #### Third Iteration (November 2025) - Fixed "Instant Speed Up" and Improved Tiny Swipe Detection
 - ✅ **Fixed "instant speed up" when lifting finger during swipe (November 2025)**
   - **Problem**: When user lifted finger, page would suddenly accelerate/snap to final position
@@ -261,7 +273,7 @@ The animation system is designed for complex, multi-element animations:
   - Only fast flicks trigger velocity-based page changes, not slow drags
   - Prevents accidental page changes from tiny movements
 - ✅ **Consistent animation for all transitions**
-  - Both page changes and rubber-band use same 300ms ease-out cubic animation
+  - Both page changes and rubber-band use same ease-out cubic animation
   - Provides consistent, predictable feel across all gestures
 
 #### Second Iteration (November 2025) - Fixed Velocity Calculation and Smooth Tracking

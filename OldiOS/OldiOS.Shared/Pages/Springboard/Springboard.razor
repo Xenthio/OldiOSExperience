@@ -388,13 +388,19 @@
     
     private async Task AnimatePageChange()
     {
-        // Smoothly animate from current dragOffset to 0 for the new page
+        // Smoothly complete the page change by animating the remaining distance
         // This prevents the "instant speed up" when lifting finger
         isAnimatingBack = true;
         isDragging = false;
         
         var startOffset = dragOffset;
-        var duration = 300; // ms - same as rubber band for consistency
+        // Calculate the target offset to complete the transition smoothly
+        // If swiping left (negative offset), animate to full negative screen width
+        // If swiping right (positive offset), animate to full positive screen width
+        var viewportWidth = DisplaySettings.Width;
+        var targetOffset = startOffset < 0 ? -viewportWidth : viewportWidth;
+        
+        var duration = 250; // ms - shorter duration for snappier feel
         var startTime = DateTime.Now;
         
         while ((DateTime.Now - startTime).TotalMilliseconds < duration)
@@ -403,11 +409,12 @@
             var progress = elapsed / duration;
             // Use ease-out cubic for smooth deceleration into new page
             var eased = 1 - Math.Pow(1 - progress, 3);
-            dragOffset = startOffset * (1 - eased);
+            dragOffset = startOffset + (targetOffset - startOffset) * eased;
             StateHasChanged();
             await Task.Delay(16); // ~60fps
         }
         
+        // Reset to 0 after the page has fully transitioned
         dragOffset = 0;
         isAnimatingBack = false;
         StateHasChanged();
