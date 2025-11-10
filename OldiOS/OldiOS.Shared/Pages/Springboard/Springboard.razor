@@ -95,6 +95,16 @@
     private DateTime touchStartTime = DateTime.MinValue;
     private bool isAnimatingBack = false;
     
+    // Track recent touch positions for accurate velocity calculation
+    private class TouchPoint
+    {
+        public double X { get; set; }
+        public DateTime Time { get; set; }
+    }
+    private List<TouchPoint> recentTouchPoints = new List<TouchPoint>();
+    private const int MaxTouchPointHistory = 10; // Keep last 10 points
+    private const double VelocityTimeWindowMs = 100; // Calculate velocity from last 100ms
+    
     // --- APP SWITCHER STATE ---
     private bool isAppSwitcherVisible = false;
     
@@ -220,7 +230,12 @@
         isDragging = true;
         isAnimatingBack = false;
         touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
+        touchCurrentX = touchStartX;
         touchStartTime = DateTime.Now;
+        
+        // Initialize touch point tracking
+        recentTouchPoints.Clear();
+        recentTouchPoints.Add(new TouchPoint { X = touchStartX, Time = DateTime.Now });
     }
 
     private void HandleTouchMove(TouchEventArgs e)
@@ -229,6 +244,16 @@
 
         touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
         var rawOffset = touchCurrentX - touchStartX;
+        
+        // Track touch position for velocity calculation
+        var now = DateTime.Now;
+        recentTouchPoints.Add(new TouchPoint { X = touchCurrentX, Time = now });
+        
+        // Keep only recent points (last MaxTouchPointHistory points)
+        if (recentTouchPoints.Count > MaxTouchPointHistory)
+        {
+            recentTouchPoints.RemoveAt(0);
+        }
         
         // Apply resistance at boundaries
         if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
@@ -241,22 +266,18 @@
         {
             dragOffset = rawOffset;
         }
+        
+        // Update UI during drag for smooth tracking
+        StateHasChanged();
     }
 
     private async void HandleTouchEnd(TouchEventArgs e)
     {
         if (!isDragging) return;
 
-        // Calculate velocity based on total drag distance and total time
-        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
-        var velocity = 0.0;
-        
-        // Only calculate velocity if drag lasted long enough (at least 30ms)
-        // This prevents erratic velocity from very short touches
-        if (totalTime >= 30)
-        {
-            velocity = dragOffset / totalTime; // pixels per millisecond
-        }
+        // Calculate velocity from recent movement (last VelocityTimeWindowMs)
+        var now = DateTime.Now;
+        var velocity = CalculateVelocity(now);
 
         // Get viewport width for threshold calculation
         var viewportWidth = DisplaySettings.Width;
@@ -286,9 +307,9 @@
                 return;
             }
             
-            // End drag and reset offset for page change
-            isDragging = false;
+            // Reset state for page change - order matters!
             dragOffset = 0;
+            isDragging = false;
             StateHasChanged();
         }
         else
@@ -297,6 +318,45 @@
             await AnimateRubberBandBack();
             return;
         }
+    }
+    
+    private double CalculateVelocity(DateTime now)
+    {
+        // Need at least 2 points to calculate velocity
+        if (recentTouchPoints.Count < 2)
+        {
+            return 0;
+        }
+        
+        // Find the oldest point within our time window
+        var cutoffTime = now.AddMilliseconds(-VelocityTimeWindowMs);
+        var relevantPoints = recentTouchPoints.Where(p => p.Time >= cutoffTime).ToList();
+        
+        // Need at least 2 points in the window
+        if (relevantPoints.Count < 2)
+        {
+            // Fall back to using all points if we don't have enough recent ones
+            relevantPoints = recentTouchPoints;
+        }
+        
+        if (relevantPoints.Count < 2)
+        {
+            return 0;
+        }
+        
+        // Calculate velocity from first to last point in the window
+        var firstPoint = relevantPoints[0];
+        var lastPoint = relevantPoints[relevantPoints.Count - 1];
+        var deltaX = lastPoint.X - firstPoint.X;
+        var deltaTime = (lastPoint.Time - firstPoint.Time).TotalMilliseconds;
+        
+        // Avoid division by zero
+        if (deltaTime < 1)
+        {
+            return 0;
+        }
+        
+        return deltaX / deltaTime; // pixels per millisecond
     }
     
     private async Task AnimateRubberBandBack()
@@ -334,7 +394,12 @@
         isDragging = true;
         isAnimatingBack = false;
         touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
+        touchCurrentX = touchStartX;
         touchStartTime = DateTime.Now;
+        
+        // Initialize touch point tracking
+        recentTouchPoints.Clear();
+        recentTouchPoints.Add(new TouchPoint { X = touchStartX, Time = DateTime.Now });
     }
 
     private void HandleMouseMove(MouseEventArgs e)
@@ -343,6 +408,16 @@
 
         touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
         var rawOffset = touchCurrentX - touchStartX;
+        
+        // Track position for velocity calculation
+        var now = DateTime.Now;
+        recentTouchPoints.Add(new TouchPoint { X = touchCurrentX, Time = now });
+        
+        // Keep only recent points
+        if (recentTouchPoints.Count > MaxTouchPointHistory)
+        {
+            recentTouchPoints.RemoveAt(0);
+        }
         
         // Apply resistance at boundaries
         if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
@@ -355,6 +430,9 @@
         {
             dragOffset = rawOffset;
         }
+        
+        // Update UI during drag for smooth tracking
+        StateHasChanged();
     }
 
     private async void HandleMouseUp(MouseEventArgs e)
@@ -362,16 +440,9 @@
         if (!isMouseDown) return;
         isMouseDown = false;
 
-        // Calculate velocity based on total drag distance and total time
-        var totalTime = (DateTime.Now - touchStartTime).TotalMilliseconds;
-        var velocity = 0.0;
-        
-        // Only calculate velocity if drag lasted long enough (at least 30ms)
-        // This prevents erratic velocity from very short touches
-        if (totalTime >= 30)
-        {
-            velocity = dragOffset / totalTime; // pixels per millisecond
-        }
+        // Calculate velocity from recent movement
+        var now = DateTime.Now;
+        var velocity = CalculateVelocity(now);
 
         // Get viewport width for threshold calculation
         var viewportWidth = DisplaySettings.Width;
@@ -397,9 +468,9 @@
                 return;
             }
             
-            // End drag and reset offset for page change
-            isDragging = false;
+            // Reset state for page change - order matters!
             dragOffset = 0;
+            isDragging = false;
             StateHasChanged();
         }
         else

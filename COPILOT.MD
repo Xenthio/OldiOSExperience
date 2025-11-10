@@ -249,6 +249,27 @@ The animation system is designed for complex, multi-element animations:
   - Animations still work correctly with static vectors
 
 ### Home Screen Page Swiping Improvements
+
+#### Second Iteration (November 2025) - Fixed Velocity Calculation and Smooth Tracking
+- ✅ **Fixed inaccurate velocity calculation (November 2025)**
+  - **Problem**: Previous implementation calculated velocity from total drag distance and total time, which didn't reflect the user's final swipe momentum
+  - **Problem**: Very tiny swipes would cause instant transitions because `touchCurrentX` wasn't updated properly
+  - **Solution**: Implemented touch point history tracking (last 10 positions)
+  - **Solution**: Calculate velocity from recent movement (last 100ms) instead of entire drag
+  - **Solution**: Added `StateHasChanged()` calls during `HandleTouchMove` for smooth real-time tracking
+  - **Result**: Velocity now accurately reflects the user's swipe momentum at release
+  - **Result**: Tiny swipes no longer cause jumps - they smoothly rubber-band back
+- ✅ **Improved state transition timing**
+  - Reset `dragOffset` before `isDragging` to prevent CSS transition jitter
+  - Ensures smooth transitions between drag and animation states
+
+**Technical Details:**
+- Touch point buffer stores last 10 positions with timestamps
+- Velocity calculated from points within last 100ms window
+- Falls back to all points if fewer than 2 in time window
+- Avoids division by zero with minimum 1ms deltaTime check
+
+#### First Iteration - iOS-like Behavior
 - ✅ **Fixed choppy and instant jumping during page swipes**
   - Replaced simple 50px threshold with iOS-like behavior
   - Added half-page (50%) threshold for page changes
