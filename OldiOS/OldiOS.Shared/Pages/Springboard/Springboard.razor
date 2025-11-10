@@ -9,7 +9,7 @@
 <div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(DebugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")"
      style="--icon-rows: @DisplaySettings.GetIconRows(); --icon-columns: @DisplaySettings.GetIconColumns();">
     <!-- Wallpaper -->
-    <div class="wallpaper" alt="Wallpaper"/>
+    <div class="wallpaper" alt="Wallpaper" />
 
     <!-- Status Bar -->
     <OldiOS.Shared.System.StatusBar Style="OldiOS.Shared.System.StatusBarStyle.WhiteOnBlackEtch" />
@@ -23,13 +23,13 @@
          @onmousemove="HandleMouseMove"
          @onmouseup="HandleMouseUp"
          @onmouseleave="HandleMouseUp">
-        
+
         <div class="springboard-pages-filmstrip" style="@filmstripStyle">
             <!-- Spotlight Page (index -1) -->
             <div class="springboard-page spotlight-container">
                 <OldiOS.Shared.Pages.Springboard.Components.Spotlight AllApps="AllApps" />
             </div>
-            
+
             <!-- Regular App Pages -->
             @foreach (var page in Pages)
             {
@@ -61,15 +61,15 @@
             }
         </div>
     </div>
-    
+
     <!-- App Container for launching apps -->
     <OldiOS.Shared.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
-    
+
     <!-- App Switcher (multitasking tray) -->
-    <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible" 
-                                          OnClose="HandleAppSwitcherClose"
-                                          OnAppSelected="HandleAppSwitcherSelect" />
-    
+    <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
+                                                            OnClose="HandleAppSwitcherClose"
+                                                            OnAppSelected="HandleAppSwitcherSelect" />
+
     <!-- Lock Screen -->
     <OldiOS.Shared.Pages.Springboard.Components.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
 </div>
@@ -78,7 +78,7 @@
     // --- PARAMETERS ---
     [Parameter]
     public bool DebugAnimationActive { get; set; } = false;
-    
+
     // --- DATA from Services ---
     private List<List<AppInfo>> Pages => SpringboardService.Pages;
     private List<AppInfo> DockApps => SpringboardService.DockApps;
@@ -93,8 +93,12 @@
     private double dragOffset = 0;
     private bool isDragging = false;
     private DateTime touchStartTime = DateTime.MinValue;
-    private bool isAnimatingBack = false;
-    
+    private bool isAnimating = false;
+
+    // New state for pure C# animation
+    private double filmstripOffset = 0;
+    private CancellationTokenSource? _animationCts;
+
     // Track recent touch positions for accurate velocity calculation
     private class TouchPoint
     {
@@ -104,69 +108,75 @@
     private List<TouchPoint> recentTouchPoints = new List<TouchPoint>();
     private const int MaxTouchPointHistory = 10; // Keep last 10 points
     private const double VelocityTimeWindowMs = 100; // Calculate velocity from last 100ms
-    
+
     // --- APP SWITCHER STATE ---
     private bool isAppSwitcherVisible = false;
-    
+
     // --- LOCK SCREEN STATE ---
     private bool isLocked = true;
     private bool isUnlocking = false;
-    
+
     // We now have spotlight page, so total pages = spotlight + app pages
     // Position: -1 (spotlight), 0 (page 1), 1 (page 2), etc.
-    private string filmstripStyle => $"transform: translateX(calc(-{currentPageIndex + 1} * 100% + {dragOffset}px)); transition: {(isDragging || isAnimatingBack ? "none" : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)")};";
+    private string filmstripStyle => $"transform: translateX({filmstripOffset}px); transition: none;";
 
     protected override void OnInitialized()
     {
         // Initialize springboard layout via service
         SpringboardService.InitializeLayout();
-        
+
         // Subscribe to app state changes
         AppManager.OnAppStatesChanged += HandleAppStateChanged;
-        
+
         // Subscribe to resolution changes
         DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
+
+        // Set initial filmstrip position
+        UpdateFilmstripOffset();
     }
-    
+
     public void Dispose()
     {
+        _animationCts?.Cancel();
+        _animationCts?.Dispose();
         AppManager.OnAppStatesChanged -= HandleAppStateChanged;
         DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
     }
-    
+
     private void HandleResolutionChanged()
     {
         // Reinitialize layout when resolution changes
         SpringboardService.InitializeLayout();
+        UpdateFilmstripOffset();
         StateHasChanged();
     }
-    
+
     private void HandleAppStateChanged()
     {
         StateHasChanged();
     }
-    
+
     private async void HandleUnlocked()
     {
         // Start unlock animation - icons/dock fly in
         isUnlocking = true;
         StateHasChanged();
-        
+
         // Wait for animation to complete
         await Task.Delay(400);
-        
+
         // Finish unlock
         isLocked = false;
         isUnlocking = false;
         StateHasChanged();
     }
-    
+
     private void HandleAppSwitcherClose()
     {
         isAppSwitcherVisible = false;
         StateHasChanged();
     }
-    
+
     private void HandleAppSwitcherSelect(AppInfo app)
     {
         // Launch the selected app
@@ -174,18 +184,18 @@
         isAppSwitcherVisible = false;
         StateHasChanged();
     }
-    
+
     // --- APP LAUNCHING ---
     private void HandleAppClick(AppInfo app)
     {
         SpringboardService.LaunchApp(app);
     }
-    
+
     private void CloseApp()
     {
         AppManager.ReturnToSpringboard();
     }
-    
+
     // Public methods to handle home button presses from parent
     public void HandleHomeButtonSinglePress()
     {
@@ -194,31 +204,31 @@
             // If locked, home button wakes the screen but doesn't unlock
             return;
         }
-        
+
         // Single tap - normal home button behavior
         SpringboardService.HandleHomeButton();
         StateHasChanged();
     }
-    
+
     public void HandleHomeButtonDoublePress()
     {
         if (isLocked)
         {
             return;
         }
-        
+
         // Double-tap - show app switcher
         isAppSwitcherVisible = true;
         StateHasChanged();
     }
-    
+
     public void HandleHomeButtonLongPress()
     {
         if (isLocked)
         {
             return;
         }
-        
+
         // Long press - could activate Siri or voice control in the future
         // For now, do nothing
         StateHasChanged();
@@ -227,12 +237,28 @@
     // --- TOUCH EVENT HANDLERS ---
     private void HandleTouchStart(TouchEventArgs e)
     {
+        // Cancel any ongoing animation
+        if (isAnimating)
+        {
+            _animationCts?.Cancel();
+            isAnimating = false;
+        }
+
         isDragging = true;
-        isAnimatingBack = false;
+
+        // The new touch start position is the current finger position
         touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
-        touchCurrentX = touchStartX;
+
+        // The filmstrip's current position becomes the new baseline.
+        // We calculate the new currentPageIndex based on the current visual offset.
+        var viewportWidth = DisplaySettings.Width;
+        currentPageIndex = (int)Math.Round((-filmstripOffset / viewportWidth) - 1);
+
+        // The drag offset starts from zero relative to the interrupted position.
+        dragOffset = 0;
+
         touchStartTime = DateTime.Now;
-        
+
         // Initialize touch point tracking
         recentTouchPoints.Clear();
         recentTouchPoints.Add(new TouchPoint { X = touchStartX, Time = DateTime.Now });
@@ -244,17 +270,17 @@
 
         touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
         var rawOffset = touchCurrentX - touchStartX;
-        
+
         // Track touch position for velocity calculation
         var now = DateTime.Now;
         recentTouchPoints.Add(new TouchPoint { X = touchCurrentX, Time = now });
-        
+
         // Keep only recent points (last MaxTouchPointHistory points)
         if (recentTouchPoints.Count > MaxTouchPointHistory)
         {
             recentTouchPoints.RemoveAt(0);
         }
-        
+
         // Apply resistance at boundaries
         if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
             (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
@@ -266,14 +292,16 @@
         {
             dragOffset = rawOffset;
         }
-        
+
         // Update UI during drag for smooth tracking
+        UpdateFilmstripOffset();
         StateHasChanged();
     }
 
     private async void HandleTouchEnd(TouchEventArgs e)
     {
         if (!isDragging) return;
+        isDragging = false;
 
         // Calculate velocity from recent movement (last VelocityTimeWindowMs)
         var now = DateTime.Now;
@@ -290,38 +318,25 @@
         var isFastFlick = Math.Abs(velocity) > 0.8;
         var shouldChangePage = Math.Abs(dragOffset) > halfPage || isFastFlick;
 
+        var targetPageIndex = currentPageIndex;
         if (shouldChangePage)
         {
             if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
             {
                 // Swiped left, go to next page
-                currentPageIndex++;
+                targetPageIndex++;
             }
             else if (dragOffset > 0 && currentPageIndex > -1)
             {
                 // Swiped right, go to previous page (can go to spotlight at -1)
-                currentPageIndex--;
+                targetPageIndex--;
             }
-            else
-            {
-                // At boundary, rubber band back
-                await AnimateRubberBandBack();
-                return;
-            }
-            
-            // Reset state and let CSS transition handle the page change
-            isDragging = false;
-            dragOffset = 0;
-            StateHasChanged();
         }
-        else
-        {
-            // Not enough distance or velocity, rubber band back to current page
-            await AnimateRubberBandBack();
-            return;
-        }
+
+        // Animate to the final position (either new page or back to current)
+        await AnimateToPage(targetPageIndex);
     }
-    
+
     private double CalculateVelocity(DateTime now)
     {
         // Need at least 2 points to calculate velocity
@@ -329,76 +344,113 @@
         {
             return 0;
         }
-        
+
         // Find the oldest point within our time window
         var cutoffTime = now.AddMilliseconds(-VelocityTimeWindowMs);
         var relevantPoints = recentTouchPoints.Where(p => p.Time >= cutoffTime).ToList();
-        
+
         // Need at least 2 points in the window
         if (relevantPoints.Count < 2)
         {
             // Fall back to using all points if we don't have enough recent ones
             relevantPoints = recentTouchPoints;
         }
-        
+
         if (relevantPoints.Count < 2)
         {
             return 0;
         }
-        
+
         // Calculate velocity from first to last point in the window
         var firstPoint = relevantPoints[0];
         var lastPoint = relevantPoints[relevantPoints.Count - 1];
         var deltaX = lastPoint.X - firstPoint.X;
         var deltaTime = (lastPoint.Time - firstPoint.Time).TotalMilliseconds;
-        
+
         // Avoid division by zero
         if (deltaTime < 1)
         {
             return 0;
         }
-        
+
         return deltaX / deltaTime; // pixels per millisecond
     }
-    
-    private async Task AnimateRubberBandBack()
+
+    private void UpdateFilmstripOffset()
     {
-        // Set animation flag BEFORE ending drag to prevent CSS transition jitter
-        isAnimatingBack = true;
-        isDragging = false;
-        
-        var startOffset = dragOffset;
+        var viewportWidth = DisplaySettings.Width;
+        var baseOffset = -(currentPageIndex + 1) * viewportWidth;
+        filmstripOffset = baseOffset + dragOffset;
+    }
+
+    private async Task AnimateToPage(int targetIndex)
+    {
+        _animationCts = new CancellationTokenSource();
+        var token = _animationCts.Token;
+        isAnimating = true;
+
+        var startOffset = filmstripOffset;
+        var viewportWidth = DisplaySettings.Width;
+        var endOffset = -(targetIndex + 1) * viewportWidth;
+
         var duration = 300; // ms
         var startTime = DateTime.Now;
-        
+
         while ((DateTime.Now - startTime).TotalMilliseconds < duration)
         {
+            if (token.IsCancellationRequested)
+            {
+                // Animation was interrupted by a new touch.
+                // The filmstripOffset remains where it was, and we exit.
+                return;
+            }
+
             var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
             var progress = elapsed / duration;
             // Use ease-out cubic for smooth deceleration
-            var eased = 1 - Math.Pow(1 - progress, 3);
-            dragOffset = startOffset * (1 - eased);
+            var easedProgress = 1 - Math.Pow(1 - progress, 3);
+
+            filmstripOffset = startOffset + (endOffset - startOffset) * easedProgress;
+
             StateHasChanged();
             await Task.Delay(16); // ~60fps
         }
-        
+
+        // Finalize state only if animation completes without cancellation
+        currentPageIndex = targetIndex;
         dragOffset = 0;
-        isAnimatingBack = false;
+        filmstripOffset = endOffset;
+        isAnimating = false;
         StateHasChanged();
     }
-    
+
     // --- MOUSE EVENT HANDLERS (for desktop testing) ---
     private bool isMouseDown = false;
-    
+
     private void HandleMouseDown(MouseEventArgs e)
     {
+        // Cancel any ongoing animation
+        if (isAnimating)
+        {
+            _animationCts?.Cancel();
+            isAnimating = false;
+        }
+
         isMouseDown = true;
         isDragging = true;
-        isAnimatingBack = false;
+
+        // The new touch start position is the current mouse position
         touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
-        touchCurrentX = touchStartX;
+
+        // The filmstrip's current position becomes the new baseline.
+        var viewportWidth = DisplaySettings.Width;
+        currentPageIndex = (int)Math.Round((-filmstripOffset / viewportWidth) - 1);
+
+        // The drag offset starts from zero relative to the interrupted position.
+        dragOffset = 0;
+
         touchStartTime = DateTime.Now;
-        
+
         // Initialize touch point tracking
         recentTouchPoints.Clear();
         recentTouchPoints.Add(new TouchPoint { X = touchStartX, Time = DateTime.Now });
@@ -410,17 +462,17 @@
 
         touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
         var rawOffset = touchCurrentX - touchStartX;
-        
+
         // Track position for velocity calculation
         var now = DateTime.Now;
         recentTouchPoints.Add(new TouchPoint { X = touchCurrentX, Time = now });
-        
+
         // Keep only recent points
         if (recentTouchPoints.Count > MaxTouchPointHistory)
         {
             recentTouchPoints.RemoveAt(0);
         }
-        
+
         // Apply resistance at boundaries
         if ((rawOffset > 0 && currentPageIndex <= -1) || // Trying to go before spotlight
             (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) // Trying to go past last page
@@ -432,15 +484,17 @@
         {
             dragOffset = rawOffset;
         }
-        
+
         // Update UI during drag for smooth tracking
+        UpdateFilmstripOffset();
         StateHasChanged();
     }
 
     private async void HandleMouseUp(MouseEventArgs e)
     {
-        if (!isMouseDown) return;
+        if (!isMouseDown || !isDragging) return;
         isMouseDown = false;
+        isDragging = false;
 
         // Calculate velocity from recent movement
         var now = DateTime.Now;
@@ -455,33 +509,20 @@
         var isFastFlick = Math.Abs(velocity) > 0.8;
         var shouldChangePage = Math.Abs(dragOffset) > halfPage || isFastFlick;
 
+        var targetPageIndex = currentPageIndex;
         if (shouldChangePage)
         {
             if (dragOffset < 0 && currentPageIndex < Pages.Count - 1)
             {
-                currentPageIndex++;
+                targetPageIndex++;
             }
             else if (dragOffset > 0 && currentPageIndex > -1)
             {
-                currentPageIndex--;
+                targetPageIndex--;
             }
-            else
-            {
-                // At boundary, rubber band back
-                await AnimateRubberBandBack();
-                return;
-            }
-            
-            // Reset state and let CSS transition handle the page change
-            isDragging = false;
-            dragOffset = 0;
-            StateHasChanged();
         }
-        else
-        {
-            // Not enough distance or velocity, rubber band back
-            await AnimateRubberBandBack();
-            return;
-        }
+
+        // Animate to the final position (either new page or back to current)
+        await AnimateToPage(targetPageIndex);
     }
 }
