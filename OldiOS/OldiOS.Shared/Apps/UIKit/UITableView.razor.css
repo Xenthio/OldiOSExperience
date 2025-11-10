@@ -2,7 +2,7 @@
 
 .uitableview {
     width: 100%;
-    background-color: #c8cdd5;
+    background-image: url(/_content/OldiOS.Shared/images/uikit/UIPinstripe.png);
 }
 
 .uitableview.grouped {

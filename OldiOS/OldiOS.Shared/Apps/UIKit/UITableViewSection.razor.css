@@ -14,10 +14,11 @@
 }
 
 .section-content {
-    background: white;
+    background: #F5F5F5;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0px 0px 2px rgba(0, 0, 0, 0.5);
+    border-top: 2px solid #DFDFDF;
 }
 
 .section-footer {
