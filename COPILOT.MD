@@ -250,17 +250,18 @@ The animation system is designed for complex, multi-element animations:
 
 ### Home Screen Page Swiping Improvements
 
-#### Fourth Iteration (November 2025) - Fixed "Super Fast" Page Transitions
-- ✅ **Fixed pages snapping/bouncing too fast after crossing threshold (November 2025)**
-  - **Problem**: Pages would "instantly snap and bounce off the other edge" with excessive velocity
-  - **Root Cause**: `AnimatePageChange()` was animating from dragOffset back to 0, but currentPageIndex had already changed, causing conflicting offsets
-  - **Solution**: Changed animation to complete the swipe motion by animating to full screen width in swipe direction
-  - **Implementation**: 
-    - If swiping left (negative offset), animate to `-viewportWidth`
-    - If swiping right (positive offset), animate to `+viewportWidth`
-    - Then reset to 0 after transition completes
-  - **Result**: Smooth, controlled page transitions that complete the swipe gesture naturally
-- ✅ **Reduced animation duration to 250ms** for snappier feel (down from 300ms)
+#### Fourth Iteration (November 2025) - Fixed Excessive Velocity in Page Transitions  
+- ✅ **Fixed excessive velocity causing overshoot and bounce (November 2025)**
+  - **Problem**: Pages would move "across the whole page, bouncing off and showing the full page after before rubber-banding back"
+  - **Root Cause**: Animating to full viewport width created too much movement when page index had already changed
+  - **Solution**: Changed to gentle settling animation - animate from current dragOffset back to 0
+  - **Implementation**:
+    - Page index changes immediately (CSS moves filmstrip)
+    - Animation gently settles dragOffset from current position to 0
+    - Uses ease-out quadratic (gentler than cubic) for smoother deceleration
+    - Reduced duration to 200ms for quick, controlled settling
+  - **Result**: Smooth, controlled page transitions with no overshoot or bounce
+  - **Why This Works**: The page has already changed via currentPageIndex, so we only need a subtle settling animation, not a continuation of the swipe motion
 
 #### Third Iteration (November 2025) - Fixed "Instant Speed Up" and Improved Tiny Swipe Detection
 - ✅ **Fixed "instant speed up" when lifting finger during swipe (November 2025)**
