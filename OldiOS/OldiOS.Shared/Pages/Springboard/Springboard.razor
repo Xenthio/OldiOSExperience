@@ -285,8 +285,10 @@
 
         // Determine if we should change pages based on:
         // 1. Distance threshold (> 50% of screen width)
-        // 2. Velocity threshold (> 0.5 pixels per ms, roughly 500px/s)
-        var shouldChangePage = Math.Abs(dragOffset) > halfPage || Math.Abs(velocity) > 0.5;
+        // 2. Velocity threshold (> 0.8 pixels per ms, roughly 800px/s) - increased to be more selective
+        // Only consider velocity if it's a fast flick (not a slow drag)
+        var isFastFlick = Math.Abs(velocity) > 0.8;
+        var shouldChangePage = Math.Abs(dragOffset) > halfPage || isFastFlick;
 
         if (shouldChangePage)
         {
@@ -307,10 +309,9 @@
                 return;
             }
             
-            // Reset state for page change - order matters!
-            dragOffset = 0;
-            isDragging = false;
-            StateHasChanged();
+            // Animate to the new page smoothly instead of instant snap
+            await AnimatePageChange();
+            return;
         }
         else
         {
@@ -374,6 +375,33 @@
             var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
             var progress = elapsed / duration;
             // Use ease-out cubic for smooth deceleration
+            var eased = 1 - Math.Pow(1 - progress, 3);
+            dragOffset = startOffset * (1 - eased);
+            StateHasChanged();
+            await Task.Delay(16); // ~60fps
+        }
+        
+        dragOffset = 0;
+        isAnimatingBack = false;
+        StateHasChanged();
+    }
+    
+    private async Task AnimatePageChange()
+    {
+        // Smoothly animate from current dragOffset to 0 for the new page
+        // This prevents the "instant speed up" when lifting finger
+        isAnimatingBack = true;
+        isDragging = false;
+        
+        var startOffset = dragOffset;
+        var duration = 300; // ms - same as rubber band for consistency
+        var startTime = DateTime.Now;
+        
+        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = elapsed / duration;
+            // Use ease-out cubic for smooth deceleration into new page
             var eased = 1 - Math.Pow(1 - progress, 3);
             dragOffset = startOffset * (1 - eased);
             StateHasChanged();
@@ -449,7 +477,9 @@
         var halfPage = viewportWidth / 2.0;
 
         // Determine if we should change pages
-        var shouldChangePage = Math.Abs(dragOffset) > halfPage || Math.Abs(velocity) > 0.5;
+        // Only consider velocity if it's a fast flick (not a slow drag)
+        var isFastFlick = Math.Abs(velocity) > 0.8;
+        var shouldChangePage = Math.Abs(dragOffset) > halfPage || isFastFlick;
 
         if (shouldChangePage)
         {
@@ -468,10 +498,9 @@
                 return;
             }
             
-            // Reset state for page change - order matters!
-            dragOffset = 0;
-            isDragging = false;
-            StateHasChanged();
+            // Animate to the new page smoothly
+            await AnimatePageChange();
+            return;
         }
         else
         {

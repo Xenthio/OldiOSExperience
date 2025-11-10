@@ -250,6 +250,20 @@ The animation system is designed for complex, multi-element animations:
 
 ### Home Screen Page Swiping Improvements
 
+#### Third Iteration (November 2025) - Fixed "Instant Speed Up" and Improved Tiny Swipe Detection
+- ✅ **Fixed "instant speed up" when lifting finger during swipe (November 2025)**
+  - **Problem**: When user lifted finger, page would suddenly accelerate/snap to final position
+  - **Root Cause**: Setting `isDragging = false` and `dragOffset = 0` caused CSS transition to take over instantly
+  - **Solution**: Created `AnimatePageChange()` method that smoothly decelerates from current position to final position
+  - **Result**: Page changes now smoothly decelerate into place with no jarring speed changes
+- ✅ **Improved velocity threshold for tiny swipes**
+  - Increased velocity threshold from 0.5 to 0.8 pixels/ms (800px/s) to be more selective
+  - Only fast flicks trigger velocity-based page changes, not slow drags
+  - Prevents accidental page changes from tiny movements
+- ✅ **Consistent animation for all transitions**
+  - Both page changes and rubber-band use same 300ms ease-out cubic animation
+  - Provides consistent, predictable feel across all gestures
+
 #### Second Iteration (November 2025) - Fixed Velocity Calculation and Smooth Tracking
 - ✅ **Fixed inaccurate velocity calculation (November 2025)**
   - **Problem**: Previous implementation calculated velocity from total drag distance and total time, which didn't reflect the user's final swipe momentum
