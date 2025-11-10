@@ -249,6 +249,58 @@ The animation system is designed for complex, multi-element animations:
   - Animations still work correctly with static vectors
 
 ### Home Screen Page Swiping Improvements
+
+#### Fourth Iteration (November 2025) - Simplified to Use Native CSS Transitions
+- ✅ **Fixed persistent sliding/bouncing by using native CSS transitions (November 2025)**
+  - **Problem**: Despite multiple animation attempts, pages still slid over instantly and bounced off edges
+  - **Root Cause**: Custom animation logic was fighting with CSS transitions and page index changes
+  - **Solution**: Removed all custom `AnimatePageChange()` logic and let native CSS handle page transitions
+  - **Implementation**:
+    - When page change threshold is met, simply:
+      1. Update `currentPageIndex` (which moves filmstrip via CSS)
+      2. Reset `dragOffset = 0`
+      3. Set `isDragging = false`
+    - CSS transition (`0.3s cubic-bezier`) handles the smooth animation automatically
+  - **Result**: Clean, smooth page transitions with no overshoot, bounce, or instant sliding
+  - **Why This Works**: 
+    - The filmstrip style already has proper CSS transitions built in
+    - By resetting dragOffset to 0 immediately, we avoid conflicting transforms
+    - CSS transitions provide the exact iOS-like feel we want without custom animation code
+
+#### Third Iteration (November 2025) - Fixed "Instant Speed Up" and Improved Tiny Swipe Detection
+- ✅ **Fixed "instant speed up" when lifting finger during swipe (November 2025)**
+  - **Problem**: When user lifted finger, page would suddenly accelerate/snap to final position
+  - **Root Cause**: Setting `isDragging = false` and `dragOffset = 0` caused CSS transition to take over instantly
+  - **Solution**: Created `AnimatePageChange()` method that smoothly decelerates from current position to final position
+  - **Result**: Page changes now smoothly decelerate into place with no jarring speed changes
+- ✅ **Improved velocity threshold for tiny swipes**
+  - Increased velocity threshold from 0.5 to 0.8 pixels/ms (800px/s) to be more selective
+  - Only fast flicks trigger velocity-based page changes, not slow drags
+  - Prevents accidental page changes from tiny movements
+- ✅ **Consistent animation for all transitions**
+  - Both page changes and rubber-band use same ease-out cubic animation
+  - Provides consistent, predictable feel across all gestures
+
+#### Second Iteration (November 2025) - Fixed Velocity Calculation and Smooth Tracking
+- ✅ **Fixed inaccurate velocity calculation (November 2025)**
+  - **Problem**: Previous implementation calculated velocity from total drag distance and total time, which didn't reflect the user's final swipe momentum
+  - **Problem**: Very tiny swipes would cause instant transitions because `touchCurrentX` wasn't updated properly
+  - **Solution**: Implemented touch point history tracking (last 10 positions)
+  - **Solution**: Calculate velocity from recent movement (last 100ms) instead of entire drag
+  - **Solution**: Added `StateHasChanged()` calls during `HandleTouchMove` for smooth real-time tracking
+  - **Result**: Velocity now accurately reflects the user's swipe momentum at release
+  - **Result**: Tiny swipes no longer cause jumps - they smoothly rubber-band back
+- ✅ **Improved state transition timing**
+  - Reset `dragOffset` before `isDragging` to prevent CSS transition jitter
+  - Ensures smooth transitions between drag and animation states
+
+**Technical Details:**
+- Touch point buffer stores last 10 positions with timestamps
+- Velocity calculated from points within last 100ms window
+- Falls back to all points if fewer than 2 in time window
+- Avoids division by zero with minimum 1ms deltaTime check
+
+#### First Iteration - iOS-like Behavior
 - ✅ **Fixed choppy and instant jumping during page swipes**
   - Replaced simple 50px threshold with iOS-like behavior
   - Added half-page (50%) threshold for page changes
