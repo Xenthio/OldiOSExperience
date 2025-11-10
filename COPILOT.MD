@@ -602,3 +602,131 @@ This ensures:
 - SpringBoard reverse engineering resources
 - .NET MAUI Blazor Hybrid documentation
 - Blazor WebAssembly documentation
+
+## Scaling System Implementation (November 2025)
+
+### Overview
+A comprehensive scaling system has been implemented to support multiple iOS device resolutions with proper @1x, @2x, and @3x content scale factors, replicating how iOS handles different display densities.
+
+### Key Concepts
+
+**Content Scale Factor**: iOS uses a point-based coordinate system where 1 point can equal 1, 2, or 3 pixels depending on the device's display density:
+- @1x: 1 point = 1 pixel (original iPhone, iPhone 3G/3GS, iPad 1/2)
+- @2x: 1 point = 2 pixels (iPhone 4+, iPad 3+, most modern devices)
+- @3x: 1 point = 3 pixels (iPhone 6 Plus and newer Plus/Max models)
+
+**Points vs Pixels**: 
+- Points (pt) are logical coordinates used in code and layout
+- Pixels (px) are physical screen pixels
+- Example: A 320x480 pt screen at @2x is 640x960 px
+
+### DisplaySettings Service Enhancements
+
+#### New Device Presets
+- `iPhoneOriginal`: iPhone 2G/3G/3GS (320×480 @1x)
+- `iPhone4`: iPhone 4/4S (640×960 @2x)
+- `iPhone5`: iPhone 5/5S/5C (640×1136 @2x)
+- `iPhone6`: iPhone 6/7/8 (750×1334 @2x)
+- `iPhone6Plus`: iPhone 6+/7+/8+ (1080×1920 @3x)
+- `iPadOriginal`: iPad 1/2, iPad mini 1 (768×1024 @1x)
+- `iPad`: iPad 3+, iPad mini 2+ (1536×2048 @2x)
+
+#### New Properties
+```csharp
+// Content scale factor (1.0, 2.0, or 3.0)
+public double ContentScaleFactor { get; }
+
+// Screen dimensions in logical points
+public double WidthInPoints => RESOLUTION_X / ContentScaleFactor;
+public double HeightInPoints => RESOLUTION_Y / ContentScaleFactor;
+```
+
+#### Image Scaling Methods
+```csharp
+// Get the scale suffix for current device (@1x, @2x, @3x)
+public string GetImageScaleSuffix()
+
+// Get the best matching image path for current scale
+public string GetScaledImagePath(string basePath)
+```
+
+### Image Asset Organization
+
+All images now follow iOS naming conventions:
+- `image.png` - @1x version (base, no suffix)
+- `image@2x.png` - @2x version (2x resolution)
+- `image@3x.png` - @3x version (3x resolution)
+
+**Example**: An icon that is 60×60 pt would have:
+- `icon.png` - 60×60 px (@1x)
+- `icon@2x.png` - 120×120 px (@2x)
+- `icon@3x.png` - 180×180 px (@3x)
+
+### Image Variants Created
+All existing assets have been scaled to create @1x, @2x, and @3x variants:
+
+**Main Images**:
+- Wallpapers (wallpaper.png, wallpaper_gradient_*.png)
+- Dock (dock.png)
+- Icon shadows (icon_shadow.png, icon_shadow_dock.png)
+- Folder switcher background (folderswitcher_bg.png)
+
+**Lock Screen Images**:
+- Lock wallpaper (lock-wallpaper.png)
+- Slide controls (slide_well.png, slide_knob_grey.png)
+- Control bar (controls_small.png)
+
+**App Icons** (21 icons):
+- All app icons in /images/icons/ directory
+- Messages, Calendar, Photos, Camera, Settings, etc.
+
+**Status Bar Icons**:
+- Battery icons (charging, draining, charged, insides)
+- WiFi signal icons (0-3 bars)
+- Three style variants: coloured, white_on_black_shadow, white_on_black_etch
+
+### CSS Updates
+
+CSS files have been updated to reference @2x images by default (the most common scale):
+- `Springboard.razor.css` - wallpaper and dock backgrounds
+- `AppIcon.razor.css` - icon shadows
+- `LockScreen.razor.css` - lock screen backgrounds and controls
+
+**Example**:
+```css
+background-image: url(/_content/OldiOS.Shared/images/wallpaper@2x.png);
+```
+
+### Debug Menu Enhancements
+
+The debug menu now displays:
+- Current resolution in pixels (e.g., "640x960 px")
+- Content scale factor (e.g., "@2x")
+- Logical dimensions in points (e.g., "320x480 pt")
+- Grid layout (e.g., "4x4")
+
+Users can also select custom resolutions with a custom scale factor (@1x, @2x, or @3x).
+
+### How It Works
+
+1. **Device Selection**: User selects a device preset or custom resolution in the debug menu
+2. **Scale Application**: DisplaySettings sets both pixel resolution and content scale factor
+3. **Image Loading**: CSS references @2x images by default (optimal for most cases)
+4. **Layout Calculation**: Grid layout and icon positioning use logical points
+5. **Responsive Scaling**: The viewport automatically scales to fit the browser window
+
+### Benefits
+
+- **Authentic iOS Experience**: Replicates how real iOS handles different screen densities
+- **Multiple Device Support**: Can simulate original iPhone through modern devices
+- **Optimized Performance**: Appropriate image resolution for each scale factor
+- **Future-Ready**: Easy to add new device presets and scale factors
+- **Points-Based Layout**: Matches iOS development practices
+
+### Future Enhancements
+
+- [ ] Dynamic image loading based on scale factor (CSS image-set or JavaScript)
+- [ ] Automatic scale detection based on device pixel ratio
+- [ ] Support for intermediate scale factors (e.g., 1.5x for some Android devices)
+- [ ] Asset optimization per platform (MAUI can bundle appropriate scale only)
+
