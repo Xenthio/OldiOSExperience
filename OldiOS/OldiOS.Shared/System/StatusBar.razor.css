@@ -29,6 +29,15 @@
     opacity: 0.8;
 }
 
+.status-bar-white-on-black-shadow {
+    color: rgba(255,255,255,0.8); 
+}
+
+    .status-bar-white-on-black-shadow .wifi-icon,
+    .status-bar-white-on-black-shadow .battery-icon {
+        opacity: 0.8;
+    }
+
 /* Coloured style - for apps */
 .status-bar-coloured {
     border-image-source: url(/_content/OldiOS.Shared/images/status/silver_base.png);
