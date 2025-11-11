@@ -3,15 +3,20 @@
 .uitableviewcell {
     display: flex;
     align-items: center;
-    padding: 24px 30px;
-    border-bottom: 1px solid #d1d5db;
-    background-color: white;
+    padding: 14px 14px;
+    border-top: 2px solid #FCFCFC;
+    border-bottom: 2px solid #BEBEBE;
+    background-color: #F5F5F5;
     cursor: pointer;
     min-height: 88px;
     transition: background-color 0.1s ease;
 }
 
-.uitableviewcell.last {
+.uitableviewcell:first-child {
+    border-top: none;
+}
+
+.uitableviewcell:last-child {
     border-bottom: none;
 }
 
@@ -39,6 +44,7 @@
     color: #000;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 34px;
+    font-weight: bold;
 }
 
 .cell-detail {
@@ -55,7 +61,7 @@
 
 .cell-accessory.disclosure {
     color: #b4b8bd;
-    font-size: 56px;
+    font-size: 24px;
 }
 
 .cell-accessory.checkmark {
