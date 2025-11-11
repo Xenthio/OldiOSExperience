@@ -1,8 +1,9 @@
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Services
+@inject DisplaySettings DisplaySettings
 
 <div class="app-icon" @onclick="HandleClick">
-    <div class="icon-shadow"></div>
+    <div class="icon-shadow" style="background-image: url(@GetShadowImagePath());"></div>
     <div class="icon-image" style="background-image: url(@App.IconPath)"></div>
     <span>@App.Name</span>
 </div>
@@ -13,9 +14,19 @@
     
     [Parameter]
     public EventCallback<AppInfo> OnAppClick { get; set; }
+    
+    [Parameter]
+    public bool IsDockIcon { get; set; } = false;
 
     private async Task HandleClick()
     {
         await OnAppClick.InvokeAsync(App);
+    }
+    
+    private string GetShadowImagePath()
+    {
+        // Use different shadow for dock icons
+        var shadowName = IsDockIcon ? "icon_shadow_dock" : "icon_shadow";
+        return DisplaySettings.GetScaledImagePath($"_content/OldiOS.Shared/images/{shadowName}.png");
     }
 }

@@ -9,7 +9,9 @@
 <div class="springboard-container @(isAppOpen ? "app-is-open" : "") @(isAppSwitcherVisible ? "switcher-visible" : "") @(DebugAnimationActive ? "debug-animation" : "") @(isLocked ? "locked" : "") @(isUnlocking ? "unlocking" : "")"
      style="--icon-rows: @DisplaySettings.GetIconRows(); --icon-columns: @DisplaySettings.GetIconColumns();">
     <!-- Wallpaper -->
-    <div class="wallpaper" alt="Wallpaper"/>
+    <div class="wallpaper" alt="Wallpaper" style="background-image: url(@GetScaledImagePath("images/wallpaper.png"));">
+        <div class="wallpaper-gradient" style="background-image: url(@GetScaledImagePath("images/wallpaper_gradient_bottom.png"));"></div>
+    </div>
 
     <!-- Status Bar -->
     <OldiOS.Shared.System.StatusBar Style="OldiOS.Shared.System.StatusBarStyle.WhiteOnBlackEtch" />
@@ -53,11 +55,11 @@
 
     <!-- The Dock -->
     <div class="dock">
-        <div class="dock-background"></div>
+        <div class="dock-background" style="background-image: url(@GetScaledImagePath("images/dock.png"));"></div>
         <div class="dock-icons">
             @foreach (var app in DockApps)
             {
-                <OldiOS.Shared.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
+                <OldiOS.Shared.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" IsDockIcon="true" />
             }
         </div>
     </div>
@@ -114,6 +116,9 @@
         // Subscribe to app state changes
         AppManager.OnAppStatesChanged += HandleAppStateChanged;
         
+        // Subscribe to layout changes from SpringboardService
+        SpringboardService.OnLayoutChanged += HandleLayoutChanged;
+        
         // Subscribe to resolution changes
         DisplaySettings.OnResolutionChanged += HandleResolutionChanged;
     }
@@ -121,6 +126,7 @@
     public void Dispose()
     {
         AppManager.OnAppStatesChanged -= HandleAppStateChanged;
+        SpringboardService.OnLayoutChanged -= HandleLayoutChanged;
         DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
     }
     
@@ -408,5 +414,16 @@
             await AnimateRubberBandBack();
             return;
         }
+    }
+    
+    // Helper method to get scaled image path
+    private string GetScaledImagePath(string basePath)
+    {
+        return DisplaySettings.GetScaledImagePath($"_content/OldiOS.Shared/{basePath}");
+    }
+    
+    private void HandleLayoutChanged()
+    {
+        StateHasChanged();
     }
 }

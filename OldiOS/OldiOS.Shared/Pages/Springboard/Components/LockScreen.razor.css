@@ -56,18 +56,15 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url(/_content/OldiOS.Shared/images/lockscreen/lock-wallpaper@2x.png);
     background-size: cover;
     z-index: 0;
 }
-.lock-wallpaper::after {
-    content: '';
+.lock-wallpaper-gradient {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url(/_content/OldiOS.Shared/images/wallpaper_gradient_bottom@2x.png);
     background-repeat: repeat-x;
     background-size: auto;
     background-position: bottom;
@@ -84,7 +81,6 @@
     text-align: center;
     color: white;
     text-shadow: 0 -2px 2px rgba(0,0,0,0.8);
-    background-image: url(/_content/OldiOS.Shared/images/lockscreen/controls_small@2x.png);
     background-repeat: repeat-x;
     background-size: auto;
     background-position: top;
@@ -114,7 +110,6 @@
     padding: 0 40px;
     height: 190px;
     border-top: 2px solid black;
-    background-image: url(/_content/OldiOS.Shared/images/lockscreen/controls_small@2x.png);
     background-repeat: repeat-x;
     background-size: auto;
     background-position: top;
@@ -145,7 +140,6 @@
     /* Move all the border-image properties here */
     border-width: 25px;
     border-style: solid;
-    border-image-source: url(/_content/OldiOS.Shared/images/lockscreen/slide_well@2x.png);
     border-image-slice: 25 fill;
     border-image-repeat: stretch;
 
@@ -196,7 +190,6 @@
     width: 116px;
     height: calc(100% - 16px);
     border-radius: calc(25px - 8px);
-    background-image: url(/_content/OldiOS.Shared/images/lockscreen/slide_knob_grey@2x.png);
     display: flex;
     align-items: center;
     justify-content: center;

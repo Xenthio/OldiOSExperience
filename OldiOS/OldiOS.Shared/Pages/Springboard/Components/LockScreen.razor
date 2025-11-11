@@ -16,24 +16,26 @@
      @onmouseleave="HandleMouseUp">
     
     <!-- Lock screen wallpaper -->
-    <div class="lock-wallpaper" alt="Wallpaper"/>
+    <div class="lock-wallpaper" alt="Wallpaper" style="background-image: url(@GetScaledImagePath("images/lockscreen/lock-wallpaper.png"));">
+        <div class="lock-wallpaper-gradient" style="background-image: url(@GetScaledImagePath("images/wallpaper_gradient_bottom.png"));"></div>
+    </div>
 
     <!-- Status bar at top -->
     <OldiOS.Shared.System.StatusBar Style="OldiOS.Shared.System.StatusBarStyle.WhiteOnBlackEtch" />
     
     <!-- Large time and date display in center -->
-    <div class="lock-status-bar">
+    <div class="lock-status-bar" style="background-image: url(@GetScaledImagePath("images/lockscreen/controls_small.png"));">
         <div class="status-time">@currentTime</div>
         <div class="status-date">@currentDate</div>
     </div>
     
     <!-- Slide to unlock -->
-    <div class="slide-to-unlock-container">
-        <div @ref="slideTrackElement" class="slide-track">
+    <div class="slide-to-unlock-container" style="background-image: url(@GetScaledImagePath("images/lockscreen/controls_small.png"));">
+        <div @ref="slideTrackElement" class="slide-track" style="border-image-source: url(@GetScaledImagePath("images/lockscreen/slide_well.png"));">
             <div class="slide-text" style="@slideTextStyle">
                 slide to unlock
             </div>
-            <div @ref="slideButtonElement" class="slide-button" style="@slideButtonStyle">
+            <div @ref="slideButtonElement" class="slide-button" style="@slideButtonStyle; background-image: url(@GetScaledImagePath("images/lockscreen/slide_knob_grey.png"));">
                 <div class="slide-arrow"></div>
             </div>
         </div>
@@ -205,6 +207,12 @@
         // Reset state
         isUnlocking = false;
         dragOffsetX = 0;
+    }
+    
+    // Helper method to get scaled image path
+    private string GetScaledImagePath(string basePath)
+    {
+        return DisplaySettings.GetScaledImagePath($"_content/OldiOS.Shared/{basePath}");
     }
     
     // --- NEW: Helper class for JS Interop ---
