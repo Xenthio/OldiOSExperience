@@ -10,7 +10,7 @@
     @if (CurrentApp != null || isAnimating)
     {
         <!-- Status Bar - shown in all apps -->
-        <OldiOS.Shared.System.StatusBar Style="OldiOS.Shared.System.StatusBarStyle.Coloured" />
+        <OldiOS.Shared.System.StatusBar Style="@GetStatusBarStyle()" />
         
         <div class="app-content">
             @if (displayedApp != null)
@@ -142,5 +142,11 @@
     {
         animationCts?.Cancel();
         animationCts?.Dispose();
+    }
+    
+    private OldiOS.Shared.System.StatusBarStyle GetStatusBarStyle()
+    {
+        // Use the app's configured status bar style, or default to Coloured
+        return displayedApp?.StatusBarStyle ?? OldiOS.Shared.System.StatusBarStyle.Coloured;
     }
 }
