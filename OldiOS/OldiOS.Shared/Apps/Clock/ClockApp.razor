@@ -10,7 +10,7 @@
         {
             <div class="world-clock-list">
                 <div class="empty-state">
-                    <div class="empty-icon">🌍</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/globe-icon.png" alt="Globe" /></div>
                     <div class="empty-text">No World Clocks</div>
                     <div class="empty-hint">Tap + to add a city</div>
                 </div>
@@ -20,7 +20,7 @@
         {
             <div class="alarm-list">
                 <div class="empty-state">
-                    <div class="empty-icon">⏰</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/alarm-icon.png" alt="Alarm" /></div>
                     <div class="empty-text">No Alarms</div>
                     <div class="empty-hint">Tap + to add an alarm</div>
                 </div>
@@ -80,10 +80,10 @@
     
     private List<UITabBarItem> TabBarItems = new()
     {
-        new UITabBarItem { Title = "World Clock", Tag = "world", IsSelected = true },
-        new UITabBarItem { Title = "Alarm", Tag = "alarm" },
-        new UITabBarItem { Title = "Stopwatch", Tag = "stopwatch" },
-        new UITabBarItem { Title = "Timer", Tag = "timer" }
+        new UITabBarItem { Title = "World Clock", Tag = "world", Icon = "_content/OldiOS.Shared/images/icons/tab-worldclock.png", IsSelected = true },
+        new UITabBarItem { Title = "Alarm", Tag = "alarm", Icon = "_content/OldiOS.Shared/images/icons/tab-alarm.png" },
+        new UITabBarItem { Title = "Stopwatch", Tag = "stopwatch", Icon = "_content/OldiOS.Shared/images/icons/tab-stopwatch.png" },
+        new UITabBarItem { Title = "Timer", Tag = "timer", Icon = "_content/OldiOS.Shared/images/icons/tab-timer.png" }
     };
     
     private string GetCurrentTitle()

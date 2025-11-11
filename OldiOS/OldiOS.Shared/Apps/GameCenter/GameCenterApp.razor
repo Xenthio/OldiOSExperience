@@ -66,10 +66,10 @@
     
     private List<UITabBarItem> TabBarItems = new()
     {
-        new UITabBarItem { Title = "Me", Tag = "me", IsSelected = true },
-        new UITabBarItem { Title = "Games", Tag = "games" },
-        new UITabBarItem { Title = "Friends", Tag = "friends" },
-        new UITabBarItem { Title = "Requests", Tag = "requests" }
+        new UITabBarItem { Title = "Me", Tag = "me", Icon = "_content/OldiOS.Shared/images/icons/tab-me.png", IsSelected = true },
+        new UITabBarItem { Title = "Games", Tag = "games", Icon = "_content/OldiOS.Shared/images/icons/tab-games.png" },
+        new UITabBarItem { Title = "Friends", Tag = "friends", Icon = "_content/OldiOS.Shared/images/icons/tab-friends.png" },
+        new UITabBarItem { Title = "Requests", Tag = "requests", Icon = "_content/OldiOS.Shared/images/icons/tab-requests.png" }
     };
     
     private string GetCurrentTitle()

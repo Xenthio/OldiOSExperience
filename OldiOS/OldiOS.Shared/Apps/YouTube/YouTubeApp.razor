@@ -9,7 +9,7 @@
         {
             <div class="video-grid">
                 <div class="empty-state">
-                    <div class="empty-icon">▶️</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/play-icon.png" alt="Play" /></div>
                     <div class="empty-text">No Featured Videos</div>
                 </div>
             </div>
@@ -18,7 +18,7 @@
         {
             <div class="video-list">
                 <div class="empty-state">
-                    <div class="empty-icon">⭐</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/star-icon.png" alt="Star" /></div>
                     <div class="empty-text">No Top Rated Videos</div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
         {
             <div class="subscriptions-list">
                 <div class="empty-state">
-                    <div class="empty-icon">📺</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/tv-icon.png" alt="TV" /></div>
                     <div class="empty-text">No Subscriptions</div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         {
             <div class="favorites-list">
                 <div class="empty-state">
-                    <div class="empty-icon">❤️</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/heart-icon.png" alt="Heart" /></div>
                     <div class="empty-text">No Favorites</div>
                 </div>
             </div>
@@ -61,11 +61,11 @@
     
     private List<UITabBarItem> TabBarItems = new()
     {
-        new UITabBarItem { Title = "Featured", Tag = "featured", IsSelected = true },
-        new UITabBarItem { Title = "Top Rated", Tag = "top" },
-        new UITabBarItem { Title = "Subscriptions", Tag = "subscriptions" },
-        new UITabBarItem { Title = "Favorites", Tag = "favorites" },
-        new UITabBarItem { Title = "More", Tag = "more" }
+        new UITabBarItem { Title = "Featured", Tag = "featured", Icon = "_content/OldiOS.Shared/images/icons/tab-featured.png", IsSelected = true },
+        new UITabBarItem { Title = "Top Rated", Tag = "top", Icon = "_content/OldiOS.Shared/images/icons/tab-toprated.png" },
+        new UITabBarItem { Title = "Subscriptions", Tag = "subscriptions", Icon = "_content/OldiOS.Shared/images/icons/tab-subscriptions.png" },
+        new UITabBarItem { Title = "Favorites", Tag = "favorites", Icon = "_content/OldiOS.Shared/images/icons/tab-favorites.png" },
+        new UITabBarItem { Title = "More", Tag = "more", Icon = "_content/OldiOS.Shared/images/icons/tab-more.png" }
     };
     
     private string GetCurrentTitle()
