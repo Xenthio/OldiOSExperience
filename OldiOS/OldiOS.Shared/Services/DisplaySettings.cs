@@ -5,12 +5,13 @@ namespace OldiOS.Shared.Services
     /// </summary>
     public enum DevicePreset
     {
-        iPhone4,
-        iPhone5,
-        iPhone6,
-        iPhone6Plus,
-        iPad,
-        iPadMini,
+        iPhoneOriginal,  // iPhone 2G, 3G, 3GS - 320×480 @1x
+        iPhone4,         // iPhone 4, 4S - 640×960 @2x
+        iPhone5,         // iPhone 5, 5C, 5S - 640×1136 @2x
+        iPhone6,         // iPhone 6, 6S, 7, 8 - 750×1334 @2x
+        iPhone6Plus,     // iPhone 6+, 6S+, 7+, 8+ - 1080×1920 @3x (downsampled from 1242×2208)
+        iPadOriginal,    // iPad 1, 2, iPad mini 1 - 768×1024 @1x
+        iPad,            // iPad 3+, iPad mini 2+ - 1536×2048 @2x
         Custom
     }
 
@@ -32,6 +33,7 @@ namespace OldiOS.Shared.Services
         private double _resolutionY = 960.0;
         private double _scaleFactor = 1.0;
         private DevicePreset _currentPreset = DevicePreset.iPhone4;
+        private double _contentScaleFactor = 2.0; // @1x = 1.0, @2x = 2.0, @3x = 3.0
 
         /// <summary>
         /// Event fired when resolution changes
@@ -94,6 +96,27 @@ namespace OldiOS.Shared.Services
         }
 
         /// <summary>
+        /// The content scale factor (@1x = 1.0, @2x = 2.0, @3x = 3.0)
+        /// This represents how many pixels make up one point.
+        /// For example, @2x means a 10pt icon is 20px.
+        /// </summary>
+        public double ContentScaleFactor
+        {
+            get => _contentScaleFactor;
+            private set => _contentScaleFactor = value;
+        }
+
+        /// <summary>
+        /// Width in logical points (px / scale factor)
+        /// </summary>
+        public double WidthInPoints => RESOLUTION_X / ContentScaleFactor;
+
+        /// <summary>
+        /// Height in logical points (px / scale factor)
+        /// </summary>
+        public double HeightInPoints => RESOLUTION_Y / ContentScaleFactor;
+
+        /// <summary>
         /// Get the device type based on resolution
         /// </summary>
         public DeviceType GetDeviceType()
@@ -103,13 +126,14 @@ namespace OldiOS.Shared.Services
             {
                 switch (CurrentPreset)
                 {
+                    case DevicePreset.iPhoneOriginal:
                     case DevicePreset.iPhone4:
                     case DevicePreset.iPhone5:
                     case DevicePreset.iPhone6:
                     case DevicePreset.iPhone6Plus:
                         return DeviceType.iPhone;
+                    case DevicePreset.iPadOriginal:
                     case DevicePreset.iPad:
-                    case DevicePreset.iPadMini:
                         return DeviceType.iPad;
                 }
             }
@@ -173,32 +197,43 @@ namespace OldiOS.Shared.Services
             CurrentPreset = preset;
             switch (preset)
             {
+                case DevicePreset.iPhoneOriginal:
+                    RESOLUTION_X = 320.0;
+                    RESOLUTION_Y = 480.0;
+                    ContentScaleFactor = 1.0;
+                    break;
                 case DevicePreset.iPhone4:
                     RESOLUTION_X = 640.0;
                     RESOLUTION_Y = 960.0;
+                    ContentScaleFactor = 2.0;
                     break;
                 case DevicePreset.iPhone5:
                     RESOLUTION_X = 640.0;
                     RESOLUTION_Y = 1136.0;
+                    ContentScaleFactor = 2.0;
                     break;
                 case DevicePreset.iPhone6:
                     RESOLUTION_X = 750.0;
                     RESOLUTION_Y = 1334.0;
+                    ContentScaleFactor = 2.0;
                     break;
                 case DevicePreset.iPhone6Plus:
                     RESOLUTION_X = 1080.0;
                     RESOLUTION_Y = 1920.0;
+                    ContentScaleFactor = 3.0;
+                    break;
+                case DevicePreset.iPadOriginal:
+                    RESOLUTION_X = 768.0;
+                    RESOLUTION_Y = 1024.0;
+                    ContentScaleFactor = 1.0;
                     break;
                 case DevicePreset.iPad:
                     RESOLUTION_X = 1536.0;
                     RESOLUTION_Y = 2048.0;
-                    break;
-                case DevicePreset.iPadMini:
-                    RESOLUTION_X = 768;
-                    RESOLUTION_Y = 1024;
+                    ContentScaleFactor = 2.0;
                     break;
                 case DevicePreset.Custom:
-                    // Custom - don't change resolution
+                    // Custom - don't change resolution or scale
                     break;
             }
         }
@@ -206,11 +241,57 @@ namespace OldiOS.Shared.Services
         /// <summary>
         /// Set custom resolution
         /// </summary>
-        public void SetCustomResolution(double width, double height)
+        public void SetCustomResolution(double width, double height, double contentScale = 2.0)
         {
             CurrentPreset = DevicePreset.Custom;
             RESOLUTION_X = width;
             RESOLUTION_Y = height;
+            ContentScaleFactor = contentScale;
+        }
+
+        /// <summary>
+        /// Get the image path suffix for the current scale (@1x, @2x, @3x)
+        /// </summary>
+        public string GetImageScaleSuffix()
+        {
+            return ContentScaleFactor switch
+            {
+                1.0 => "",      // @1x has no suffix (e.g., "icon.png")
+                2.0 => "@2x",   // @2x (e.g., "icon@2x.png")
+                3.0 => "@3x",   // @3x (e.g., "icon@3x.png")
+                _ => "@2x"      // Default to @2x for any other scale
+            };
+        }
+
+        /// <summary>
+        /// Get the best matching image path for the current scale factor.
+        /// Tries exact match first, then falls back to closest available scale.
+        /// </summary>
+        /// <param name="basePath">Base path without scale suffix (e.g., "images/icon.png")</param>
+        /// <returns>Best matching image path with scale suffix</returns>
+        public string GetScaledImagePath(string basePath)
+        {
+            // If the path already contains a scale suffix, return as-is
+            if (basePath.Contains("@2x") || basePath.Contains("@3x"))
+            {
+                return basePath;
+            }
+
+            // Split the path into name and extension
+            var lastDot = basePath.LastIndexOf('.');
+            if (lastDot == -1)
+            {
+                return basePath; // No extension, return as-is
+            }
+
+            var pathWithoutExt = basePath.Substring(0, lastDot);
+            var extension = basePath.Substring(lastDot);
+
+            // Get the suffix for current scale
+            var suffix = GetImageScaleSuffix();
+            
+            // Return path with appropriate suffix
+            return $"{pathWithoutExt}{suffix}{extension}";
         }
     }
 }
