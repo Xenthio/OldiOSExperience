@@ -5,8 +5,7 @@
     <div class="navbar-left">
         @if (!string.IsNullOrEmpty(BackButtonText))
         {
-            <button class="navbar-back-button" @onclick="OnBackClick">
-                <span class="back-chevron">‹</span>
+            <button class="navbar-back-button" @onclick="OnBackClick"> 
                 <span class="back-text">@BackButtonText</span>
             </button>
         }
