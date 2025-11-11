@@ -23,8 +23,11 @@
     private RenderFragment? nextPage;
     private bool isAnimating = false;
     private string animationClass = "";
-    private string titleAnimationClass = "";
     private bool airplaneMode = false;
+    
+    // Track current and next titles for animation
+    private string currentTitle = "Settings";
+    private string nextTitle = "";
     
     protected override void OnInitialized()
     {
@@ -35,6 +38,7 @@
     {
         if (isAnimating) return;
         
+        nextTitle = pageName;
         nextPage = pageName switch
         {
             "Wi-Fi" => RenderWiFiSettings(),
@@ -55,7 +59,6 @@
         {
             isAnimating = true;
             animationClass = "slide-left";
-            titleAnimationClass = "title-slide-left";
             StateHasChanged();
             
             Task.Delay(300).ContinueWith(_ =>
@@ -63,10 +66,11 @@
                 InvokeAsync(() =>
                 {
                     currentPage = nextPage;
+                    currentTitle = nextTitle;
                     nextPage = null;
+                    nextTitle = "";
                     isAnimating = false;
                     animationClass = "";
-                    titleAnimationClass = "";
                     StateHasChanged();
                 });
             });
@@ -77,10 +81,10 @@
     {
         if (isAnimating) return;
         
+        nextTitle = "Settings";
         nextPage = RenderMainMenu();
         isAnimating = true;
         animationClass = "slide-right";
-        titleAnimationClass = "title-slide-right";
         StateHasChanged();
         
         Task.Delay(300).ContinueWith(_ =>
@@ -88,13 +92,39 @@
             InvokeAsync(() =>
             {
                 currentPage = nextPage;
+                currentTitle = nextTitle;
                 nextPage = null;
+                nextTitle = "";
                 isAnimating = false;
                 animationClass = "";
-                titleAnimationClass = "";
                 StateHasChanged();
             });
         });
+    }
+    
+    
+    private string GetTitleAnimationClass(string pageTitle)
+    {
+        if (!isAnimating) return "";
+        
+        // Determine if this is the current page or next page
+        bool isCurrentPage = pageTitle == currentTitle;
+        bool isNextPage = pageTitle == nextTitle;
+        
+        if (animationClass == "slide-left")
+        {
+            // Forward navigation
+            if (isCurrentPage) return "title-slide-left";
+            if (isNextPage) return "title-slide-in-right";
+        }
+        else if (animationClass == "slide-right")
+        {
+            // Back navigation
+            if (isCurrentPage) return "title-slide-right";
+            if (isNextPage) return "title-slide-in-left";
+        }
+        
+        return "";
     }
     
     private RenderFragment RenderMainMenu() => builder =>
@@ -104,7 +134,7 @@
         
         builder.OpenComponent<UINavigationBar>(2);
         builder.AddAttribute(3, "Title", "Settings");
-        builder.AddAttribute(4, "AnimationClass", isAnimating ? (animationClass == "slide-left" ? "title-slide-left" : "") : "title-slide-in-left");
+        builder.AddAttribute(4, "AnimationClass", GetTitleAnimationClass("Settings"));
         builder.CloseComponent();
         
         builder.OpenElement(4, "div");
@@ -245,7 +275,7 @@
         builder.AddAttribute(3, "Title", "Wi-Fi");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Wi-Fi"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -293,7 +323,7 @@
         builder.AddAttribute(3, "Title", "Bluetooth");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Bluetooth"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -342,7 +372,7 @@
         builder.AddAttribute(3, "Title", "Cellular");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Cellular"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -399,7 +429,7 @@
         builder.AddAttribute(3, "Title", "Notifications");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Notifications"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -447,7 +477,7 @@
         builder.AddAttribute(3, "Title", "Sounds");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Sounds"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -509,7 +539,7 @@
         builder.AddAttribute(3, "Title", "Brightness");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Brightness"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -563,7 +593,7 @@
         builder.AddAttribute(3, "Title", "Privacy");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Privacy"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -611,7 +641,7 @@
         builder.AddAttribute(3, "Title", "iCloud");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("iCloud"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -661,7 +691,7 @@
         builder.AddAttribute(3, "Title", "Safari");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Safari"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -723,7 +753,7 @@
         builder.AddAttribute(3, "Title", "Mail");
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
-        builder.AddAttribute(6, "AnimationClass", isAnimating ? (animationClass == "slide-right" ? "title-slide-right" : "title-slide-in-right") : "");
+        builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Mail"));
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");

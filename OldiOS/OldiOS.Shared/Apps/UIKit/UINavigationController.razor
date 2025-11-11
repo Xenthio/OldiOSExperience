@@ -1,0 +1,87 @@
+@* iOS 5 UINavigationController Component *@
+
+<div class="uinavigationcontroller">
+    @if (currentView != null)
+    {
+        <div class="nav-view @currentAnimationClass" @key="@currentKey">
+            @currentView
+        </div>
+    }
+    
+    @if (nextView != null && isAnimating)
+    {
+        <div class="nav-view nav-view-next @nextAnimationClass" @key="@nextKey">
+            @nextView
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? InitialView { get; set; }
+    
+    private RenderFragment? currentView;
+    private RenderFragment? nextView;
+    private bool isAnimating = false;
+    private string currentAnimationClass = "";
+    private string nextAnimationClass = "";
+    private int currentKey = 0;
+    private int nextKey = 1;
+    
+    protected override void OnInitialized()
+    {
+        currentView = InitialView;
+    }
+    
+    public void PushView(RenderFragment view)
+    {
+        if (isAnimating) return;
+        
+        nextView = view;
+        nextKey++;
+        isAnimating = true;
+        currentAnimationClass = "slide-out-left";
+        nextAnimationClass = "slide-in-right";
+        StateHasChanged();
+        
+        Task.Delay(300).ContinueWith(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                currentView = nextView;
+                currentKey = nextKey;
+                nextView = null;
+                isAnimating = false;
+                currentAnimationClass = "";
+                nextAnimationClass = "";
+                StateHasChanged();
+            });
+        });
+    }
+    
+    public void PopView(RenderFragment view)
+    {
+        if (isAnimating) return;
+        
+        nextView = view;
+        nextKey++;
+        isAnimating = true;
+        currentAnimationClass = "slide-out-right";
+        nextAnimationClass = "slide-in-left";
+        StateHasChanged();
+        
+        Task.Delay(300).ContinueWith(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                currentView = nextView;
+                currentKey = nextKey;
+                nextView = null;
+                isAnimating = false;
+                currentAnimationClass = "";
+                nextAnimationClass = "";
+                StateHasChanged();
+            });
+        });
+    }
+}
