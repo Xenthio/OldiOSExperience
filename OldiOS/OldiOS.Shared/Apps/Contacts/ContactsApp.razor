@@ -1,0 +1,23 @@
+@* iOS 5 Contacts App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="contacts-app">
+    <UINavigationBar Title="All Contacts" 
+                     RightButtonText="+" />
+    
+    <div class="contacts-content">
+        <UISearchBar Placeholder="Search" ShowsCancelButton="false" />
+        
+        <div class="contacts-list">
+            <div class="empty-state">
+                <div class="empty-icon">👤</div>
+                <div class="empty-text">No Contacts</div>
+                <div class="empty-hint">Tap + to add a contact</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    
+}

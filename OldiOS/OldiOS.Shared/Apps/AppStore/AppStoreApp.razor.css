@@ -1,0 +1,46 @@
+.appstore-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.appstore-content {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 88px;
+    margin-bottom: 98px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    color: #999;
+    min-height: 600px;
+}
+
+.empty-icon {
+    font-size: 120px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-text {
+    font-size: 40px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.empty-hint {
+    font-size: 28px;
+    color: #bbb;
+}
+
+.featured-view, .top-charts, .search-results, .updates-list {
+    background: #fff;
+}

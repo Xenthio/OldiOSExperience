@@ -1,0 +1,89 @@
+@* iOS 5 YouTube App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="youtube-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="youtube-content">
+        @if (CurrentTab == "featured")
+        {
+            <div class="video-grid">
+                <div class="empty-state">
+                    <div class="empty-icon">▶️</div>
+                    <div class="empty-text">No Featured Videos</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "top")
+        {
+            <div class="video-list">
+                <div class="empty-state">
+                    <div class="empty-icon">⭐</div>
+                    <div class="empty-text">No Top Rated Videos</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "subscriptions")
+        {
+            <div class="subscriptions-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📺</div>
+                    <div class="empty-text">No Subscriptions</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "favorites")
+        {
+            <div class="favorites-list">
+                <div class="empty-state">
+                    <div class="empty-icon">❤️</div>
+                    <div class="empty-text">No Favorites</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "more")
+        {
+            <UITableView>
+                <UITableViewSection>
+                    <UITableViewCell Text="History" ShowDisclosure="true" />
+                    <UITableViewCell Text="Uploads" ShowDisclosure="true" />
+                    <UITableViewCell Text="Playlists" ShowDisclosure="true" IsLast="true" />
+                </UITableViewSection>
+            </UITableView>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "featured";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Featured", Tag = "featured", IsSelected = true },
+        new UITabBarItem { Title = "Top Rated", Tag = "top" },
+        new UITabBarItem { Title = "Subscriptions", Tag = "subscriptions" },
+        new UITabBarItem { Title = "Favorites", Tag = "favorites" },
+        new UITabBarItem { Title = "More", Tag = "more" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        return CurrentTab switch
+        {
+            "featured" => "Featured",
+            "top" => "Top Rated",
+            "subscriptions" => "Subscriptions",
+            "favorites" => "Favorites",
+            "more" => "More",
+            _ => "YouTube"
+        };
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}
