@@ -9,7 +9,7 @@
         {
             <div class="favorites-list">
                 <div class="empty-state">
-                    <div class="empty-icon">⭐</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/star-icon.png" alt="Star" /></div>
                     <div class="empty-text">No Favorites</div>
                 </div>
             </div>
@@ -18,7 +18,7 @@
         {
             <div class="recents-list">
                 <div class="empty-state">
-                    <div class="empty-icon">🕐</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/clock-icon.png" alt="Clock" /></div>
                     <div class="empty-text">No Recents</div>
                 </div>
             </div>
@@ -28,7 +28,7 @@
             <UISearchBar Placeholder="Search" />
             <div class="contacts-list">
                 <div class="empty-state">
-                    <div class="empty-icon">👤</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/contact-icon.png" alt="Contact" /></div>
                     <div class="empty-text">No Contacts</div>
                 </div>
             </div>
@@ -49,10 +49,10 @@
                 <div class="keypad-actions">
                     @if (!string.IsNullOrEmpty(PhoneNumber))
                     {
-                        <button class="delete-button" @onclick="DeleteDigit">⌫</button>
+                        <button class="delete-button" @onclick="DeleteDigit"><img src="_content/OldiOS.Shared/images/icons/delete-icon.png" alt="Delete" /></button>
                     }
                     <button class="call-button" disabled="@string.IsNullOrEmpty(PhoneNumber)">
-                        <div class="call-icon">📞</div>
+                        <div class="call-icon"><img src="_content/OldiOS.Shared/images/icons/phone-icon.png" alt="Call" /></div>
                     </button>
                 </div>
             </div>
@@ -61,7 +61,7 @@
         {
             <div class="voicemail-list">
                 <div class="empty-state">
-                    <div class="empty-icon">📱</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/voicemail-icon.png" alt="Voicemail" /></div>
                     <div class="empty-text">No Voicemail</div>
                 </div>
             </div>
@@ -77,11 +77,11 @@
     
     private List<UITabBarItem> TabBarItems = new()
     {
-        new UITabBarItem { Title = "Favorites", Tag = "favorites", IsSelected = true },
-        new UITabBarItem { Title = "Recents", Tag = "recents" },
-        new UITabBarItem { Title = "Contacts", Tag = "contacts" },
-        new UITabBarItem { Title = "Keypad", Tag = "keypad" },
-        new UITabBarItem { Title = "Voicemail", Tag = "voicemail" }
+        new UITabBarItem { Title = "Favorites", Tag = "favorites", Icon = "_content/OldiOS.Shared/images/icons/tab-favorites.png", IsSelected = true },
+        new UITabBarItem { Title = "Recents", Tag = "recents", Icon = "_content/OldiOS.Shared/images/icons/tab-recents.png" },
+        new UITabBarItem { Title = "Contacts", Tag = "contacts", Icon = "_content/OldiOS.Shared/images/icons/tab-contacts.png" },
+        new UITabBarItem { Title = "Keypad", Tag = "keypad", Icon = "_content/OldiOS.Shared/images/icons/tab-keypad.png" },
+        new UITabBarItem { Title = "Voicemail", Tag = "voicemail", Icon = "_content/OldiOS.Shared/images/icons/tab-voicemail.png" }
     };
     
     private List<KeypadKey> KeypadButtons = new()

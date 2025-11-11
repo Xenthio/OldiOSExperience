@@ -79,7 +79,13 @@
 }
 
 .hour-icon {
-    font-size: 56px;
+    width: 56px;
+    height: 56px;
+}
+
+.hour-icon img {
+    width: 100%;
+    height: 100%;
 }
 
 .hour-temp {
@@ -112,8 +118,14 @@
 }
 
 .day-icon {
-    font-size: 52px;
+    width: 52px;
+    height: 52px;
     margin: 0 30px;
+}
+
+.day-icon img {
+    width: 100%;
+    height: 100%;
 }
 
 .day-temps {
@@ -180,9 +192,16 @@
     background: none;
     border: none;
     color: #fff;
-    font-size: 48px;
+    width: 48px;
+    height: 48px;
     cursor: pointer;
     padding: 10px;
+}
+
+.location-button img, .info-button img {
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) invert(1);
 }
 
 .location-button:active, .info-button:active {

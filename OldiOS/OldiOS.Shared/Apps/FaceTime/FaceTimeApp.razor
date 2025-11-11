@@ -1,0 +1,67 @@
+@* iOS 5 FaceTime App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="facetime-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="facetime-content">
+        @if (CurrentTab == "favorites")
+        {
+            <div class="favorites-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/facetime-icon.png" alt="FaceTime" style="width: 120px; height: 120px; opacity: 0.3;" /></div>
+                    <div class="empty-text">No Favorites</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "recents")
+        {
+            <div class="recents-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/clock-icon.png" alt="Recents" style="width: 80px; height: 80px; opacity: 0.3;" /></div>
+                    <div class="empty-text">No Recent Calls</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "contacts")
+        {
+            <UISearchBar Placeholder="Search" ShowsCancelButton="false" />
+            <div class="contacts-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/contact-icon.png" alt="Contacts" style="width: 80px; height: 80px; opacity: 0.3;" /></div>
+                    <div class="empty-text">No Contacts</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "favorites";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Favorites", Tag = "favorites", Icon = "_content/OldiOS.Shared/images/icons/tab-favorites.png", IsSelected = true },
+        new UITabBarItem { Title = "Recents", Tag = "recents", Icon = "_content/OldiOS.Shared/images/icons/tab-recents.png" },
+        new UITabBarItem { Title = "Contacts", Tag = "contacts", Icon = "_content/OldiOS.Shared/images/icons/tab-contacts.png" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        return CurrentTab switch
+        {
+            "favorites" => "Favorites",
+            "recents" => "Recents",
+            "contacts" => "Contacts",
+            _ => "FaceTime"
+        };
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}

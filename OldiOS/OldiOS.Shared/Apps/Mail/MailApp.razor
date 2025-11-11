@@ -1,0 +1,31 @@
+@* iOS 5 Mail App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="mail-app">
+    <UINavigationBar Title="Mailboxes" 
+                     RightButtonText="Edit" />
+    
+    <div class="mail-content">
+        <UITableView Grouped="true">
+            <UITableViewSection>
+                <UITableViewCell Text="All Inboxes" Detail="0" ShowDisclosure="true" Icon="_content/OldiOS.Shared/images/icons/mail-inbox.png" />
+            </UITableViewSection>
+            
+            <UITableViewSection>
+                <UITableViewCell Text="Inbox" Detail="0" ShowDisclosure="true" Icon="_content/OldiOS.Shared/images/icons/mail-inbox.png" />
+                <UITableViewCell Text="Drafts" Detail="0" ShowDisclosure="true" Icon="_content/OldiOS.Shared/images/icons/mail-drafts.png" />
+                <UITableViewCell Text="Sent" Detail="0" ShowDisclosure="true" Icon="_content/OldiOS.Shared/images/icons/mail-sent.png" />
+                <UITableViewCell Text="Trash" Detail="0" ShowDisclosure="true" Icon="_content/OldiOS.Shared/images/icons/mail-trash.png" IsLast="true" />
+            </UITableViewSection>
+        </UITableView>
+    </div>
+    
+    <UIToolbar>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-button">✎</button>
+    </UIToolbar>
+</div>
+
+@code {
+    
+}

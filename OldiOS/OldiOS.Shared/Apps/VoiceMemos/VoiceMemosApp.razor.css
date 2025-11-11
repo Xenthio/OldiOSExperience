@@ -1,0 +1,100 @@
+.voicememos-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+}
+
+.voicememos-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.recording-controls {
+    background: #fff;
+    padding: 40px;
+    border-bottom: 1px solid #ccc;
+}
+
+.record-display {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.timer-display {
+    font-size: 72px;
+    font-weight: 300;
+    color: #000;
+    margin-bottom: 30px;
+}
+
+.waveform-placeholder {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.record-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.record-button {
+    width: 160px;
+    height: 160px;
+    border-radius: 80px;
+    background: #fff;
+    border: 6px solid #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.record-button:active {
+    transform: scale(0.95);
+}
+
+.record-dot {
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+    background: #e74c3c;
+}
+
+.memos-list {
+    flex: 1;
+    background: #fff;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    color: #999;
+    min-height: 400px;
+}
+
+.empty-icon {
+    font-size: 120px;
+    margin-bottom: 20px;
+}
+
+.empty-text {
+    font-size: 40px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.empty-hint {
+    font-size: 28px;
+    color: #bbb;
+}

@@ -34,7 +34,7 @@ namespace OldiOS.Shared.Services
             DockApps = new List<AppInfo>
             {
                 new AppInfo { Id = 101, Name = "Phone", IconPath = "_content/OldiOS.Shared/images/icons/phone.png", BundleId = "com.apple.mobilephone", ComponentType = typeof(Apps.Phone.PhoneApp) },
-                new AppInfo { Id = 102, Name = "Mail", IconPath = "_content/OldiOS.Shared/images/icons/mail.png", BundleId = "com.apple.mobilemail" },
+                new AppInfo { Id = 102, Name = "Mail", IconPath = "_content/OldiOS.Shared/images/icons/mail.png", BundleId = "com.apple.mobilemail", ComponentType = typeof(Apps.Mail.MailApp) },
                 new AppInfo { Id = 103, Name = "Safari", IconPath = "_content/OldiOS.Shared/images/icons/safari.png", BundleId = "com.apple.mobilesafari", ComponentType = typeof(Apps.Safari.SafariApp) },
                 new AppInfo { Id = 104, Name = "Music", IconPath = "_content/OldiOS.Shared/images/icons/music.png", BundleId = "com.apple.music", ComponentType = typeof(Apps.Music.MusicApp) }
             };
@@ -53,7 +53,7 @@ namespace OldiOS.Shared.Services
                 new AppInfo { Id = 9, Name = "Notes", IconPath = "_content/OldiOS.Shared/images/icons/notes.png", BundleId = "com.apple.mobilenotes", ComponentType = typeof(Apps.Notes.NotesApp) },
                 new AppInfo { Id = 10, Name = "Clock", IconPath = "_content/OldiOS.Shared/images/icons/clock.png", BundleId = "com.apple.mobiletimer", ComponentType = typeof(Apps.Clock.ClockApp) },
                 new AppInfo { Id = 11, Name = "App Store", IconPath = "_content/OldiOS.Shared/images/icons/appstore.png", BundleId = "com.apple.AppStore", ComponentType = typeof(Apps.AppStore.AppStoreApp) },
-                new AppInfo { Id = 12, Name = "iTunes", IconPath = "_content/OldiOS.Shared/images/icons/itunes.png", BundleId = "com.apple.MobileStore" },
+                new AppInfo { Id = 12, Name = "iTunes", IconPath = "_content/OldiOS.Shared/images/icons/itunes.png", BundleId = "com.apple.MobileStore", ComponentType = typeof(Apps.iTunes.ITunesApp) },
                 new AppInfo { Id = 13, Name = "Game Center", IconPath = "_content/OldiOS.Shared/images/icons/gamecenter.png", BundleId = "com.apple.gamecenter", ComponentType = typeof(Apps.GameCenter.GameCenterApp) },
                 new AppInfo { Id = 14, Name = "Settings", IconPath = "_content/OldiOS.Shared/images/icons/settings.png", BundleId = "com.apple.Preferences", ComponentType = typeof(Apps.Settings.SettingsApp) }
             };
@@ -65,6 +65,9 @@ namespace OldiOS.Shared.Services
                 new AppInfo { Id = 16, Name = "Videos", IconPath = "_content/OldiOS.Shared/images/icons/videos.png", BundleId = "com.apple.videos", ComponentType = typeof(Apps.Videos.VideosApp) },
                 new AppInfo { Id = 21, Name = "Calculator", IconPath = "_content/OldiOS.Shared/images/icons/calculator.png", BundleId = "com.apple.calculator", ComponentType = typeof(Apps.Calculator.CalculatorApp) },
                 new AppInfo { Id = 22, Name = "Contacts", IconPath = "_content/OldiOS.Shared/images/icons/contacts.png", BundleId = "com.apple.mobileaddressbook", ComponentType = typeof(Apps.Contacts.ContactsApp) },
+                new AppInfo { Id = 23, Name = "FaceTime", IconPath = "_content/OldiOS.Shared/images/icons/facetime.png", BundleId = "com.apple.facetime", ComponentType = typeof(Apps.FaceTime.FaceTimeApp) },
+                new AppInfo { Id = 24, Name = "Voice Memos", IconPath = "_content/OldiOS.Shared/images/icons/voicememos.png", BundleId = "com.apple.VoiceMemos", ComponentType = typeof(Apps.VoiceMemos.VoiceMemosApp) },
+                new AppInfo { Id = 25, Name = "Compass", IconPath = "_content/OldiOS.Shared/images/icons/compass.png", BundleId = "com.apple.compass", ComponentType = typeof(Apps.Compass.CompassApp) },
                 new AppInfo { Id = 17, Name = "UIKit Demo", IconPath = "_content/OldiOS.Shared/images/icons/settings.png", BundleId = "com.xenthio.uikitdemo", ComponentType = typeof(Apps.UIKit.UIKitDemoApp) },
                 new AppInfo { Id = 18, Name = "Alarm", IconPath = "_content/OldiOS.Shared/images/icons/clock.png", BundleId = "com.xenthio.alarm", ComponentType = typeof(Apps.Clock.ClockAlarmEdit) },
                 new AppInfo { Id = 19, Name = "Note", IconPath = "_content/OldiOS.Shared/images/icons/notes.png", BundleId = "com.xenthio.note", ComponentType = typeof(Apps.Notes.NotesEditor) },

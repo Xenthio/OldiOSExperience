@@ -9,7 +9,7 @@
         {
             <div class="playlists-list">
                 <div class="empty-state">
-                    <div class="empty-icon">🎵</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/playlist-icon.png" alt="Playlist" /></div>
                     <div class="empty-text">No Playlists</div>
                 </div>
             </div>
@@ -18,7 +18,7 @@
         {
             <div class="artists-list">
                 <div class="empty-state">
-                    <div class="empty-icon">👤</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/artist-icon.png" alt="Artist" /></div>
                     <div class="empty-text">No Artists</div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
         {
             <div class="songs-list">
                 <div class="empty-state">
-                    <div class="empty-icon">♫</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/song-icon.png" alt="Song" /></div>
                     <div class="empty-text">No Songs</div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         {
             <div class="albums-grid">
                 <div class="empty-state">
-                    <div class="empty-icon">💿</div>
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/album-icon.png" alt="Album" /></div>
                     <div class="empty-text">No Albums</div>
                 </div>
             </div>
@@ -63,11 +63,11 @@
     
     private List<UITabBarItem> TabBarItems = new()
     {
-        new UITabBarItem { Title = "Playlists", Tag = "playlists", IsSelected = true },
-        new UITabBarItem { Title = "Artists", Tag = "artists" },
-        new UITabBarItem { Title = "Songs", Tag = "songs" },
-        new UITabBarItem { Title = "Albums", Tag = "albums" },
-        new UITabBarItem { Title = "More", Tag = "more" }
+        new UITabBarItem { Title = "Playlists", Tag = "playlists", Icon = "_content/OldiOS.Shared/images/icons/tab-playlists.png", IsSelected = true },
+        new UITabBarItem { Title = "Artists", Tag = "artists", Icon = "_content/OldiOS.Shared/images/icons/tab-artists.png" },
+        new UITabBarItem { Title = "Songs", Tag = "songs", Icon = "_content/OldiOS.Shared/images/icons/tab-songs.png" },
+        new UITabBarItem { Title = "Albums", Tag = "albums", Icon = "_content/OldiOS.Shared/images/icons/tab-albums.png" },
+        new UITabBarItem { Title = "More", Tag = "more", Icon = "_content/OldiOS.Shared/images/icons/tab-more.png" }
     };
     
     private string GetCurrentTitle()
