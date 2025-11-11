@@ -21,7 +21,7 @@
         }
     </div>
     
-    <div class="navbar-title">
+    <div class="navbar-title @AnimationClass">
         @Title
     </div>
     
@@ -66,4 +66,7 @@
     
     [Parameter]
     public RenderFragment? RightContent { get; set; }
+    
+    [Parameter]
+    public string AnimationClass { get; set; } = "";
 }
