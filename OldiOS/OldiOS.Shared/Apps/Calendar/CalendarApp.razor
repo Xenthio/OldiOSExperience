@@ -3,8 +3,8 @@
 
 <div class="calendar-app">
     <UINavigationBar Title="@CurrentMonth" 
-                     LeftContent="@LeftButton"
-                     RightContent="@RightButton" />
+                     LeftButtonText="Today"
+                     RightButtonText="Calendars" />
     
     <div class="calendar-content">
         <div class="calendar-view">
@@ -45,20 +45,4 @@
 @code {
     private string CurrentMonth = "November 2025";
     private string[] Weekdays = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    
-    private RenderFragment LeftButton => builder =>
-    {
-        builder.OpenElement(0, "button");
-        builder.AddAttribute(1, "class", "navbar-button");
-        builder.AddContent(2, "Today");
-        builder.CloseElement();
-    };
-    
-    private RenderFragment RightButton => builder =>
-    {
-        builder.OpenElement(0, "button");
-        builder.AddAttribute(1, "class", "navbar-button");
-        builder.AddContent(2, "Calendars");
-        builder.CloseElement();
-    };
 }

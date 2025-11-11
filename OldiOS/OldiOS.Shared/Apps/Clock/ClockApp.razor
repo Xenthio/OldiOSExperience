@@ -3,7 +3,7 @@
 
 <div class="clock-app">
     <UINavigationBar Title="@GetCurrentTitle()" 
-                     RightContent="@RightButton" />
+                     RightButtonText="@GetRightButtonText()" />
     
     <div class="clock-content">
         @if (CurrentTab == "world")
@@ -98,19 +98,14 @@
         };
     }
     
+    private string GetRightButtonText()
+    {
+        return (CurrentTab == "world" || CurrentTab == "alarm") ? "+" : "";
+    }
+    
     private void HandleTabSelected(UITabBarItem item)
     {
         CurrentTab = item.Tag;
         StateHasChanged();
     }
-    
-    private RenderFragment? RightButton => CurrentTab == "world" || CurrentTab == "alarm" 
-        ? builder =>
-        {
-            builder.OpenElement(0, "button");
-            builder.AddAttribute(1, "class", "navbar-button");
-            builder.AddContent(2, "+");
-            builder.CloseElement();
-        }
-        : null;
 }

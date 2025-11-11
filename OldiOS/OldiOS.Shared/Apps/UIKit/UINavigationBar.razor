@@ -9,6 +9,12 @@
                 <span class="back-text">@BackButtonText</span>
             </button>
         }
+        else if (!string.IsNullOrEmpty(LeftButtonText))
+        {
+            <button class="navbar-button" @onclick="OnLeftButtonClick">
+                @LeftButtonText
+            </button>
+        }
         else if (LeftContent != null)
         {
             @LeftContent
@@ -42,6 +48,12 @@
     
     [Parameter]
     public EventCallback OnBackClick { get; set; }
+    
+    [Parameter]
+    public string LeftButtonText { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback OnLeftButtonClick { get; set; }
     
     [Parameter]
     public string RightButtonText { get; set; } = "";
