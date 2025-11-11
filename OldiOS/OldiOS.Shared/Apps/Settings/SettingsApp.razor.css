@@ -48,21 +48,20 @@
     gap: 20px;
 }
 
-/* Slide left animation (navigating forward) */
-.settings-page.slide-left {
+/* Slide animations for page navigation */
+.settings-page.slide-out-left {
     animation: slideOutLeft 300ms ease-out forwards;
 }
 
-.settings-page-next.slide-left {
+.settings-page.slide-in-right {
     animation: slideInRight 300ms ease-out forwards;
 }
 
-/* Slide right animation (navigating back) */
-.settings-page.slide-right {
+.settings-page.slide-out-right {
     animation: slideOutRight 300ms ease-out forwards;
 }
 
-.settings-page-next.slide-right {
+.settings-page.slide-in-left {
     animation: slideInLeft 300ms ease-out forwards;
 }
 

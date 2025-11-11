@@ -4,14 +4,14 @@
     <div class="settings-pages-container">
         @if (currentPage != null)
         {
-            <div class="settings-page @animationClass" @key="currentPage.GetHashCode()">
+            <div class="settings-page @GetCurrentPageAnimationClass()" @key="currentPageKey">
                 @currentPage
             </div>
         }
         
         @if (nextPage != null && isAnimating)
         {
-            <div class="settings-page settings-page-next @animationClass" @key="nextPage.GetHashCode()">
+            <div class="settings-page @GetNextPageAnimationClass()" @key="nextPageKey">
                 @nextPage
             </div>
         }
@@ -22,8 +22,10 @@
     private RenderFragment? currentPage;
     private RenderFragment? nextPage;
     private bool isAnimating = false;
-    private string animationClass = "";
+    private string animationDirection = ""; // "forward" or "back"
     private bool airplaneMode = false;
+    private int currentPageKey = 0;
+    private int nextPageKey = 1;
     
     // Track current and next titles for animation
     private string currentTitle = "Settings";
@@ -58,7 +60,8 @@
         if (nextPage != null)
         {
             isAnimating = true;
-            animationClass = "slide-left";
+            animationDirection = "forward";
+            nextPageKey++;
             StateHasChanged();
             
             Task.Delay(300).ContinueWith(_ =>
@@ -67,10 +70,11 @@
                 {
                     currentPage = nextPage;
                     currentTitle = nextTitle;
+                    currentPageKey = nextPageKey;
                     nextPage = null;
                     nextTitle = "";
                     isAnimating = false;
-                    animationClass = "";
+                    animationDirection = "";
                     StateHasChanged();
                 });
             });
@@ -84,7 +88,8 @@
         nextTitle = "Settings";
         nextPage = RenderMainMenu();
         isAnimating = true;
-        animationClass = "slide-right";
+        animationDirection = "back";
+        nextPageKey++;
         StateHasChanged();
         
         Task.Delay(300).ContinueWith(_ =>
@@ -93,38 +98,53 @@
             {
                 currentPage = nextPage;
                 currentTitle = nextTitle;
+                currentPageKey = nextPageKey;
                 nextPage = null;
                 nextTitle = "";
                 isAnimating = false;
-                animationClass = "";
+                animationDirection = "";
                 StateHasChanged();
             });
         });
     }
     
     
-    private string GetTitleAnimationClass(string pageTitle)
+    private string GetCurrentPageAnimationClass()
     {
         if (!isAnimating) return "";
         
-        // Determine if this is the current page or next page
-        bool isCurrentPage = pageTitle == currentTitle;
-        bool isNextPage = pageTitle == nextTitle;
-        
-        if (animationClass == "slide-left")
+        if (animationDirection == "forward")
         {
-            // Forward navigation
-            if (isCurrentPage) return "title-slide-left";
-            if (isNextPage) return "title-slide-in-right";
+            return "slide-out-left";
         }
-        else if (animationClass == "slide-right")
+        else if (animationDirection == "back")
         {
-            // Back navigation
-            if (isCurrentPage) return "title-slide-right";
-            if (isNextPage) return "title-slide-in-left";
+            return "slide-out-right";
         }
         
         return "";
+    }
+    
+    private string GetNextPageAnimationClass()
+    {
+        if (!isAnimating) return "";
+        
+        if (animationDirection == "forward")
+        {
+            return "slide-in-right";
+        }
+        else if (animationDirection == "back")
+        {
+            return "slide-in-left";
+        }
+        
+        return "";
+    }
+    
+    private string GetTitleAnimationClass(string pageTitle)
+    {
+        // Buttons fade in during transitions
+        return isAnimating ? "transitioning" : "";
     }
     
     private RenderFragment RenderMainMenu() => builder =>

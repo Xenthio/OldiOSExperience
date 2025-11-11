@@ -32,56 +32,18 @@
     text-shadow: 0 -2px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Title animations for navigation */
-.navbar-title.title-slide-left {
-    animation: titleSlideOutLeft 300ms ease-out forwards;
+/* Button fade-in animation */
+.navbar-left.fade-in,
+.navbar-right.fade-in {
+    animation: buttonFadeIn 300ms ease-out;
 }
 
-.navbar-title.title-slide-right {
-    animation: titleSlideOutRight 300ms ease-out forwards;
-}
-
-.navbar-title.title-slide-in-left {
-    animation: titleSlideInLeft 300ms ease-out forwards;
-}
-
-.navbar-title.title-slide-in-right {
-    animation: titleSlideInRight 300ms ease-out forwards;
-}
-
-@keyframes titleSlideOutLeft {
+@keyframes buttonFadeIn {
     from {
-        transform: translateX(0);
+        opacity: 0;
     }
     to {
-        transform: translateX(-50px);
-    }
-}
-
-@keyframes titleSlideInRight {
-    from {
-        transform: translateX(50px);
-    }
-    to {
-        transform: translateX(0);
-    }
-}
-
-@keyframes titleSlideOutRight {
-    from {
-        transform: translateX(0);
-    }
-    to {
-        transform: translateX(50px);
-    }
-}
-
-@keyframes titleSlideInLeft {
-    from {
-        transform: translateX(-50px);
-    }
-    to {
-        transform: translateX(0);
+        opacity: 1;
     }
 }
 

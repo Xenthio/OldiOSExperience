@@ -2,7 +2,7 @@
 @using OldiOS.Shared.Apps.UIKit
 
 <div class="uinavigationbar">
-    <div class="navbar-left">
+    <div class="navbar-left @GetButtonAnimationClass()">
         @if (!string.IsNullOrEmpty(BackButtonText))
         {
             <button class="navbar-back-button" @onclick="OnBackClick"> 
@@ -21,11 +21,11 @@
         }
     </div>
     
-    <div class="navbar-title @AnimationClass">
+    <div class="navbar-title">
         @Title
     </div>
     
-    <div class="navbar-right">
+    <div class="navbar-right @GetButtonAnimationClass()">
         @if (RightContent != null)
         {
             @RightContent
@@ -69,4 +69,10 @@
     
     [Parameter]
     public string AnimationClass { get; set; } = "";
+    
+    private string GetButtonAnimationClass()
+    {
+        // Buttons fade in/out during transitions
+        return AnimationClass == "transitioning" ? "fade-in" : "";
+    }
 }
