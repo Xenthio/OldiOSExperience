@@ -21,7 +21,7 @@
         }
     </div>
     
-    <div class="navbar-title">
+    <div class="navbar-title @AnimationClass">
         @Title
     </div>
     
@@ -70,9 +70,11 @@
     [Parameter]
     public string AnimationClass { get; set; } = "";
     
+    [Parameter]
+    public string ButtonAnimationClass { get; set; } = "";
+    
     private string GetButtonAnimationClass()
     {
-        // Buttons fade in/out during transitions
-        return AnimationClass == "transitioning" ? "fade-in" : "";
+        return ButtonAnimationClass;
     }
 }

@@ -143,8 +143,32 @@
     
     private string GetTitleAnimationClass(string pageTitle)
     {
+        if (!isAnimating) return "";
+        
+        // Determine if this is the current page or next page
+        bool isCurrentPage = pageTitle == currentTitle;
+        bool isNextPage = pageTitle == nextTitle;
+        
+        if (animationDirection == "forward")
+        {
+            // Forward navigation: current title slides left, new title slides in from right
+            if (isCurrentPage) return "title-slide-out-left";
+            if (isNextPage) return "title-slide-in-right";
+        }
+        else if (animationDirection == "back")
+        {
+            // Back navigation: current title slides right, previous title slides in from left
+            if (isCurrentPage) return "title-slide-out-right";
+            if (isNextPage) return "title-slide-in-left";
+        }
+        
+        return "";
+    }
+    
+    private string GetButtonAnimationClass()
+    {
         // Buttons fade in during transitions
-        return isAnimating ? "transitioning" : "";
+        return isAnimating ? "fade-in" : "";
     }
     
     private RenderFragment RenderMainMenu() => builder =>
@@ -155,6 +179,7 @@
         builder.OpenComponent<UINavigationBar>(2);
         builder.AddAttribute(3, "Title", "Settings");
         builder.AddAttribute(4, "AnimationClass", GetTitleAnimationClass("Settings"));
+        builder.AddAttribute(5, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(4, "div");
@@ -296,6 +321,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Wi-Fi"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -344,6 +370,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Bluetooth"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -393,6 +420,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Cellular"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -450,6 +478,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Notifications"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -498,6 +527,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Sounds"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -560,6 +590,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Brightness"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -614,6 +645,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Privacy"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -662,6 +694,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("iCloud"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -712,6 +745,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Safari"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
@@ -774,6 +808,7 @@
         builder.AddAttribute(4, "BackButtonText", "Settings");
         builder.AddAttribute(5, "OnBackClick", EventCallback.Factory.Create(this, NavigateBack));
         builder.AddAttribute(6, "AnimationClass", GetTitleAnimationClass("Mail"));
+        builder.AddAttribute(7, "ButtonAnimationClass", GetButtonAnimationClass());
         builder.CloseComponent();
         
         builder.OpenElement(6, "div");
