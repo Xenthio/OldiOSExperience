@@ -10,7 +10,6 @@
 .contacts-content {
     flex: 1;
     overflow-y: auto;
-    margin-top: 88px;
     display: flex;
     flex-direction: column;
 }

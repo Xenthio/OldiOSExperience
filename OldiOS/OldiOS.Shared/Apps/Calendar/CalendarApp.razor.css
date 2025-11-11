@@ -10,7 +10,6 @@
 .calendar-content {
     flex: 1;
     overflow-y: auto;
-    margin-top: 88px;
     margin-bottom: 88px;
     background: #fff;
 }

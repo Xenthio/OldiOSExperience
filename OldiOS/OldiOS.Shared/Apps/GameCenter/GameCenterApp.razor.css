@@ -10,8 +10,7 @@
 
 .gamecenter-content {
     flex: 1;
-    overflow-y: auto;
-    margin-top: 88px;
+    overflow-y: auto; 
     margin-bottom: 98px;
 }
 
