@@ -1,0 +1,67 @@
+.videos-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+}
+
+.videos-content {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 88px;
+}
+
+.videos-tabs {
+    display: flex;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+.video-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 32px;
+    font-weight: 400;
+    padding: 24px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+}
+
+.video-tab.active {
+    color: #fff;
+    border-bottom-color: #007aff;
+}
+
+.video-tab:active {
+    opacity: 0.5;
+}
+
+.videos-list {
+    padding: 40px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    color: #666;
+    min-height: 600px;
+}
+
+.empty-icon {
+    font-size: 120px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-text {
+    font-size: 40px;
+    font-weight: 300;
+}

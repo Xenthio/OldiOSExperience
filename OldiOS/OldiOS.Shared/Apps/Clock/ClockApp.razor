@@ -1,0 +1,116 @@
+@* iOS 5 Clock App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="clock-app">
+    <UINavigationBar Title="@GetCurrentTitle()" 
+                     RightContent="@RightButton" />
+    
+    <div class="clock-content">
+        @if (CurrentTab == "world")
+        {
+            <div class="world-clock-list">
+                <div class="empty-state">
+                    <div class="empty-icon">🌍</div>
+                    <div class="empty-text">No World Clocks</div>
+                    <div class="empty-hint">Tap + to add a city</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "alarm")
+        {
+            <div class="alarm-list">
+                <div class="empty-state">
+                    <div class="empty-icon">⏰</div>
+                    <div class="empty-text">No Alarms</div>
+                    <div class="empty-hint">Tap + to add an alarm</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "stopwatch")
+        {
+            <div class="stopwatch-container">
+                <div class="stopwatch-display">
+                    <div class="stopwatch-time">00:00.00</div>
+                </div>
+                <div class="lap-list">
+                    <!-- Lap times would go here -->
+                </div>
+                <div class="stopwatch-controls">
+                    <button class="control-button reset">Reset</button>
+                    <button class="control-button start">Start</button>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "timer")
+        {
+            <div class="timer-container">
+                <div class="timer-picker">
+                    <div class="picker-column">
+                        <div class="picker-label">0</div>
+                        <div class="picker-label selected">hours</div>
+                        <div class="picker-label">0</div>
+                    </div>
+                    <div class="picker-column">
+                        <div class="picker-label">0</div>
+                        <div class="picker-label selected">min</div>
+                        <div class="picker-label">1</div>
+                    </div>
+                    <div class="picker-column">
+                        <div class="picker-label">0</div>
+                        <div class="picker-label selected">sec</div>
+                        <div class="picker-label">0</div>
+                    </div>
+                </div>
+                <div class="timer-sound">
+                    <span>When Timer Ends</span>
+                    <span class="sound-name">Marimba ›</span>
+                </div>
+                <div class="timer-controls">
+                    <button class="timer-button">Start</button>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "world";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "World Clock", Tag = "world", IsSelected = true },
+        new UITabBarItem { Title = "Alarm", Tag = "alarm" },
+        new UITabBarItem { Title = "Stopwatch", Tag = "stopwatch" },
+        new UITabBarItem { Title = "Timer", Tag = "timer" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        return CurrentTab switch
+        {
+            "world" => "World Clock",
+            "alarm" => "Alarm",
+            "stopwatch" => "Stopwatch",
+            "timer" => "Timer",
+            _ => "Clock"
+        };
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+    
+    private RenderFragment? RightButton => CurrentTab == "world" || CurrentTab == "alarm" 
+        ? builder =>
+        {
+            builder.OpenElement(0, "button");
+            builder.AddAttribute(1, "class", "navbar-button");
+            builder.AddContent(2, "+");
+            builder.CloseElement();
+        }
+        : null;
+}

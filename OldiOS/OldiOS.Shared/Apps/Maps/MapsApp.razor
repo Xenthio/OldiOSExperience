@@ -1,0 +1,35 @@
+@* iOS 5 Maps App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="maps-app">
+    <div class="maps-header">
+        <UISearchBar Placeholder="Search or Address" ShowsCancelButton="false" />
+    </div>
+    
+    <div class="maps-content">
+        <div class="map-view">
+            <div class="map-placeholder">
+                <div class="placeholder-icon">🗺️</div>
+                <div class="placeholder-text">Maps</div>
+                <div class="placeholder-hint">Search for a location</div>
+            </div>
+        </div>
+        
+        <div class="map-controls">
+            <button class="map-control-button location">📍</button>
+            <button class="map-control-button view">🧭</button>
+        </div>
+    </div>
+    
+    <UIToolbar>
+        <button class="toolbar-button">Directions</button>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-button">Bookmark</button>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-button">⋯</button>
+    </UIToolbar>
+</div>
+
+@code {
+    
+}

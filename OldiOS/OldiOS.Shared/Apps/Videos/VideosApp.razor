@@ -1,0 +1,42 @@
+@* iOS 5 Videos App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="videos-app">
+    <UINavigationBar Title="Videos" />
+    
+    <div class="videos-content">
+        <div class="videos-tabs">
+            <button class="video-tab @(CurrentTab == "movies" ? "active" : "")" @onclick='() => CurrentTab = "movies"'>Movies</button>
+            <button class="video-tab @(CurrentTab == "tv" ? "active" : "")" @onclick='() => CurrentTab = "tv"'>TV Shows</button>
+            <button class="video-tab @(CurrentTab == "music" ? "active" : "")" @onclick='() => CurrentTab = "music"'>Music Videos</button>
+        </div>
+        
+        <div class="videos-list">
+            @if (CurrentTab == "movies")
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">🎬</div>
+                    <div class="empty-text">No Movies</div>
+                </div>
+            }
+            else if (CurrentTab == "tv")
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">📺</div>
+                    <div class="empty-text">No TV Shows</div>
+                </div>
+            }
+            else if (CurrentTab == "music")
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">🎵</div>
+                    <div class="empty-text">No Music Videos</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string CurrentTab = "movies";
+}

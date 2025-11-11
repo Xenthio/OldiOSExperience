@@ -1,0 +1,173 @@
+.clock-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+}
+
+.clock-content {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 88px;
+    margin-bottom: 98px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    color: #666;
+    min-height: 600px;
+}
+
+.empty-icon {
+    font-size: 120px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-text {
+    font-size: 40px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.empty-hint {
+    font-size: 28px;
+    color: #555;
+}
+
+/* Stopwatch */
+.stopwatch-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 60px 40px;
+}
+
+.stopwatch-display {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stopwatch-time {
+    font-size: 160px;
+    font-weight: 100;
+    font-variant-numeric: tabular-nums;
+}
+
+.lap-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.stopwatch-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 40px 0;
+}
+
+.control-button {
+    flex: 1;
+    height: 160px;
+    border-radius: 80px;
+    border: 4px solid #333;
+    background: #000;
+    color: #fff;
+    font-size: 44px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.control-button.start {
+    border-color: #1c8b3a;
+    color: #1c8b3a;
+}
+
+.control-button.reset {
+    border-color: #333;
+    color: #fff;
+}
+
+.control-button:active {
+    opacity: 0.5;
+}
+
+/* Timer */
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 60px 40px;
+}
+
+.timer-picker {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+.picker-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.picker-label {
+    font-size: 48px;
+    font-weight: 300;
+    padding: 20px 30px;
+    color: #666;
+}
+
+.picker-label.selected {
+    font-size: 64px;
+    color: #fff;
+    font-weight: 400;
+}
+
+.timer-sound {
+    display: flex;
+    justify-content: space-between;
+    padding: 30px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    font-size: 36px;
+    margin-bottom: 40px;
+}
+
+.sound-name {
+    color: #666;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.timer-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+    border: none;
+    background: #1c8b3a;
+    color: #fff;
+    font-size: 48px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.timer-button:active {
+    opacity: 0.8;
+}
