@@ -33,23 +33,23 @@ namespace OldiOS.Shared.Services
             // Dock apps
             DockApps = new List<AppInfo>
             {
-                new AppInfo { Id = 101, Name = "Phone", IconPath = "_content/OldiOS.Shared/images/icons/phone.png", BundleId = "com.apple.mobilephone" },
+                new AppInfo { Id = 101, Name = "Phone", IconPath = "_content/OldiOS.Shared/images/icons/phone.png", BundleId = "com.apple.mobilephone", ComponentType = typeof(Apps.Phone.PhoneApp) },
                 new AppInfo { Id = 102, Name = "Mail", IconPath = "_content/OldiOS.Shared/images/icons/mail.png", BundleId = "com.apple.mobilemail" },
                 new AppInfo { Id = 103, Name = "Safari", IconPath = "_content/OldiOS.Shared/images/icons/safari.png", BundleId = "com.apple.mobilesafari" },
-                new AppInfo { Id = 104, Name = "Music", IconPath = "_content/OldiOS.Shared/images/icons/music.png", BundleId = "com.apple.music" }
+                new AppInfo { Id = 104, Name = "Music", IconPath = "_content/OldiOS.Shared/images/icons/music.png", BundleId = "com.apple.music", ComponentType = typeof(Apps.Music.MusicApp) }
             };
 
             // Page 1
             var page1 = new List<AppInfo>
             {
-                new AppInfo { Id = 1, Name = "Messages", IconPath = "_content/OldiOS.Shared/images/icons/messages.png", BundleId = "com.apple.mobilesms" },
-                new AppInfo { Id = 2, Name = "Calendar", IconPath = "_content/OldiOS.Shared/images/icons/calendar.png", BundleId = "com.apple.mobilecal" },
-                new AppInfo { Id = 3, Name = "Photos", IconPath = "_content/OldiOS.Shared/images/icons/photos.png", BundleId = "com.apple.mobileslideshow" },
+                new AppInfo { Id = 1, Name = "Messages", IconPath = "_content/OldiOS.Shared/images/icons/messages.png", BundleId = "com.apple.mobilesms", ComponentType = typeof(Apps.Messages.MessagesApp) },
+                new AppInfo { Id = 2, Name = "Calendar", IconPath = "_content/OldiOS.Shared/images/icons/calendar.png", BundleId = "com.apple.mobilecal", ComponentType = typeof(Apps.Calendar.CalendarApp) },
+                new AppInfo { Id = 3, Name = "Photos", IconPath = "_content/OldiOS.Shared/images/icons/photos.png", BundleId = "com.apple.mobileslideshow", ComponentType = typeof(Apps.Photos.PhotosApp) },
                 new AppInfo { Id = 4, Name = "Camera", IconPath = "_content/OldiOS.Shared/images/icons/camera.png", BundleId = "com.apple.camera" },
                 new AppInfo { Id = 5, Name = "YouTube", IconPath = "_content/OldiOS.Shared/images/icons/youtube.png", BundleId = "com.google.youtube" },
-                new AppInfo { Id = 6, Name = "Stocks", IconPath = "_content/OldiOS.Shared/images/icons/stocks.png", BundleId = "com.apple.stocks" },
+                new AppInfo { Id = 6, Name = "Stocks", IconPath = "_content/OldiOS.Shared/images/icons/stocks.png", BundleId = "com.apple.stocks", ComponentType = typeof(Apps.Stocks.StocksApp) },
                 new AppInfo { Id = 7, Name = "Maps", IconPath = "_content/OldiOS.Shared/images/icons/maps.png", BundleId = "com.apple.Maps" },
-                new AppInfo { Id = 8, Name = "Weather", IconPath = "_content/OldiOS.Shared/images/icons/weather.png", BundleId = "com.apple.weather" },
+                new AppInfo { Id = 8, Name = "Weather", IconPath = "_content/OldiOS.Shared/images/icons/weather.png", BundleId = "com.apple.weather", ComponentType = typeof(Apps.Weather.WeatherApp) },
                 new AppInfo { Id = 9, Name = "Notes", IconPath = "_content/OldiOS.Shared/images/icons/notes.png", BundleId = "com.apple.mobilenotes" },
                 new AppInfo { Id = 10, Name = "Clock", IconPath = "_content/OldiOS.Shared/images/icons/clock.png", BundleId = "com.apple.mobiletimer" },
                 new AppInfo { Id = 11, Name = "App Store", IconPath = "_content/OldiOS.Shared/images/icons/appstore.png", BundleId = "com.apple.AppStore" },
@@ -63,6 +63,7 @@ namespace OldiOS.Shared.Services
             {
                 new AppInfo { Id = 15, Name = "Reminders", IconPath = "_content/OldiOS.Shared/images/icons/reminders.png", BundleId = "com.apple.reminders" },
                 new AppInfo { Id = 16, Name = "Videos", IconPath = "_content/OldiOS.Shared/images/icons/videos.png", BundleId = "com.apple.videos" },
+                new AppInfo { Id = 21, Name = "Calculator", IconPath = "_content/OldiOS.Shared/images/icons/calculator.png", BundleId = "com.apple.calculator", ComponentType = typeof(Apps.Calculator.CalculatorApp) },
                 new AppInfo { Id = 17, Name = "UIKit Demo", IconPath = "_content/OldiOS.Shared/images/icons/settings.png", BundleId = "com.xenthio.uikitdemo", ComponentType = typeof(Apps.UIKit.UIKitDemoApp) },
                 new AppInfo { Id = 18, Name = "Alarm", IconPath = "_content/OldiOS.Shared/images/icons/clock.png", BundleId = "com.xenthio.alarm", ComponentType = typeof(Apps.Clock.ClockAlarmEdit) },
                 new AppInfo { Id = 19, Name = "Note", IconPath = "_content/OldiOS.Shared/images/icons/notes.png", BundleId = "com.xenthio.note", ComponentType = typeof(Apps.Notes.NotesEditor) },

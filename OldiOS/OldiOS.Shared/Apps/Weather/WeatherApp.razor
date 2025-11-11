@@ -1,0 +1,100 @@
+@* iOS 5 Weather App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="weather-app">
+    <div class="weather-content">
+        <div class="location-info">
+            <div class="location-name">San Francisco</div>
+            <div class="current-temp">72°</div>
+            <div class="condition">Partly Cloudy</div>
+            <div class="high-low">H:75° L:62°</div>
+        </div>
+        
+        <div class="hourly-forecast">
+            <div class="section-title">HOURLY FORECAST</div>
+            <div class="hourly-strip">
+                @for (int i = 0; i < 8; i++)
+                {
+                    <div class="hourly-item">
+                        <div class="hour-time">@((i + 1) % 12)PM</div>
+                        <div class="hour-icon">☀️</div>
+                        <div class="hour-temp">@(72 + i)°</div>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="daily-forecast">
+            <div class="section-title">DAILY FORECAST</div>
+            <div class="daily-list">
+                @foreach (var day in DailyForecast)
+                {
+                    <div class="daily-item">
+                        <div class="day-name">@day.Day</div>
+                        <div class="day-icon">@day.Icon</div>
+                        <div class="day-temps">
+                            <span class="temp-low">@day.Low°</span>
+                            <div class="temp-bar"></div>
+                            <span class="temp-high">@day.High°</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="weather-details">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">SUNRISE</div>
+                    <div class="detail-value">6:45 AM</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">SUNSET</div>
+                    <div class="detail-value">5:12 PM</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">CHANCE OF RAIN</div>
+                    <div class="detail-value">0%</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">HUMIDITY</div>
+                    <div class="detail-value">42%</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">WIND</div>
+                    <div class="detail-value">5 mph</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">FEELS LIKE</div>
+                    <div class="detail-value">72°</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="weather-footer">
+        <button class="location-button">⊙</button>
+        <button class="info-button">ⓘ</button>
+    </div>
+</div>
+
+@code {
+    private List<DayForecast> DailyForecast = new()
+    {
+        new DayForecast { Day = "Monday", Icon = "☀️", High = 75, Low = 62 },
+        new DayForecast { Day = "Tuesday", Icon = "⛅", High = 73, Low = 60 },
+        new DayForecast { Day = "Wednesday", Icon = "☁️", High = 70, Low = 58 },
+        new DayForecast { Day = "Thursday", Icon = "🌧️", High = 65, Low = 55 },
+        new DayForecast { Day = "Friday", Icon = "⛅", High = 68, Low = 57 },
+        new DayForecast { Day = "Saturday", Icon = "☀️", High = 72, Low = 60 },
+        new DayForecast { Day = "Sunday", Icon = "☀️", High = 74, Low = 61 }
+    };
+    
+    private class DayForecast
+    {
+        public string Day { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public int High { get; set; }
+        public int Low { get; set; }
+    }
+}

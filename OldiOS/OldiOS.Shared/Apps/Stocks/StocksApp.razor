@@ -1,0 +1,61 @@
+@* iOS 5 Stocks App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="stocks-app">
+    <div class="stocks-content">
+        <div class="stocks-header">
+            <button class="info-button">ⓘ</button>
+        </div>
+        
+        <div class="stocks-list">
+            @foreach (var stock in Stocks)
+            {
+                <div class="stock-item">
+                    <div class="stock-info">
+                        <div class="stock-symbol">@stock.Symbol</div>
+                        <div class="stock-name">@stock.Name</div>
+                    </div>
+                    <div class="stock-chart">
+                        <svg width="200" height="60" viewBox="0 0 200 60">
+                            <polyline points="0,30 50,20 100,35 150,15 200,25" 
+                                      fill="none" 
+                                      stroke="@(stock.Change >= 0 ? "#4cd964" : "#ff3b30")" 
+                                      stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stock-prices">
+                        <div class="stock-price">$@stock.Price</div>
+                        <div class="stock-change @(stock.Change >= 0 ? "positive" : "negative")">
+                            @(stock.Change >= 0 ? "+" : "")@stock.Change (@stock.ChangePercent%)
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="stocks-footer">
+            <div class="footer-text">DJIA 35,414.82 +152.34 (+0.43%)</div>
+            <div class="footer-subtext">As of 4:00 PM EST</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Stock> Stocks = new()
+    {
+        new Stock { Symbol = "AAPL", Name = "Apple Inc.", Price = 175.43m, Change = 2.15m, ChangePercent = 1.24m },
+        new Stock { Symbol = "GOOGL", Name = "Alphabet Inc.", Price = 125.67m, Change = -0.82m, ChangePercent = -0.65m },
+        new Stock { Symbol = "MSFT", Name = "Microsoft Corp", Price = 338.11m, Change = 5.23m, ChangePercent = 1.57m },
+        new Stock { Symbol = "AMZN", Name = "Amazon.com Inc", Price = 127.74m, Change = 1.45m, ChangePercent = 1.15m },
+        new Stock { Symbol = "TSLA", Name = "Tesla Inc", Price = 242.84m, Change = -3.21m, ChangePercent = -1.30m }
+    };
+    
+    private class Stock
+    {
+        public string Symbol { get; set; } = "";
+        public string Name { get; set; } = "";
+        public decimal Price { get; set; }
+        public decimal Change { get; set; }
+        public decimal ChangePercent { get; set; }
+    }
+}

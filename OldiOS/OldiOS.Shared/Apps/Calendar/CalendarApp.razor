@@ -1,0 +1,64 @@
+@* iOS 5 Calendar App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="calendar-app">
+    <UINavigationBar Title="@CurrentMonth" 
+                     LeftContent="@LeftButton"
+                     RightContent="@RightButton" />
+    
+    <div class="calendar-content">
+        <div class="calendar-view">
+            <div class="weekday-headers">
+                @foreach (var day in Weekdays)
+                {
+                    <div class="weekday-header">@day</div>
+                }
+            </div>
+            <div class="calendar-grid">
+                @for (int i = 0; i < 42; i++)
+                {
+                    <div class="calendar-day @(i == 15 ? "today" : "") @(i < 5 || i > 34 ? "other-month" : "")">
+                        <div class="day-number">@((i % 31) + 1)</div>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="events-section">
+            <div class="section-header">Today</div>
+            <div class="empty-events">
+                <div class="empty-icon">📅</div>
+                <div class="empty-text">No Events</div>
+            </div>
+        </div>
+    </div>
+    
+    <UIToolbar>
+        <button class="toolbar-button">List</button>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-button">Day</button>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-button">+</button>
+    </UIToolbar>
+</div>
+
+@code {
+    private string CurrentMonth = "November 2025";
+    private string[] Weekdays = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    
+    private RenderFragment LeftButton => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "navbar-button");
+        builder.AddContent(2, "Today");
+        builder.CloseElement();
+    };
+    
+    private RenderFragment RightButton => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "navbar-button");
+        builder.AddContent(2, "Calendars");
+        builder.CloseElement();
+    };
+}
