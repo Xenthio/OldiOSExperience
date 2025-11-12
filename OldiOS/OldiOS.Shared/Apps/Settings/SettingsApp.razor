@@ -2,113 +2,73 @@
 
 <div class="settings-app">
     @* Static navigation bar that doesn't move *@
-    <UINavigationBar Title="@currentTitle" 
-                     BackButtonText="@(currentTitle != "Settings" ? "Settings" : "")"
+    <UINavigationBar Title="@GetCurrentTitle()" 
+                     BackButtonText="@(currentPage != "Settings" ? "Settings" : "")"
                      OnBackClick="NavigateBack"
-                     AnimationClass="@GetTitleAnimationClass(currentTitle)"
+                     AnimationClass="@GetTitleAnimationClass()"
                      ButtonAnimationClass="@GetButtonAnimationClass()" />
     
     @* Content area where pages slide *@
     <div class="settings-pages-container">
-        @if (currentPageContent != null)
-        {
-            <div class="settings-page @GetCurrentPageAnimationClass()" @key="currentPageKey">
-                @currentPageContent
-            </div>
-        }
+        @* Current page *@
+        <div class="settings-page @GetCurrentPageAnimationClass()" @key="@currentPage">
+            @GetPageContent(currentPage)
+        </div>
         
-        @if (nextPageContent != null && isAnimating)
+        @* Transitioning page (only during animation) *@
+        @if (isAnimating && transitioningToPage != null)
         {
-            <div class="settings-page @GetNextPageAnimationClass()" @key="nextPageKey">
-                @nextPageContent
+            <div class="settings-page @GetTransitioningPageAnimationClass()" @key="@transitioningToPage">
+                @GetPageContent(transitioningToPage)
             </div>
         }
     </div>
 </div>
 
 @code {
-    private RenderFragment? currentPageContent;
-    private RenderFragment? nextPageContent;
+    private string currentPage = "Settings";
+    private string? transitioningToPage = null;
     private bool isAnimating = false;
     private string animationDirection = ""; // "forward" or "back"
     private bool airplaneMode = false;
-    private int currentPageKey = 0;
-    private int nextPageKey = 1;
-    
-    // Track current and next titles for animation
-    private string currentTitle = "Settings";
-    private string nextTitle = "";
-    
-    protected override void OnInitialized()
-    {
-        currentPageContent = RenderMainMenuContent();
-    }
     
     private void NavigateTo(string pageName)
     {
         if (isAnimating) return;
         
-        nextTitle = pageName;
-        nextPageContent = pageName switch
-        {
-            "Wi-Fi" => RenderWiFiContent(),
-            "Bluetooth" => RenderBluetoothContent(),
-            "Cellular" => RenderCellularContent(),
-            "Notifications" => RenderNotificationsContent(),
-            "Sounds" => RenderSoundsContent(),
-            "Brightness" => RenderBrightnessContent(),
-            "Privacy" => RenderPrivacyContent(),
-            "General" => RenderGeneralContent(),
-            "iCloud" => RenderICloudContent(),
-            "Safari" => RenderSafariContent(),
-            "Mail" => RenderMailContent(),
-            _ => null
-        };
-        
-        if (nextPageContent != null)
-        {
-            isAnimating = true;
-            animationDirection = "forward";
-            nextPageKey++;
-            StateHasChanged();
-            
-            Task.Delay(300).ContinueWith(_ =>
-            {
-                InvokeAsync(() =>
-                {
-                    currentPageContent = nextPageContent;
-                    currentTitle = nextTitle;
-                    currentPageKey = nextPageKey;
-                    nextPageContent = null;
-                    nextTitle = "";
-                    isAnimating = false;
-                    animationDirection = "";
-                    StateHasChanged();
-                });
-            });
-        }
-    }
-    
-    private void NavigateBack()
-    {
-        if (isAnimating) return;
-        
-        nextTitle = "Settings";
-        nextPageContent = RenderMainMenuContent();
+        transitioningToPage = pageName;
         isAnimating = true;
-        animationDirection = "back";
-        nextPageKey++;
+        animationDirection = "forward";
         StateHasChanged();
         
         Task.Delay(300).ContinueWith(_ =>
         {
             InvokeAsync(() =>
             {
-                currentPageContent = nextPageContent;
-                currentTitle = nextTitle;
-                currentPageKey = nextPageKey;
-                nextPageContent = null;
-                nextTitle = "";
+                currentPage = pageName;
+                transitioningToPage = null;
+                isAnimating = false;
+                animationDirection = "";
+                StateHasChanged();
+            });
+        });
+    }
+    
+    private void NavigateBack()
+    {
+        if (isAnimating) return;
+        
+        transitioningToPage = "Settings";
+        isAnimating = true;
+        animationDirection = "back";
+        StateHasChanged();
+        
+        Task.Delay(300).ContinueWith(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                currentPage = "Settings";
+                transitioningToPage = null;
                 isAnimating = false;
                 animationDirection = "";
                 StateHasChanged();
@@ -117,57 +77,34 @@
     }
     
     
+    private string GetCurrentTitle()
+    {
+        return isAnimating && transitioningToPage != null ? transitioningToPage : currentPage;
+    }
+    
     private string GetCurrentPageAnimationClass()
     {
         if (!isAnimating) return "";
-        
-        if (animationDirection == "forward")
-        {
-            return "slide-out-left";
-        }
-        else if (animationDirection == "back")
-        {
-            return "slide-out-right";
-        }
-        
-        return "";
+        return animationDirection == "forward" ? "slide-out-left" : "slide-out-right";
     }
     
-    private string GetNextPageAnimationClass()
+    private string GetTransitioningPageAnimationClass()
+    {
+        if (!isAnimating) return "";
+        return animationDirection == "forward" ? "slide-in-right" : "slide-in-left";
+    }
+    
+    private string GetTitleAnimationClass()
     {
         if (!isAnimating) return "";
         
         if (animationDirection == "forward")
         {
-            return "slide-in-right";
+            return "title-slide-in-right";
         }
         else if (animationDirection == "back")
         {
-            return "slide-in-left";
-        }
-        
-        return "";
-    }
-    
-    private string GetTitleAnimationClass(string pageTitle)
-    {
-        if (!isAnimating) return "";
-        
-        // Determine if this is the current page or next page
-        bool isCurrentPage = pageTitle == currentTitle;
-        bool isNextPage = pageTitle == nextTitle;
-        
-        if (animationDirection == "forward")
-        {
-            // Forward navigation: current title slides left, new title slides in from right
-            if (isCurrentPage) return "title-slide-out-left";
-            if (isNextPage) return "title-slide-in-right";
-        }
-        else if (animationDirection == "back")
-        {
-            // Back navigation: current title slides right, previous title slides in from left
-            if (isCurrentPage) return "title-slide-out-right";
-            if (isNextPage) return "title-slide-in-left";
+            return "title-slide-in-left";
         }
         
         return "";
@@ -175,9 +112,25 @@
     
     private string GetButtonAnimationClass()
     {
-        // Buttons fade in during transitions
         return isAnimating ? "fade-in" : "";
     }
+    
+    private RenderFragment GetPageContent(string pageName) => pageName switch
+    {
+        "Settings" => RenderMainMenuContent(),
+        "Wi-Fi" => RenderWiFiContent(),
+        "Bluetooth" => RenderBluetoothContent(),
+        "Cellular" => RenderCellularContent(),
+        "Notifications" => RenderNotificationsContent(),
+        "Sounds" => RenderSoundsContent(),
+        "Brightness" => RenderBrightnessContent(),
+        "Privacy" => RenderPrivacyContent(),
+        "General" => RenderGeneralContent(),
+        "iCloud" => RenderICloudContent(),
+        "Safari" => RenderSafariContent(),
+        "Mail" => RenderMailContent(),
+        _ => RenderMainMenuContent()
+    };
     
     private RenderFragment RenderMainMenuContent() => builder =>
     {
@@ -344,7 +297,6 @@
         builder.CloseComponent();
         
         builder.CloseElement(); // settings-content
-        builder.CloseElement(); // settings-page-content
     };
     
     private RenderFragment RenderBluetoothContent() => builder =>
