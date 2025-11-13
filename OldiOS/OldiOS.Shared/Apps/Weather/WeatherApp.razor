@@ -16,7 +16,7 @@
                 @for (int i = 0; i < 8; i++)
                 {
                     <div class="hourly-item">
-                        <div class="hour-time">@((i + 1) % 12)PM</div>
+                        <div class="hour-time">@(((i + 1) % 12 == 0 ? 12 : (i + 1) % 12))PM</div>
                         <div class="hour-icon"><img src="_content/OldiOS.Shared/images/icons/weather-sunny.png" alt="Sunny" /></div>
                         <div class="hour-temp">@(72 + i)°</div>
                     </div>
