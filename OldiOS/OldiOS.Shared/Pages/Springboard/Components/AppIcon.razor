@@ -1,9 +1,11 @@
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Services
 
-<div class="app-icon" @onclick="HandleClick">
+<div class="app-icon@(InDock ? " in-dock" : "")" @onclick="HandleClick">
     <div class="icon-shadow"></div>
     <div class="icon-image" style="background-image: url(@App.IconPath)"></div>
+    <!-- Reflection shown only when InDock -->
+    <div class="icon-reflection" style="background-image: url(@App.IconPath)"></div>
     <span>@App.Name</span>
 </div>
 
@@ -13,6 +15,9 @@
     
     [Parameter]
     public EventCallback<AppInfo> OnAppClick { get; set; }
+
+    [Parameter]
+    public bool InDock { get; set; } = false;
 
     private async Task HandleClick()
     {
