@@ -8,9 +8,9 @@ namespace OldiOS.Shared.Apps.UIKit
     {
         private readonly List<Type> _views = new();
 
-        public event Action OnChange;
+        public event Action? OnChange;
 
-        public Type CurrentView => _views.LastOrDefault();
+        public Type? CurrentView => _views.LastOrDefault();
 
         public bool CanGoBack => _views.Count > 1;
 

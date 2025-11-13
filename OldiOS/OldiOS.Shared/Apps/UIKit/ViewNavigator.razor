@@ -24,7 +24,7 @@
     private enum AnimationState { Idle, Pushing, Popping }
 
     [Parameter]
-    public RenderFragment RootView { get; set; }
+    public required RenderFragment RootView { get; set; }
 
     protected override void OnInitialized()
     {
