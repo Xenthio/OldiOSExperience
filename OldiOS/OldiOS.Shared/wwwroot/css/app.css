@@ -132,9 +132,15 @@ code {
 
 /* Global animation styles for springboard icons */
 .app-icon {
-    /* Default: ease-out for return animation (icons flying back in) */
-    transition: transform 0.4s ease-out, 
-                opacity 0.4s ease-out !important;
+    /* Include filter in the transition and keep !important so it wins */
+    transition: transform 0.4s ease-out,
+                opacity 0.4s ease-out,
+                filter 0.3s ease-out,
+                -webkit-filter 0.3s ease-out !important;
+
+    /* Ensure a starting value so filter can animate */
+    filter: grayscale(0);
+    -webkit-filter: grayscale(0);
 }
 
 .springboard-container.app-is-open .app-icon,

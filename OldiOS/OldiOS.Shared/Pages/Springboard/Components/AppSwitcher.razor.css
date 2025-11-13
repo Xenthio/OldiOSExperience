@@ -1,6 +1,6 @@
 .app-switcher {
     position: absolute;
-    bottom: -189px;
+    bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
@@ -35,15 +35,14 @@
     inset 0px 8px 8px -6px rgba(0, 0, 0, 1),
     /* Bottom inner highlight for a crisp edge */
     inset 0px -8px 8px -6px rgba(0, 0, 0, 1);
+    /* Hidden by default: positioned off-screen with transform */
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-    to {
-        transform: translateY(0);
-    }
+/* Slide the tray up when visible */
+.app-switcher.visible .app-switcher-tray {
+    transform: translateY(0);
 }
 
 .recent-apps-container {

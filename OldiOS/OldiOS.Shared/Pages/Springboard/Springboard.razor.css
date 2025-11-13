@@ -12,6 +12,24 @@
     transform: translateY(-189px);
 }
 
+/* In Springboard context, the container shift reveals the tray already.
+   Keep the AppSwitcher tray at its default off-screen position to avoid double rise. */
+.springboard-container.switcher-visible ::deep .app-switcher.visible .app-switcher-tray {
+    transform: translateY(100%);
+}
+.springboard-container.switcher-visible ::deep .app-switcher .app-switcher-dismiss {
+    transform: translateY(189px);
+}
+
+.springboard-container ::deep .app-icon {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+.springboard-container.switcher-visible ::deep .app-icon {
+    opacity: 0.5;
+    filter: grayscale(100%); 
+}
+
 .springboard-container.app-is-open::before {
     content: '';
     position: absolute;

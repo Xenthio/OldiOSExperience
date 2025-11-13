@@ -1,32 +1,40 @@
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Services
 @inject AnimationService AnimationService
+@inject BackgroundAppManager AppManager
 @implements IDisposable
 
 @* App Container - handles app launching and closing animations *@
 
-<div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "")"
+<div class="app-container @(isAnimating ? animationClass : "") @(isVisible ? "visible" : "") @(isAppSwitcherVisible ? "switcher-visible" : "")"
      @onclick:stopPropagation="true">
     @if (CurrentApp != null || isAnimating)
     {
-        <!-- Status Bar - shown in all apps -->
-        <OldiOS.Shared.System.StatusBar Style="@GetStatusBarStyle()" />
-        
-        <div class="app-content">
-            @if (displayedApp != null)
-            {
-                @if (displayedApp.ComponentType != null)
+        <div class="app-view">
+            <!-- Status Bar - shown in all apps -->
+            <OldiOS.Shared.System.StatusBar Style="@GetStatusBarStyle()" />
+            
+            <div class="app-content">
+                @if (displayedApp != null)
                 {
-                    <DynamicComponent Type="@displayedApp.ComponentType" />
+                    @if (displayedApp.ComponentType != null)
+                    {
+                        <DynamicComponent Type="@displayedApp.ComponentType" />
+                    }
+                    else
+                    {
+                        <div style="padding: 40px; color: white; font-size: 32px;">
+                            @displayedApp.Name app coming soon...
+                        </div>
+                    }
                 }
-                else
-                {
-                    <div style="padding: 40px; color: white; font-size: 32px;">
-                        @displayedApp.Name app coming soon...
-                    </div>
-                }
-            }
+            </div>
         </div>
+
+        <!-- App Switcher (multitasking tray) specific to this app container -->
+        <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
+                                                                OnClose="HandleAppSwitcherClose"
+                                                                OnAppSelected="HandleAppSwitcherSelect" />
     }
 </div>
 
@@ -43,6 +51,8 @@
     private AppInfo? previousApp = null;
     private AppInfo? displayedApp = null; // The app to display during animations
     private CancellationTokenSource? animationCts = null;
+
+    private bool isAppSwitcherVisible = false;
     
     protected override async Task OnParametersSetAsync()
     {
@@ -76,6 +86,7 @@
                     isVisible = false;
                     isAnimating = false;
                     displayedApp = null;
+                    isAppSwitcherVisible = false; // ensure switcher is hidden when app closes
                     StateHasChanged();
                 }
             }
@@ -148,5 +159,33 @@
     {
         // Use the app's configured status bar style, or default to Coloured
         return displayedApp?.StatusBarStyle ?? OldiOS.Shared.System.StatusBarStyle.Coloured;
+    }
+
+    // Expose controls for the App Switcher within the app container
+    public void ShowAppSwitcher()
+    {
+        isAppSwitcherVisible = true;
+        StateHasChanged();
+    }
+
+    public void HideAppSwitcher()
+    {
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+    }
+
+    private Task HandleAppSwitcherClose()
+    {
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleAppSwitcherSelect(AppInfo app)
+    {
+        AppManager.LaunchApp(app);
+        isAppSwitcherVisible = false;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }

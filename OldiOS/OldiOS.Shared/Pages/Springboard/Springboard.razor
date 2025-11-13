@@ -65,7 +65,7 @@
     </div>
 
     <!-- App Container for launching apps -->
-    <OldiOS.Shared.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" />
+    <OldiOS.Shared.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" @ref="appContainerRef" />
 
     <!-- App Switcher (multitasking tray) -->
     <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
@@ -109,6 +109,7 @@
     private bool isUnlocking = false;
 
     private ElementReference filmstripRef;
+    private OldiOS.Shared.Pages.Springboard.Components.AppContainer? appContainerRef;
     private IJSObjectReference? _animModule;
     private bool _suppressRender = false;
 
@@ -195,7 +196,19 @@
     private void CloseApp() => AppManager.ReturnToSpringboard();
 
     public void HandleHomeButtonSinglePress() { if (isLocked) return; SpringboardService.HandleHomeButton(); StateHasChanged(); }
-    public void HandleHomeButtonDoublePress() { if (isLocked) return; isAppSwitcherVisible = true; StateHasChanged(); }
+    public void HandleHomeButtonDoublePress()
+    {
+        if (isLocked) return;
+        if (isAppOpen)
+        {
+            appContainerRef?.ShowAppSwitcher();
+        }
+        else
+        {
+            isAppSwitcherVisible = true;
+            StateHasChanged();
+        }
+    }
     public void HandleHomeButtonLongPress() { if (isLocked) return; StateHasChanged(); }
 
     private void HandleTouchStart(TouchEventArgs e)
