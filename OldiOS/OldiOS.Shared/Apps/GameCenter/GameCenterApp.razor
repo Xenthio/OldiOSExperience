@@ -1,0 +1,86 @@
+@* iOS 5 Game Center App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="gamecenter-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="gamecenter-content">
+        @if (CurrentTab == "me")
+        {
+            <div class="profile-view">
+                <div class="profile-header">
+                    <div class="profile-avatar">👤</div>
+                    <div class="profile-name">Player</div>
+                    <div class="profile-status">Welcome to Game Center!</div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Games</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Friends</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Achievements</div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "games")
+        {
+            <div class="games-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/gamepad-icon.png" alt="Game" /></div>
+                    <div class="empty-text">No Games</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "friends")
+        {
+            <div class="friends-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/friends-icon.png" alt="Friends" /></div>
+                    <div class="empty-text">No Friends</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "requests")
+        {
+            <div class="requests-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/envelope-icon.png" alt="Envelope" /></div>
+                    <div class="empty-text">No Requests</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "me";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Me", Tag = "me", Icon = "_content/OldiOS.Shared/images/icons/tab-me.png", IsSelected = true },
+        new UITabBarItem { Title = "Games", Tag = "games", Icon = "_content/OldiOS.Shared/images/icons/tab-games.png" },
+        new UITabBarItem { Title = "Friends", Tag = "friends", Icon = "_content/OldiOS.Shared/images/icons/tab-friends.png" },
+        new UITabBarItem { Title = "Requests", Tag = "requests", Icon = "_content/OldiOS.Shared/images/icons/tab-requests.png" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Game Center";
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}

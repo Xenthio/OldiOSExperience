@@ -1,0 +1,134 @@
+@* iOS 5 Calculator App *@
+
+<div class="calculator-app">
+    <div class="calculator-display">
+        <div class="display-value">@DisplayValue</div>
+    </div>
+    
+    <div class="calculator-buttons">
+        <div class="button-row">
+            <button class="calc-button function" @onclick='() => HandleOperation("C")'>C</button>
+            <button class="calc-button function" @onclick='() => HandleOperation("+/-")'>+/-</button>
+            <button class="calc-button function" @onclick='() => HandleOperation("%")'>%</button>
+            <button class="calc-button operator" @onclick='() => HandleOperation("÷")'>÷</button>
+        </div>
+        
+        <div class="button-row">
+            <button class="calc-button number" @onclick='() => HandleNumber("7")'>7</button>
+            <button class="calc-button number" @onclick='() => HandleNumber("8")'>8</button>
+            <button class="calc-button number" @onclick='() => HandleNumber("9")'>9</button>
+            <button class="calc-button operator" @onclick='() => HandleOperation("×")'>×</button>
+        </div>
+        
+        <div class="button-row">
+            <button class="calc-button number" @onclick='() => HandleNumber("4")'>4</button>
+            <button class="calc-button number" @onclick='() => HandleNumber("5")'>5</button>
+            <button class="calc-button number" @onclick='() => HandleNumber("6")'>6</button>
+            <button class="calc-button operator" @onclick='() => HandleOperation("-")'>-</button>
+        </div>
+        
+        <div class="button-row">
+            <button class="calc-button number" @onclick='() => HandleNumber("1")'>1</button>
+            <button class="calc-button number" @onclick='() => HandleNumber("2")'>2</button>
+            <button class="calc-button number" @onclick='() => HandleNumber("3")'>3</button>
+            <button class="calc-button operator" @onclick='() => HandleOperation("+")'>+</button>
+        </div>
+        
+        <div class="button-row">
+            <button class="calc-button number zero" @onclick='() => HandleNumber("0")'>0</button>
+            <button class="calc-button number" @onclick='() => HandleNumber(".")'>.</button>
+            <button class="calc-button operator" @onclick='() => HandleOperation("=")'>=</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string DisplayValue = "0";
+    private decimal CurrentValue = 0;
+    private decimal StoredValue = 0;
+    private string CurrentOperation = "";
+    private bool NewNumber = true;
+    
+    private void HandleNumber(string number)
+    {
+        if (NewNumber)
+        {
+            DisplayValue = number == "." ? "0." : number;
+            NewNumber = false;
+        }
+        else
+        {
+            if (number == "." && DisplayValue.Contains("."))
+                return;
+            
+            DisplayValue += number;
+        }
+    }
+    
+    private void HandleOperation(string operation)
+    {
+        CurrentValue = decimal.Parse(DisplayValue);
+        
+        switch (operation)
+        {
+            case "C":
+                DisplayValue = "0";
+                CurrentValue = 0;
+                StoredValue = 0;
+                CurrentOperation = "";
+                NewNumber = true;
+                break;
+                
+            case "+/-":
+                CurrentValue *= -1;
+                DisplayValue = CurrentValue.ToString();
+                break;
+                
+            case "%":
+                CurrentValue /= 100;
+                DisplayValue = CurrentValue.ToString();
+                break;
+                
+            case "=":
+                PerformCalculation();
+                CurrentOperation = "";
+                NewNumber = true;
+                break;
+                
+            default:
+                if (!string.IsNullOrEmpty(CurrentOperation))
+                {
+                    PerformCalculation();
+                }
+                StoredValue = CurrentValue;
+                CurrentOperation = operation;
+                NewNumber = true;
+                break;
+        }
+    }
+    
+    private void PerformCalculation()
+    {
+        decimal result = StoredValue;
+        
+        switch (CurrentOperation)
+        {
+            case "+":
+                result = StoredValue + CurrentValue;
+                break;
+            case "-":
+                result = StoredValue - CurrentValue;
+                break;
+            case "×":
+                result = StoredValue * CurrentValue;
+                break;
+            case "÷":
+                result = CurrentValue != 0 ? StoredValue / CurrentValue : 0;
+                break;
+        }
+        
+        DisplayValue = result.ToString();
+        CurrentValue = result;
+        StoredValue = result;
+    }
+}

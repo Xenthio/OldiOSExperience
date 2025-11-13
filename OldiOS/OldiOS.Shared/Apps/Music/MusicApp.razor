@@ -1,0 +1,84 @@
+@* iOS 5 Music/iPod App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="music-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="music-content">
+        @if (CurrentTab == "playlists")
+        {
+            <div class="playlists-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/playlist-icon.png" alt="Playlist" /></div>
+                    <div class="empty-text">No Playlists</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "artists")
+        {
+            <div class="artists-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/artist-icon.png" alt="Artist" /></div>
+                    <div class="empty-text">No Artists</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "songs")
+        {
+            <div class="songs-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/song-icon.png" alt="Song" /></div>
+                    <div class="empty-text">No Songs</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "albums")
+        {
+            <div class="albums-grid">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/album-icon.png" alt="Album" /></div>
+                    <div class="empty-text">No Albums</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "more")
+        {
+            <UITableView>
+                <UITableViewSection>
+                    <UITableViewCell Text="Genres" ShowDisclosure="true" />
+                    <UITableViewCell Text="Compilations" ShowDisclosure="true" />
+                    <UITableViewCell Text="Composers" ShowDisclosure="true" />
+                    <UITableViewCell Text="Podcasts" ShowDisclosure="true" />
+                    <UITableViewCell Text="Audiobooks" ShowDisclosure="true" IsLast="true" />
+                </UITableViewSection>
+            </UITableView>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "playlists";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Playlists", Tag = "playlists", Icon = "_content/OldiOS.Shared/images/icons/tab-playlists.png", IsSelected = true },
+        new UITabBarItem { Title = "Artists", Tag = "artists", Icon = "_content/OldiOS.Shared/images/icons/tab-artists.png" },
+        new UITabBarItem { Title = "Songs", Tag = "songs", Icon = "_content/OldiOS.Shared/images/icons/tab-songs.png" },
+        new UITabBarItem { Title = "Albums", Tag = "albums", Icon = "_content/OldiOS.Shared/images/icons/tab-albums.png" },
+        new UITabBarItem { Title = "More", Tag = "more", Icon = "_content/OldiOS.Shared/images/icons/tab-more.png" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Music";
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}

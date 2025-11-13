@@ -32,6 +32,82 @@
     text-shadow: 0 -2px 0 rgba(0, 0, 0, 0.5);
 }
 
+/* Title slide and fade animations */
+.navbar-title.title-slide-out-left {
+    animation: titleSlideOutLeft 300ms ease-out forwards;
+}
+
+.navbar-title.title-slide-in-right {
+    animation: titleSlideInRight 300ms ease-out forwards;
+}
+
+.navbar-title.title-slide-out-right {
+    animation: titleSlideOutRight 300ms ease-out forwards;
+}
+
+.navbar-title.title-slide-in-left {
+    animation: titleSlideInLeft 300ms ease-out forwards;
+}
+
+@keyframes titleSlideOutLeft {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+}
+
+@keyframes titleSlideInRight {
+    from {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes titleSlideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+}
+
+@keyframes titleSlideInLeft {
+    from {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Button fade-in animation */
+.navbar-left.fade-in,
+.navbar-right.fade-in {
+    animation: buttonFadeIn 300ms ease-out;
+}
+
+@keyframes buttonFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .navbar-back-button,
 .navbar-button {
     display: flex;

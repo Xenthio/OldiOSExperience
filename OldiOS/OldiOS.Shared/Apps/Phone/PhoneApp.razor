@@ -1,0 +1,133 @@
+@* iOS 5 Phone App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="phone-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="phone-content">
+        @if (CurrentTab == "favorites")
+        {
+            <div class="favorites-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/star-icon.png" alt="Star" /></div>
+                    <div class="empty-text">No Favorites</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "recents")
+        {
+            <div class="recents-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/clock-icon.png" alt="Clock" /></div>
+                    <div class="empty-text">No Recents</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "contacts")
+        {
+            <UISearchBar Placeholder="Search" />
+            <div class="contacts-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/contact-icon.png" alt="Contact" /></div>
+                    <div class="empty-text">No Contacts</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "keypad")
+        {
+            <div class="keypad-container">
+                <div class="number-display">@PhoneNumber</div>
+                <div class="keypad-grid">
+                    @foreach (var key in KeypadButtons)
+                    {
+                        <button class="keypad-button" @onclick="() => KeypadPress(key.Number)">
+                            <div class="key-number">@key.Number</div>
+                            <div class="key-letters">@key.Letters</div>
+                        </button>
+                    }
+                </div>
+                <div class="keypad-actions">
+                    @if (!string.IsNullOrEmpty(PhoneNumber))
+                    {
+                        <button class="delete-button" @onclick="DeleteDigit"><img src="_content/OldiOS.Shared/images/icons/delete-icon.png" alt="Delete" /></button>
+                    }
+                    <button class="call-button" disabled="@string.IsNullOrEmpty(PhoneNumber)">
+                        <div class="call-icon"><img src="_content/OldiOS.Shared/images/icons/phone-icon.png" alt="Call" /></div>
+                    </button>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "voicemail")
+        {
+            <div class="voicemail-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/voicemail-icon.png" alt="Voicemail" /></div>
+                    <div class="empty-text">No Voicemail</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "favorites";
+    private string PhoneNumber = "";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Favorites", Tag = "favorites", Icon = "_content/OldiOS.Shared/images/icons/tab-favorites.png", IsSelected = true },
+        new UITabBarItem { Title = "Recents", Tag = "recents", Icon = "_content/OldiOS.Shared/images/icons/tab-recents.png" },
+        new UITabBarItem { Title = "Contacts", Tag = "contacts", Icon = "_content/OldiOS.Shared/images/icons/tab-contacts.png" },
+        new UITabBarItem { Title = "Keypad", Tag = "keypad", Icon = "_content/OldiOS.Shared/images/icons/tab-keypad.png" },
+        new UITabBarItem { Title = "Voicemail", Tag = "voicemail", Icon = "_content/OldiOS.Shared/images/icons/tab-voicemail.png" }
+    };
+    
+    private List<KeypadKey> KeypadButtons = new()
+    {
+        new KeypadKey { Number = "1", Letters = "" },
+        new KeypadKey { Number = "2", Letters = "ABC" },
+        new KeypadKey { Number = "3", Letters = "DEF" },
+        new KeypadKey { Number = "4", Letters = "GHI" },
+        new KeypadKey { Number = "5", Letters = "JKL" },
+        new KeypadKey { Number = "6", Letters = "MNO" },
+        new KeypadKey { Number = "7", Letters = "PQRS" },
+        new KeypadKey { Number = "8", Letters = "TUV" },
+        new KeypadKey { Number = "9", Letters = "WXYZ" },
+        new KeypadKey { Number = "*", Letters = "" },
+        new KeypadKey { Number = "0", Letters = "+" },
+        new KeypadKey { Number = "#", Letters = "" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Phone";
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+    
+    private void KeypadPress(string digit)
+    {
+        PhoneNumber += digit;
+    }
+    
+    private void DeleteDigit()
+    {
+        if (!string.IsNullOrEmpty(PhoneNumber))
+        {
+            PhoneNumber = PhoneNumber[..^1];
+        }
+    }
+    
+    private class KeypadKey
+    {
+        public string Number { get; set; } = "";
+        public string Letters { get; set; } = "";
+    }
+}

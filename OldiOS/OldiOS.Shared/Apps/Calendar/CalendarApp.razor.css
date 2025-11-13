@@ -1,0 +1,115 @@
+.calendar-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #c5ccd4;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-content {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 88px;
+    background: #fff;
+}
+
+.calendar-view {
+    background: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.weekday-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.weekday-header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: #666;
+    padding: 10px 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.day-number {
+    font-size: 32px;
+    font-weight: 400;
+    color: #000;
+}
+
+.calendar-day.other-month .day-number {
+    color: #ccc;
+}
+
+.calendar-day.today {
+    background: #007aff;
+}
+
+.calendar-day.today .day-number {
+    color: #fff;
+    font-weight: 600;
+}
+
+.calendar-day:hover:not(.other-month) {
+    background: #e5e5e5;
+}
+
+.calendar-day.today:hover {
+    background: #0051d5;
+}
+
+.events-section {
+    padding: 20px;
+}
+
+.section-header {
+    font-size: 36px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.empty-events {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    color: #999;
+}
+
+.empty-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.empty-icon img {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-text {
+    font-size: 36px;
+    font-weight: 300;
+}

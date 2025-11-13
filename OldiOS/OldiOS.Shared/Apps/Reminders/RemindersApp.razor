@@ -1,0 +1,20 @@
+@* iOS 5 Reminders App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="reminders-app">
+    <UINavigationBar Title="Reminders" 
+                     RightButtonText="+" />
+    
+    <div class="reminders-content">
+        <UITableView>
+            <UITableViewSection>
+                <UITableViewCell Text="Completed" Detail="0" ShowDisclosure="true" />
+                <UITableViewCell Text="Reminders" Detail="0" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    
+}

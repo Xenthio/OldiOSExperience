@@ -1,0 +1,40 @@
+@* iOS 5 UITabBar Component *@
+
+<div class="uitabbar">
+    @foreach (var item in Items)
+    {
+        <div class="tab-item @(item.IsSelected ? "selected" : "")" @onclick="() => OnTabSelected(item)">
+            @if (!string.IsNullOrEmpty(item.Icon))
+            {
+                <div class="tab-icon">
+                    <img src="@item.Icon" alt="@item.Title" />
+                </div>
+            }
+            <div class="tab-title">@item.Title</div>
+            @if (item.BadgeCount > 0)
+            {
+                <div class="tab-badge">@item.BadgeCount</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<UITabBarItem> Items { get; set; } = new();
+    
+    [Parameter]
+    public EventCallback<UITabBarItem> OnItemSelected { get; set; }
+    
+    private async Task OnTabSelected(UITabBarItem item)
+    {
+        // Update selection
+        foreach (var i in Items)
+        {
+            i.IsSelected = false;
+        }
+        item.IsSelected = true;
+        
+        await OnItemSelected.InvokeAsync(item);
+    }
+}

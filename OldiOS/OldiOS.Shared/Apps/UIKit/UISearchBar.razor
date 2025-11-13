@@ -1,0 +1,69 @@
+@* iOS 5 UISearchBar Component *@
+
+<div class="uisearchbar">
+    <div class="search-field">
+        <div class="search-icon">🔍</div>
+        <input 
+            type="search" 
+            class="search-input"
+            placeholder="@Placeholder"
+            @bind="SearchText"
+            @bind:event="oninput"
+            @onfocus="HandleFocus"
+            @onblur="HandleBlur" />
+        @if (!string.IsNullOrEmpty(SearchText))
+        {
+            <button class="clear-button" @onclick="ClearSearch">✕</button>
+        }
+    </div>
+    @if (ShowsCancelButton && IsFocused)
+    {
+        <button class="cancel-button" @onclick="HandleCancel">Cancel</button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string SearchText { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+    
+    [Parameter]
+    public string Placeholder { get; set; } = "Search";
+    
+    [Parameter]
+    public bool ShowsCancelButton { get; set; } = true;
+    
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+    
+    private bool IsFocused { get; set; }
+    
+    private void HandleFocus()
+    {
+        IsFocused = true;
+        StateHasChanged();
+    }
+    
+    private async Task HandleBlur()
+    {
+        await Task.Delay(100); // Small delay to allow cancel button click
+        IsFocused = false;
+        StateHasChanged();
+    }
+    
+    private async Task ClearSearch()
+    {
+        SearchText = "";
+        await SearchTextChanged.InvokeAsync(SearchText);
+    }
+    
+    private async Task HandleCancel()
+    {
+        SearchText = "";
+        IsFocused = false;
+        await SearchTextChanged.InvokeAsync(SearchText);
+        await OnCancel.InvokeAsync();
+    }
+}

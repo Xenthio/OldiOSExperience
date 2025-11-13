@@ -1,0 +1,120 @@
+.stocks-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+}
+
+.stocks-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.stocks-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 0;
+}
+
+.info-button {
+    background: none;
+    border: none;
+    color: #fff;
+    width: 52px;
+    height: 52px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.info-button img {
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) invert(1);
+}
+
+.info-button:active {
+    opacity: 0.3;
+}
+
+.stocks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stock-item {
+    display: flex;
+    align-items: center;
+    padding: 30px 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+.stock-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.stock-symbol {
+    font-size: 42px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.stock-name {
+    font-size: 26px;
+    color: #999;
+}
+
+.stock-chart {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.stock-prices {
+    text-align: right;
+    min-width: 200px;
+}
+
+.stock-price {
+    font-size: 42px;
+    font-weight: 400;
+    margin-bottom: 6px;
+}
+
+.stock-change {
+    font-size: 28px;
+}
+
+.stock-change.positive {
+    color: #4cd964;
+}
+
+.stock-change.negative {
+    color: #ff3b30;
+}
+
+.stocks-footer {
+    margin-top: 40px;
+    padding: 30px 20px;
+    text-align: center;
+    border-top: 1px solid #333;
+}
+
+.footer-text {
+    font-size: 28px;
+    color: #4cd964;
+    margin-bottom: 8px;
+}
+
+.footer-subtext {
+    font-size: 24px;
+    color: #999;
+}

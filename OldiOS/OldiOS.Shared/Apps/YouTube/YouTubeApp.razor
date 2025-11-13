@@ -1,0 +1,82 @@
+@* iOS 5 YouTube App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="youtube-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="youtube-content">
+        @if (CurrentTab == "featured")
+        {
+            <div class="video-grid">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/play-icon.png" alt="Play" /></div>
+                    <div class="empty-text">No Featured Videos</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "top")
+        {
+            <div class="video-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/star-icon.png" alt="Star" /></div>
+                    <div class="empty-text">No Top Rated Videos</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "subscriptions")
+        {
+            <div class="subscriptions-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/tv-icon.png" alt="TV" /></div>
+                    <div class="empty-text">No Subscriptions</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "favorites")
+        {
+            <div class="favorites-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/heart-icon.png" alt="Heart" /></div>
+                    <div class="empty-text">No Favorites</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "more")
+        {
+            <UITableView>
+                <UITableViewSection>
+                    <UITableViewCell Text="History" ShowDisclosure="true" />
+                    <UITableViewCell Text="Uploads" ShowDisclosure="true" />
+                    <UITableViewCell Text="Playlists" ShowDisclosure="true" IsLast="true" />
+                </UITableViewSection>
+            </UITableView>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "featured";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Featured", Tag = "featured", Icon = "_content/OldiOS.Shared/images/icons/tab-featured.png", IsSelected = true },
+        new UITabBarItem { Title = "Top Rated", Tag = "top", Icon = "_content/OldiOS.Shared/images/icons/tab-toprated.png" },
+        new UITabBarItem { Title = "Subscriptions", Tag = "subscriptions", Icon = "_content/OldiOS.Shared/images/icons/tab-subscriptions.png" },
+        new UITabBarItem { Title = "Favorites", Tag = "favorites", Icon = "_content/OldiOS.Shared/images/icons/tab-favorites.png" },
+        new UITabBarItem { Title = "More", Tag = "more", Icon = "_content/OldiOS.Shared/images/icons/tab-more.png" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "YouTube";
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}

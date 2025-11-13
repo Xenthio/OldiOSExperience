@@ -1,4 +1,6 @@
-﻿namespace OldiOS.Shared.Models
+﻿using OldiOS.Shared.System;
+
+namespace OldiOS.Shared.Models
 {
     public class AppInfo
     {
@@ -11,5 +13,8 @@
         
         /// <summary>Bundle identifier (e.g., com.apple.settings)</summary>
         public string? BundleId { get; set; }
+        
+        /// <summary>Status bar style for this app (defaults to Coloured)</summary>
+        public StatusBarStyle StatusBarStyle { get; set; } = StatusBarStyle.Coloured;
     }
 }

@@ -1,0 +1,23 @@
+@* iOS 5 Messages App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="messages-app">
+    <UINavigationBar Title="Messages" 
+                     RightButtonText="✎" />
+    
+    <div class="messages-content">
+        <UISearchBar Placeholder="Search" ShowsCancelButton="false" />
+        
+        <div class="conversations-list">
+            <div class="empty-state">
+                <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/messages-icon.png" alt="Messages" /></div>
+                <div class="empty-text">No Messages</div>
+                <div class="empty-hint">Tap ✎ to compose a new message</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    
+}

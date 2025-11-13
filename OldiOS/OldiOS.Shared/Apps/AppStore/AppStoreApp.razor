@@ -1,0 +1,90 @@
+@* iOS 5 App Store *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="appstore-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="appstore-content">
+        @if (CurrentTab == "featured")
+        {
+            <div class="featured-view">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/star-icon.png" alt="Star" /></div>
+                    <div class="empty-text">Featured Apps</div>
+                    <div class="empty-hint">Coming Soon</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "categories")
+        {
+            <UITableView>
+                <UITableViewSection>
+                    <UITableViewCell Text="Games" ShowDisclosure="true" />
+                    <UITableViewCell Text="Entertainment" ShowDisclosure="true" />
+                    <UITableViewCell Text="Utilities" ShowDisclosure="true" />
+                    <UITableViewCell Text="Social Networking" ShowDisclosure="true" />
+                    <UITableViewCell Text="Music" ShowDisclosure="true" />
+                    <UITableViewCell Text="Productivity" ShowDisclosure="true" />
+                    <UITableViewCell Text="Lifestyle" ShowDisclosure="true" />
+                    <UITableViewCell Text="News" ShowDisclosure="true" IsLast="true" />
+                </UITableViewSection>
+            </UITableView>
+        }
+        else if (CurrentTab == "top25")
+        {
+            <div class="top-charts">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/chart-icon.png" alt="Chart" /></div>
+                    <div class="empty-text">Top Charts</div>
+                    <div class="empty-hint">Coming Soon</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "search")
+        {
+            <UISearchBar Placeholder="Search" ShowsCancelButton="false" />
+            <div class="search-results">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/search-icon.png" alt="Search" /></div>
+                    <div class="empty-text">Search Apps</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "updates")
+        {
+            <div class="updates-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/refresh-icon.png" alt="Refresh" /></div>
+                    <div class="empty-text">No Updates</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "featured";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Featured", Tag = "featured", Icon = "_content/OldiOS.Shared/images/icons/tab-featured.png", IsSelected = true },
+        new UITabBarItem { Title = "Categories", Tag = "categories", Icon = "_content/OldiOS.Shared/images/icons/tab-categories.png" },
+        new UITabBarItem { Title = "Top 25", Tag = "top25", Icon = "_content/OldiOS.Shared/images/icons/tab-top25.png" },
+        new UITabBarItem { Title = "Search", Tag = "search", Icon = "_content/OldiOS.Shared/images/icons/tab-search.png" },
+        new UITabBarItem { Title = "Updates", Tag = "updates", Icon = "_content/OldiOS.Shared/images/icons/tab-updates.png" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "App Store";
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,122 @@
+.compass-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+}
+
+.compass-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 80px 40px 40px;
+}
+
+.compass-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.compass-circle {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    border: 4px solid #333;
+    border-radius: 250px;
+    background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(255,255,255,0.1) inset;
+}
+
+.compass-needle {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    opacity: 0.5;
+}
+
+.compass-directions {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.direction {
+    position: absolute;
+    font-size: 48px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.direction.north {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #e74c3c;
+}
+
+.direction.east {
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.direction.south {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.direction.west {
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.heading-display {
+    margin-top: 60px;
+    text-align: center;
+}
+
+.heading-value {
+    font-size: 96px;
+    font-weight: 100;
+    margin-bottom: 10px;
+}
+
+.heading-label {
+    font-size: 40px;
+    font-weight: 300;
+    opacity: 0.7;
+}
+
+.compass-footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 40px 0;
+    border-top: 1px solid #333;
+}
+
+.location-info {
+    text-align: center;
+}
+
+.coordinate-label {
+    font-size: 28px;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.coordinate-value {
+    font-size: 36px;
+    font-weight: 300;
+}

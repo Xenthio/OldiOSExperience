@@ -2,11 +2,17 @@
 @using OldiOS.Shared.Apps.UIKit
 
 <div class="uinavigationbar">
-    <div class="navbar-left">
+    <div class="navbar-left @GetButtonAnimationClass()">
         @if (!string.IsNullOrEmpty(BackButtonText))
         {
             <button class="navbar-back-button" @onclick="OnBackClick"> 
                 <span class="back-text">@BackButtonText</span>
+            </button>
+        }
+        else if (!string.IsNullOrEmpty(LeftButtonText))
+        {
+            <button class="navbar-button" @onclick="OnLeftButtonClick">
+                @LeftButtonText
             </button>
         }
         else if (LeftContent != null)
@@ -15,11 +21,11 @@
         }
     </div>
     
-    <div class="navbar-title">
+    <div class="navbar-title @AnimationClass">
         @Title
     </div>
     
-    <div class="navbar-right">
+    <div class="navbar-right @GetButtonAnimationClass()">
         @if (RightContent != null)
         {
             @RightContent
@@ -44,6 +50,12 @@
     public EventCallback OnBackClick { get; set; }
     
     [Parameter]
+    public string LeftButtonText { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback OnLeftButtonClick { get; set; }
+    
+    [Parameter]
     public string RightButtonText { get; set; } = "";
     
     [Parameter]
@@ -54,4 +66,15 @@
     
     [Parameter]
     public RenderFragment? RightContent { get; set; }
+    
+    [Parameter]
+    public string AnimationClass { get; set; } = "";
+    
+    [Parameter]
+    public string ButtonAnimationClass { get; set; } = "";
+    
+    private string GetButtonAnimationClass()
+    {
+        return ButtonAnimationClass;
+    }
 }

@@ -1,0 +1,38 @@
+@* iOS 5 Safari Browser *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="safari-app">
+    <div class="safari-header">
+        <div class="address-bar">
+            <div class="search-field">
+                <input type="text" 
+                       class="url-input" 
+                       placeholder="Search or enter website name"
+                       value="@CurrentUrl" />
+            </div>
+            <button class="refresh-button">↻</button>
+        </div>
+    </div>
+    
+    <div class="safari-content">
+        <div class="browser-view">
+            <div class="placeholder-page">
+                <div class="placeholder-icon">🌐</div>
+                <div class="placeholder-text">Safari</div>
+                <div class="placeholder-hint">Enter a URL to browse</div>
+            </div>
+        </div>
+    </div>
+    
+    <UIToolbar>
+        <button class="toolbar-button">◄</button>
+        <button class="toolbar-button disabled">►</button>
+        <button class="toolbar-button">📑</button>
+        <button class="toolbar-button">📖</button>
+        <button class="toolbar-button">⋯</button>
+    </UIToolbar>
+</div>
+
+@code {
+    private string CurrentUrl = "";
+}

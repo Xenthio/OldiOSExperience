@@ -1,0 +1,81 @@
+@* iOS 5 Photos App *@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="photos-app">
+    <UINavigationBar Title="@GetCurrentTitle()" />
+    
+    <div class="photos-content">
+        @if (CurrentTab == "albums")
+        {
+            <div class="albums-grid">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/camera-icon.png" alt="Camera" /></div>
+                    <div class="empty-text">No Photos or Videos</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "photos")
+        {
+            <div class="photos-grid">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/photo-icon.png" alt="Photo" /></div>
+                    <div class="empty-text">No Photos</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "events")
+        {
+            <div class="events-list">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/event-icon.png" alt="Event" /></div>
+                    <div class="empty-text">No Events</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "places")
+        {
+            <div class="places-view">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/map-pin-icon.png" alt="Map" /></div>
+                    <div class="empty-text">No Places</div>
+                </div>
+            </div>
+        }
+        else if (CurrentTab == "faces")
+        {
+            <div class="faces-grid">
+                <div class="empty-state">
+                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/face-icon.png" alt="Face" /></div>
+                    <div class="empty-text">No Faces</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
+</div>
+
+@code {
+    private string CurrentTab = "albums";
+    
+    private List<UITabBarItem> TabBarItems = new()
+    {
+        new UITabBarItem { Title = "Albums", Tag = "albums", Icon = "_content/OldiOS.Shared/images/icons/tab-albums.png", IsSelected = true },
+        new UITabBarItem { Title = "Photos", Tag = "photos", Icon = "_content/OldiOS.Shared/images/icons/tab-photos.png" },
+        new UITabBarItem { Title = "Events", Tag = "events", Icon = "_content/OldiOS.Shared/images/icons/tab-events.png" },
+        new UITabBarItem { Title = "Places", Tag = "places", Icon = "_content/OldiOS.Shared/images/icons/tab-places.png" },
+        new UITabBarItem { Title = "Faces", Tag = "faces", Icon = "_content/OldiOS.Shared/images/icons/tab-faces.png" }
+    };
+    
+    private string GetCurrentTitle()
+    {
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Photos";
+    }
+    
+    private void HandleTabSelected(UITabBarItem item)
+    {
+        CurrentTab = item.Tag;
+        StateHasChanged();
+    }
+}

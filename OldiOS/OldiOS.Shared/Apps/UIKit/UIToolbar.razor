@@ -1,0 +1,12 @@
+@* iOS 5 UIToolbar Component *@
+
+<div class="uitoolbar">
+    <div class="toolbar-content">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
