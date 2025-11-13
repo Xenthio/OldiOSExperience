@@ -1,7 +1,10 @@
 @using OldiOS.Shared.Apps.UIKit
 
-<div class="settings-content">
-    <UITableView Grouped="true">
+<div class="settings-general-app">
+    <UINavigationBar Title="General" BackButtonText="Settings" OnBackClick="@HandleBack" />
+    
+    <div class="settings-content">
+        <UITableView Grouped="true">
             <UITableViewSection Header="ABOUT">
                 <UITableViewCell Text="Name" Detail="@deviceName" ShowDisclosure="true" />
                 <UITableViewCell Text="Software Version" Detail="iOS 5.1.1" ShowDisclosure="true" />
@@ -59,7 +62,8 @@
                     <UIButton Text="Reset All Settings" Style="UIButtonStyle.Destructive" FullWidth="true" OnClick="@HandleReset" />
                 </div>
             </UITableViewSection>
-    </UITableView>
+        </UITableView>
+    </div>
 </div>
 
 @code {
