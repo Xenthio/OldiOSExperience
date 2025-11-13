@@ -1,5 +1,22 @@
 # OldiOSExperience - Architecture Notes
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Project Structure](#project-structure-post-migration)
+3. [Architecture](#architecture)
+4. [Animation Framework](#animation-framework)
+5. [Recent Improvements (Current Session)](#recent-improvements-current-session)
+6. [Recent Improvements (Previous Session)](#recent-improvements-previous-session)
+7. [Future Improvements](#future-improvements)
+8. [Design Patterns](#design-patterns)
+9. [Implementation Details](#implementation-details)
+10. [Known Issues](#known-issues)
+11. [Testing Notes](#testing-notes)
+12. [Contributing Guidelines](#contributing-guidelines)
+13. [Migration to MAUI](#migration-to-maui-blazor-hybrid-and-web-app-november-2025)
+14. [Bug Fixes](#bug-fixes)
+15. [References](#references)
+
 ## Overview
 This project is an iOS 5 replica built with Blazor, simulating an iPhone 4. The architecture is designed to mirror real iOS components and services for authenticity and maintainability.
 
