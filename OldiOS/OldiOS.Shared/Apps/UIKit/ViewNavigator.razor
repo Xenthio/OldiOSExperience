@@ -1,0 +1,92 @@
+@implements IDisposable
+
+<CascadingValue Value="this" IsFixed="true">
+    <div class="view-navigator">
+        @for (var i = 0; i < _viewStack.Count; i++)
+        {
+            var view = _viewStack[i];
+            var state = GetViewState(i);
+
+            <div class="view-container @state" @key="view.Key" style="z-index: @(i + 1);">
+                @view.Fragment
+            </div>
+        }
+    </div>
+</CascadingValue>
+
+@code {
+    private record struct View(object Key, RenderFragment Fragment);
+
+    private readonly List<View> _viewStack = new();
+    private AnimationState _animationState = AnimationState.Idle;
+    private int _viewKeyCounter = 0;
+
+    private enum AnimationState { Idle, Pushing, Popping }
+
+    [Parameter]
+    public RenderFragment RootView { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (RootView != null)
+        {
+            _viewStack.Add(new View(NextKey(), RootView));
+        }
+    }
+
+    private object NextKey() => _viewKeyCounter++;
+
+    private string GetViewState(int index)
+    {
+        if (_animationState == AnimationState.Idle)
+        {
+            return index == _viewStack.Count - 1 ? "active" : "inactive";
+        }
+
+        if (_animationState == AnimationState.Pushing)
+        {
+            if (index == _viewStack.Count - 1) return "push-in";
+            if (index == _viewStack.Count - 2) return "push-out";
+        }
+
+        if (_animationState == AnimationState.Popping)
+        {
+            if (index == _viewStack.Count - 1) return "pop-out";
+            if (index == _viewStack.Count - 2) return "pop-in";
+        }
+        
+        return "inactive";
+    }
+
+    public async Task Push(RenderFragment view)
+    {
+        if (_animationState != AnimationState.Idle) return;
+
+        _animationState = AnimationState.Pushing;
+        _viewStack.Add(new View(NextKey(), view));
+        StateHasChanged();
+
+        await Task.Delay(350);
+
+        _animationState = AnimationState.Idle;
+        StateHasChanged();
+    }
+
+    public async Task Pop()
+    {
+        if (_animationState != AnimationState.Idle || _viewStack.Count <= 1) return;
+
+        _animationState = AnimationState.Popping;
+        StateHasChanged();
+
+        await Task.Delay(350);
+
+        _viewStack.RemoveAt(_viewStack.Count - 1);
+        _animationState = AnimationState.Idle;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+    }
+}

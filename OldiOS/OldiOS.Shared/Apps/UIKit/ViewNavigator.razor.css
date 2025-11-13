@@ -1,0 +1,119 @@
+.view-navigator {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.view-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+::deep .navigation-view-content {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.view-container.inactive {
+    display: none;
+}
+
+.view-container.active ::deep .navigation-view-content {
+    transform: translateX(0);
+}
+
+.view-container.push-in ::deep .navigation-view-content {
+    animation: push-in 0.35s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-container.push-out ::deep .navigation-view-content {
+    animation: push-out 0.35s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-container.pop-in ::deep .navigation-view-content {
+    animation: pop-in 0.35s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-container.pop-out ::deep .navigation-view-content {
+    animation: pop-out 0.35s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes push-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes push-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+@keyframes pop-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes pop-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+.view-container.push-in ::deep .uinavigationbar {
+    animation: uinavigationbar-fade-in 0.35s ease-in-out;
+}
+
+.view-container.pop-out ::deep .uinavigationbar {
+    animation: uinavigationbar-fade-out 0.35s ease-in-out forwards;
+}
+
+@keyframes uinavigationbar-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes uinavigationbar-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.view-container.push-in ::deep .uinavigationbar div {
+    animation: uinavigationbar-push-in 0.35s ease-in-out;
+}
+
+.view-container.push-out ::deep .uinavigationbar div {
+    animation: uinavigationbar-push-out 0.35s ease-in-out forwards;
+}
+
+.view-container.pop-in ::deep .uinavigationbar div {
+    animation: uinavigationbar-pop-in 0.35s ease-in-out;
+}
+
+.view-container.pop-out ::deep .uinavigationbar div {
+    animation: uinavigationbar-pop-out 0.35s ease-in-out forwards;
+}
+
+@keyframes uinavigationbar-push-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes uinavigationbar-push-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+@keyframes uinavigationbar-pop-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes uinavigationbar-pop-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}

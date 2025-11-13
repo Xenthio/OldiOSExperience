@@ -1,0 +1,83 @@
+@using Microsoft.JSInterop
+
+<CascadingValue Value="this" IsFixed="true">
+    <div class="navigation-manager">
+        @for (var i = 0; i < _viewStack.Count; i++)
+        {
+            var view = _viewStack[i];
+            var isActive = i == _viewStack.Count - 1;
+            var isPrevious = i == _viewStack.Count - 2;
+
+            var animationClass = "";
+            if (_isAnimating)
+            {
+                if (_isPushing)
+                {
+                    if (isActive) animationClass = "slide-in-right";
+                    if (isPrevious) animationClass = "slide-out-left";
+                }
+                else // Popping
+                {
+                    if (isActive) animationClass = "slide-in-left";
+                    // The view being popped is the last one in the list before we remove it
+                    if (i == _viewStack.Count - 1) animationClass = "slide-out-right";
+                }
+            }
+
+            <div class="navigation-view @(isActive ? "active" : "") @animationClass" @key="view.Key">
+                @view.Fragment
+            </div>
+        }
+    </div>
+</CascadingValue>
+
+@code {
+    private record struct View(object Key, RenderFragment Fragment);
+
+    private readonly List<View> _viewStack = new();
+    private bool _isAnimating = false;
+    private bool _isPushing = false;
+    private int _viewKeyCounter = 0;
+
+    [Parameter]
+    public RenderFragment RootView { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (RootView != null)
+        {
+            _viewStack.Add(new View(NextKey(), RootView));
+        }
+    }
+
+    private object NextKey() => _viewKeyCounter++;
+
+    public async Task Push(RenderFragment view)
+    {
+        _isPushing = true;
+        _isAnimating = true;
+        _viewStack.Add(new View(NextKey(), view));
+        StateHasChanged();
+        
+        await Task.Delay(350); // Animation duration
+        
+        _isAnimating = false;
+        StateHasChanged();
+    }
+
+    public async Task Pop()
+    {
+        if (_viewStack.Count > 1)
+        {
+            _isPushing = false;
+            _isAnimating = true;
+            StateHasChanged();
+
+            await Task.Delay(350); // Animation duration
+            
+            _viewStack.RemoveAt(_viewStack.Count - 1);
+            _isAnimating = false;
+            StateHasChanged();
+        }
+    }
+}

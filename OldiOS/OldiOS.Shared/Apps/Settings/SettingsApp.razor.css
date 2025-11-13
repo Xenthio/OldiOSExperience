@@ -5,9 +5,3 @@
     flex-direction: column;
     background-color: #c8cdd5;
 }
-
-.settings-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
