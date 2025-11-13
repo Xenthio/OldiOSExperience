@@ -50,13 +50,8 @@
     
     private string GetCurrentTitle()
     {
-        return CurrentTab switch
-        {
-            "favorites" => "Favorites",
-            "recents" => "Recents",
-            "contacts" => "Contacts",
-            _ => "FaceTime"
-        };
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "FaceTime";
     }
     
     private void HandleTabSelected(UITabBarItem item)

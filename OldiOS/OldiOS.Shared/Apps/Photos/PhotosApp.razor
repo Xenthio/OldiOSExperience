@@ -69,15 +69,8 @@
     
     private string GetCurrentTitle()
     {
-        return CurrentTab switch
-        {
-            "albums" => "Albums",
-            "photos" => "Photos",
-            "events" => "Events",
-            "places" => "Places",
-            "faces" => "Faces",
-            _ => "Photos"
-        };
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Photos";
     }
     
     private void HandleTabSelected(UITabBarItem item)

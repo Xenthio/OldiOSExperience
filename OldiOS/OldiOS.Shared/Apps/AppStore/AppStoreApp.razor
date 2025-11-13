@@ -78,15 +78,8 @@
     
     private string GetCurrentTitle()
     {
-        return CurrentTab switch
-        {
-            "featured" => "Featured",
-            "categories" => "Categories",
-            "top25" => "Top 25",
-            "search" => "Search",
-            "updates" => "Updates",
-            _ => "App Store"
-        };
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "App Store";
     }
     
     private void HandleTabSelected(UITabBarItem item)

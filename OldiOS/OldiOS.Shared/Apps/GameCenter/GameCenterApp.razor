@@ -74,14 +74,8 @@
     
     private string GetCurrentTitle()
     {
-        return CurrentTab switch
-        {
-            "me" => "Me",
-            "games" => "Games",
-            "friends" => "Friends",
-            "requests" => "Requests",
-            _ => "Game Center"
-        };
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Game Center";
     }
     
     private void HandleTabSelected(UITabBarItem item)

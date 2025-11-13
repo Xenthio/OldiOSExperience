@@ -88,14 +88,8 @@
     
     private string GetCurrentTitle()
     {
-        return CurrentTab switch
-        {
-            "world" => "World Clock",
-            "alarm" => "Alarm",
-            "stopwatch" => "Stopwatch",
-            "timer" => "Timer",
-            _ => "Clock"
-        };
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "Clock";
     }
     
     private string GetRightButtonText()

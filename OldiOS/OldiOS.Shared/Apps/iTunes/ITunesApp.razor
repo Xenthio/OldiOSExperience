@@ -71,15 +71,8 @@
     
     private string GetCurrentTitle()
     {
-        return CurrentTab switch
-        {
-            "music" => "Music",
-            "movies" => "Movies",
-            "tv" => "TV Shows",
-            "search" => "Search",
-            "downloads" => "Downloads",
-            _ => "iTunes"
-        };
+        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
+        return selectedTab?.Title ?? "iTunes";
     }
     
     private void HandleTabSelected(UITabBarItem item)
