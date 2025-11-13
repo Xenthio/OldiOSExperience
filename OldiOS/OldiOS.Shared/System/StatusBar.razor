@@ -42,9 +42,6 @@
     public string Carrier { get; set; } = "No SIM";
     
     [Parameter]
-    public string WifiIconPath { get; set; } = "_content/OldiOS.Shared/images/status-bar/wifi.png";
-    
-    [Parameter]
     public int BatteryPercentage { get; set; } = 100;
 
     [Parameter]
@@ -56,6 +53,8 @@
     private string currentTime = "";
     private global::System.Threading.Timer? clockTimer;
     private DotNetObjectReference<StatusBar>? objRef; // <-- Add this
+
+    public string WifiIconPath => $"_content/OldiOS.Shared/images/status/{ThemeFolder}/wifi_3.png";
 
     /// <summary>
     /// Gets the CSS class for the status bar based on the Style enum.
