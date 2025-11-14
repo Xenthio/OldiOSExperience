@@ -98,12 +98,15 @@
     // New animation state
     private double filmstripOffset = 0;
     private CancellationTokenSource? _animationCts;
+    // Keep a .NET reference alive during JS animation so callbacks can occur
+    private object? _currentAnimDotNetRef;
 
     // Touch velocity tracking (lower allocations)
     private struct TouchPoint { public double X; public double TimeMs; }
     private TouchPoint[] recentTouchPoints = new TouchPoint[10];
     private int touchPointCount = 0;
     private const double VelocityTimeWindowMs = 100;
+    private const double DragTapSlopPx = 8.0; // movement below this is treated as a tap, not a swipe
 
     private bool isAppSwitcherVisible = false;
     private bool isLocked = true;
@@ -153,6 +156,8 @@
         _animationCts?.Dispose();
         AppManager.OnAppStatesChanged -= HandleAppStateChanged;
         DisplaySettings.OnResolutionChanged -= HandleResolutionChanged;
+        (_currentAnimDotNetRef as IDisposable)?.Dispose();
+        _currentAnimDotNetRef = null;
         _ = _animModule?.DisposeAsync();
     }
 
@@ -174,6 +179,9 @@
         dragOffset = 0;
         isAnimating = false;
         _suppressRender = false;
+        // Dispose the held .NET ref now that the callback has occurred
+        (_currentAnimDotNetRef as IDisposable)?.Dispose();
+        _currentAnimDotNetRef = null;
         StateHasChanged();
         await Task.CompletedTask;
     }
@@ -203,7 +211,10 @@
 
     private void HandleAppClick(AppInfo app)
     {
-        if (isDragging || isAnimating) return;
+        // Allow taps (very small movement) but block real drags or running animations
+        if (isAnimating) return;
+        // If user is currently dragging but movement is negligible, treat as a tap
+        if (isDragging && Math.Abs(dragOffset) > 6) return;
         SpringboardService.LaunchApp(app);
     }
 
@@ -234,6 +245,9 @@
             isAnimating = false;
             dragOffset = 0;
             filmstripOffset = currentX;
+            // Canceling animation means no completion callback; dispose any held ref
+            (_currentAnimDotNetRef as IDisposable)?.Dispose();
+            _currentAnimDotNetRef = null;
             return currentX;
         }
         catch (JSException)
@@ -243,6 +257,8 @@
             isAnimating = false;
             dragOffset = 0;
             filmstripOffset = currentX;
+            (_currentAnimDotNetRef as IDisposable)?.Dispose();
+            _currentAnimDotNetRef = null;
             return currentX;
         }
     }
@@ -296,6 +312,14 @@
         var velocity = CalculateVelocity();
         var viewportWidth = DisplaySettings.Width;
         var isFastFlick = Math.Abs(velocity) > 0.8;
+
+        // If movement is tiny and not a flick, treat as a tap and snap back without animation
+        if (!isFastFlick && Math.Abs(dragOffset) < DragTapSlopPx)
+        {
+            UpdateFilmstripOffset();
+            await SetFilmstripOffset(filmstripOffset, false);
+            return;
+        }
 
         // Decide target from current offset so partial positions are respected
         var finalOffset = filmstripOffset; // already updated via setOffset
@@ -358,7 +382,11 @@
         currentPageIndex = targetIndex; // update indicator early
         _suppressRender = false; StateHasChanged(); _suppressRender = true; // one render for indicator
         await EnsureJs();
-        await _animModule!.InvokeVoidAsync("animateTo", filmstripRef, startOffset, endOffset, 300, DotNetObjectReference.Create(this));
+        // Hold onto the DotNetObjectReference to prevent GC before JS callback completes
+        (_currentAnimDotNetRef as IDisposable)?.Dispose();
+        var dotNetRef = DotNetObjectReference.Create(this);
+        _currentAnimDotNetRef = dotNetRef;
+        await _animModule!.InvokeVoidAsync("animateTo", filmstripRef, startOffset, endOffset, 300, dotNetRef);
     }
 
     // Mouse handlers
@@ -408,6 +436,15 @@
         var velocity = CalculateVelocity();
         var viewportWidth = DisplaySettings.Width;
         var isFastFlick = Math.Abs(velocity) > 0.8;
+
+        // If movement is tiny and not a flick, treat as a click and snap back without animation
+        if (!isFastFlick && Math.Abs(dragOffset) < DragTapSlopPx)
+        {
+            UpdateFilmstripOffset();
+            await SetFilmstripOffset(filmstripOffset, false);
+            return;
+        }
+
         var finalOffset = filmstripOffset;
         var position = (-finalOffset / viewportWidth) - 1.0;
         var target = (int)Math.Round(position);
