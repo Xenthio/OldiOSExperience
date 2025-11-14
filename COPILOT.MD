@@ -1,5 +1,22 @@
 # OldiOSExperience - Architecture Notes
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Project Structure](#project-structure-post-migration)
+3. [Architecture](#architecture)
+4. [Animation Framework](#animation-framework)
+5. [Recent Improvements (Current Session)](#recent-improvements-current-session)
+6. [Recent Improvements (Previous Session)](#recent-improvements-previous-session)
+7. [Future Improvements](#future-improvements)
+8. [Design Patterns](#design-patterns)
+9. [Implementation Details](#implementation-details)
+10. [Known Issues](#known-issues)
+11. [Testing Notes](#testing-notes)
+12. [Contributing Guidelines](#contributing-guidelines)
+13. [Migration to MAUI](#migration-to-maui-blazor-hybrid-and-web-app-november-2025)
+14. [Bug Fixes](#bug-fixes)
+15. [References](#references)
+
 ## Overview
 This project is an iOS 5 replica built with Blazor, simulating an iPhone 4. The architecture is designed to mirror real iOS components and services for authenticity and maintainability.
 
@@ -759,6 +776,42 @@ dotnet build -f net9.0-windows   # For Windows
 - MAUI workloads must be installed to build native apps
 - Some platform-specific features may need conditional compilation
 - Image assets work best when optimized for each platform
+
+## Code Cleanup (November 2025)
+
+### General Codebase Cleanup
+
+**Date:** November 13, 2025
+
+**Summary:** Performed comprehensive code cleanup to improve code quality and documentation.
+
+**Changes Made:**
+1. **Fixed Nullable Reference Type Warnings (6 warnings → 0)**
+   - Added `required` modifier to RootView properties in ViewNavigator, ViewNavigationController, and NavigationManager components
+   - Marked navigator field in SettingsApp with null-forgiving operator (`= null!`)
+   - Made OnChange event and CurrentView property nullable in ViewStack class
+   - Build now succeeds with zero warnings and zero errors
+
+2. **Cleaned Up JavaScript Logging**
+   - Removed verbose console.log statements from battery.js
+   - Preserved essential error and warning messages for debugging
+   - Improved code clarity and reduced console noise
+
+3. **Improved Documentation**
+   - Added comprehensive table of contents to COPILOT.MD
+   - Better navigation through 800+ lines of architecture documentation
+   - 15-item TOC with links to major sections
+
+**Build Status:** ✅ 0 Errors, 0 Warnings
+
+**Files Modified:**
+- `Apps/UIKit/ViewNavigator.razor`
+- `Apps/UIKit/ViewNavigationController.razor`
+- `Apps/UIKit/NavigationManager.razor`
+- `Apps/Settings/SettingsApp.razor`
+- `Apps/UIKit/ViewStack.cs`
+- `wwwroot/js/battery.js`
+- `COPILOT.MD`
 
 ## Bug Fixes
 

@@ -12,8 +12,6 @@ window.batteryManager = {
 
         if ('getBattery' in navigator) {
             navigator.getBattery().then(battery => {
-                console.log("Battery API: Object received", battery); // For debugging
-
                 // --- FIX: GUARD CLAUSE ---
                 // Check if the received object has the properties we expect.
                 // If not, it's not a valid BatteryManager object.
@@ -40,11 +38,6 @@ window.batteryManager = {
     // Sends the current battery status to the Blazor component
     sendUpdate: function () {
         // 'this' will now always be batteryManager
-        console.log("Battery API: Sending update...", { 
-            charging: this.battery ? this.battery.charging : 'N/A', 
-            level: this.battery ? this.battery.level : 'N/A' 
-        }); // For debugging
-
         if (this.dotNetHelper && this.battery) {
             // This call should now have the correct boolean and number values
             this.dotNetHelper.invokeMethodAsync('UpdateBatteryStatus', this.battery.charging, this.battery.level);
