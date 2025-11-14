@@ -4,7 +4,7 @@
     align-items: center;
     gap: 0px; /* 8px gap between icon and text */
     text-align: center;
-    width: 140px; /* Give it a fixed width for alignment */
+    width: 142px; /* Give it a fixed width for alignment */
     /* Use transform for GPU acceleration */
     transform: translateZ(0);
     /* Enable GPU acceleration for animations */
@@ -81,5 +81,10 @@
     font-size: 22px; /* 11pt @2x = 22px */
     text-shadow: 0px 3px 2.5px rgba(0,0,0,0.8);
     position: relative;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: center;
+    text-overflow: ellipsis;
     z-index: 1;
 }
