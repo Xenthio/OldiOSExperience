@@ -90,6 +90,7 @@
     private double touchStartX = 0;
     private double touchCurrentX = 0;
     private double dragOffset = 0;
+    private double dragStartOffset = 0; // filmstrip offset at the moment drag starts/grabs
     private bool isDragging = false;
     private DateTime touchStartTime = DateTime.MinValue;
     private bool isAnimating = false;
@@ -112,6 +113,7 @@
     private OldiOS.Shared.Pages.Springboard.Components.AppContainer? appContainerRef;
     private IJSObjectReference? _animModule;
     private bool _suppressRender = false;
+    private int _animModuleVersion = 1;
 
     protected override void OnInitialized()
     {
@@ -130,12 +132,18 @@
         }
     }
 
-    private async Task EnsureJs()
+    private async Task EnsureJs(bool forceReload = false)
     {
+        if (forceReload)
+        {
+            _animModule = null;
+            _animModuleVersion++;
+        }
         if (_animModule == null)
         {
-            // Load from static web assets of OldiOS.Shared
-            _animModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/OldiOS.Shared/js/springboardAnimation.js");
+            // Load from static web assets of OldiOS.Shared with cache-busting version
+            var path = $"./_content/OldiOS.Shared/js/springboardAnimation.js?v={_animModuleVersion}";
+            _animModule = await JS.InvokeAsync<IJSObjectReference>("import", path);
         }
     }
 
@@ -192,7 +200,13 @@
 
     private void HandleAppSwitcherClose() { isAppSwitcherVisible = false; StateHasChanged(); }
     private void HandleAppSwitcherSelect(AppInfo app) { AppManager.LaunchApp(app); isAppSwitcherVisible = false; StateHasChanged(); }
-    private void HandleAppClick(AppInfo app) => SpringboardService.LaunchApp(app);
+
+    private void HandleAppClick(AppInfo app)
+    {
+        if (isDragging || isAnimating) return;
+        SpringboardService.LaunchApp(app);
+    }
+
     private void CloseApp() => AppManager.ReturnToSpringboard();
 
     public void HandleHomeButtonSinglePress() { if (isLocked) return; SpringboardService.HandleHomeButton(); StateHasChanged(); }
@@ -211,13 +225,40 @@
     }
     public void HandleHomeButtonLongPress() { if (isLocked) return; StateHasChanged(); }
 
-    private void HandleTouchStart(TouchEventArgs e)
+    private async Task<double> CancelInFlightAnimationAsync()
     {
-        if (isAnimating) { _animationCts?.Cancel(); isAnimating = false; }
+        await EnsureJs();
+        try
+        {
+            var currentX = await _animModule!.InvokeAsync<double>("cancelAnimation", filmstripRef);
+            isAnimating = false;
+            dragOffset = 0;
+            filmstripOffset = currentX;
+            return currentX;
+        }
+        catch (JSException)
+        {
+            await EnsureJs(forceReload: true);
+            var currentX = await _animModule!.InvokeAsync<double>("cancelAnimation", filmstripRef);
+            isAnimating = false;
+            dragOffset = 0;
+            filmstripOffset = currentX;
+            return currentX;
+        }
+    }
+
+    private async Task HandleTouchStart(TouchEventArgs e)
+    {
+        if (isDragging) return;
+        if (isAnimating)
+        {
+            var currentX = await CancelInFlightAnimationAsync();
+            await SetFilmstripOffset(currentX, false);
+        }
         isDragging = true;
         touchStartX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
-        var viewportWidth = DisplaySettings.Width;
-        currentPageIndex = (int)Math.Round((-filmstripOffset / viewportWidth) - 1);
+        dragStartOffset = filmstripOffset; // capture where we grabbed
+        // do not change currentPageIndex here; drag uses absolute offset from grab
         dragOffset = 0;
         touchStartTime = DateTime.Now;
         touchPointCount = 0;
@@ -228,16 +269,24 @@
     {
         if (!isDragging) return;
         touchCurrentX = e.Touches[0].ClientX / DisplaySettings.SCALEFACTOR;
-        var rawOffset = touchCurrentX - touchStartX;
+        var rawOffset = touchCurrentX - touchStartX; // pixels moved since grab
         AddTouchPoint(touchCurrentX);
 
-        if ((rawOffset > 0 && currentPageIndex <= -1) || (rawOffset < 0 && currentPageIndex >= Pages.Count - 1))
-            dragOffset = rawOffset * 0.3; // boundary resistance
-        else
-            dragOffset = rawOffset;
+        var viewportWidth = DisplaySettings.Width;
+        var min = -(Pages.Count) * viewportWidth; // right bound (most negative)
+        var max = 0; // left bound
+        var desired = dragStartOffset + rawOffset;
 
-        UpdateFilmstripOffset();
-        _ = SetFilmstripOffset(filmstripOffset, true); // rAF update only, no full render
+        double newOffset;
+        if (desired > max)
+            newOffset = max + (desired - max) * 0.3; // resistance left
+        else if (desired < min)
+            newOffset = min + (desired - min) * 0.3; // resistance right
+        else
+            newOffset = desired;
+
+        dragOffset = rawOffset;
+        _ = SetFilmstripOffset(newOffset, true);
     }
 
     private async void HandleTouchEnd(TouchEventArgs e)
@@ -246,16 +295,20 @@
         isDragging = false;
         var velocity = CalculateVelocity();
         var viewportWidth = DisplaySettings.Width;
-        var halfPage = viewportWidth / 2.0;
         var isFastFlick = Math.Abs(velocity) > 0.8;
-        var shouldChangePage = Math.Abs(dragOffset) > halfPage || isFastFlick;
-        var targetPageIndex = currentPageIndex;
-        if (shouldChangePage)
+
+        // Decide target from current offset so partial positions are respected
+        var finalOffset = filmstripOffset; // already updated via setOffset
+        var position = (-finalOffset / viewportWidth) - 1.0; // -1..N-1 continuous
+        var target = (int)Math.Round(position);
+
+        if (isFastFlick)
         {
-            if (dragOffset < 0 && currentPageIndex < Pages.Count - 1) targetPageIndex++;
-            else if (dragOffset > 0 && currentPageIndex > -1) targetPageIndex--;
+            target += velocity < 0 ? 1 : -1; // left flick -> next page (more negative offset)
         }
-        await AnimateToPage(targetPageIndex);
+
+        target = Math.Clamp(target, -1, Pages.Count - 1);
+        await AnimateToPage(target);
     }
 
     private void AddTouchPoint(double x)
@@ -287,6 +340,7 @@
 
     private void UpdateFilmstripOffset()
     {
+        // Non-drag updates snap to the current page index (e.g., resolution change)
         var viewportWidth = DisplaySettings.Width;
         var baseOffset = -(currentPageIndex + 1) * viewportWidth;
         filmstripOffset = baseOffset + dragOffset;
@@ -309,13 +363,17 @@
 
     // Mouse handlers
     private bool isMouseDown = false;
-    private void HandleMouseDown(MouseEventArgs e)
+    private async Task HandleMouseDown(MouseEventArgs e)
     {
-        if (isAnimating) { _animationCts?.Cancel(); isAnimating = false; }
+        if (isDragging) return;
+        if (isAnimating)
+        {
+            var currentX = await CancelInFlightAnimationAsync();
+            await SetFilmstripOffset(currentX, false);
+        }
         isMouseDown = true; isDragging = true;
         touchStartX = e.ClientX / DisplaySettings.SCALEFACTOR;
-        var viewportWidth = DisplaySettings.Width;
-        currentPageIndex = (int)Math.Round((-filmstripOffset / viewportWidth) - 1);
+        dragStartOffset = filmstripOffset;
         dragOffset = 0;
         touchStartTime = DateTime.Now;
         touchPointCount = 0; AddTouchPoint(touchStartX);
@@ -326,9 +384,22 @@
         touchCurrentX = e.ClientX / DisplaySettings.SCALEFACTOR;
         var rawOffset = touchCurrentX - touchStartX;
         AddTouchPoint(touchCurrentX);
-        if ((rawOffset > 0 && currentPageIndex <= -1) || (rawOffset < 0 && currentPageIndex >= Pages.Count - 1)) dragOffset = rawOffset * 0.3; else dragOffset = rawOffset;
-        UpdateFilmstripOffset();
-        _ = SetFilmstripOffset(filmstripOffset, true);
+
+        var viewportWidth = DisplaySettings.Width;
+        var min = -(Pages.Count) * viewportWidth;
+        var max = 0;
+        var desired = dragStartOffset + rawOffset;
+
+        double newOffset;
+        if (desired > max)
+            newOffset = max + (desired - max) * 0.3;
+        else if (desired < min)
+            newOffset = min + (desired - min) * 0.3;
+        else
+            newOffset = desired;
+
+        dragOffset = rawOffset;
+        _ = SetFilmstripOffset(newOffset, true);
     }
     private async void HandleMouseUp(MouseEventArgs e)
     {
@@ -336,14 +407,15 @@
         isMouseDown = false; isDragging = false;
         var velocity = CalculateVelocity();
         var viewportWidth = DisplaySettings.Width;
-        var halfPage = viewportWidth / 2.0;
         var isFastFlick = Math.Abs(velocity) > 0.8;
-        var shouldChangePage = Math.Abs(dragOffset) > halfPage || isFastFlick;
-        var targetPageIndex = currentPageIndex;
-        if (shouldChangePage)
+        var finalOffset = filmstripOffset;
+        var position = (-finalOffset / viewportWidth) - 1.0;
+        var target = (int)Math.Round(position);
+        if (isFastFlick)
         {
-            if (dragOffset < 0 && currentPageIndex < Pages.Count - 1) targetPageIndex++; else if (dragOffset > 0 && currentPageIndex > -1) targetPageIndex--;
+            target += velocity < 0 ? 1 : -1;
         }
-        await AnimateToPage(targetPageIndex);
+        target = Math.Clamp(target, -1, Pages.Count - 1);
+        await AnimateToPage(target);
     }
 }

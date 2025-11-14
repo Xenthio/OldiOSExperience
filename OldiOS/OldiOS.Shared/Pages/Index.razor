@@ -229,7 +229,7 @@
                 }
             }
 
-            var finalScale = (bestDiff <= snapThreshold) ? bestCandidate : Math.Round(rawScale, 2);
+            var finalScale = (bestDiff <= snapThreshold) ? bestCandidate : Math.Round(rawScale, 3);
 
             // Assign final scale (already capped at 1.0 via rawScale)
             DisplaySettings.SCALEFACTOR = finalScale;
