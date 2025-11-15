@@ -110,11 +110,16 @@
             
             string fillImagePath = $"_content/OldiOS.Shared/images/status/{ThemeFolder}/{fillImage}";
 
+            double fillWidthPercent = 0;
             // Calculate the width of the fill based on the percentage.
             // The fill area of the icon is ~90% of its total width.
-            double fillWidthPercent = (double)BatteryPercentage * 0.72;
-
-            return $"width: {fillWidthPercent.ToString()}%; background-image: url('{fillImagePath}');";
+            if (Style != StatusBarStyle.WhiteOnBlackEtch)
+            {
+                fillWidthPercent = (double)BatteryPercentage * (34f/42f); //* 0.72;
+            } else {
+                fillWidthPercent = (double)BatteryPercentage * (30f/42f); //* 0.72;
+            }
+            return $"width: {fillWidthPercent.ToString()}%; border-image-source: url('{fillImagePath}');";
         }
     }
     
