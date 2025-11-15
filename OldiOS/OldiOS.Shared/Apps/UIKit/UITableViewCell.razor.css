@@ -31,13 +31,13 @@
 .cell-icon img {
     width: 58px;
     height: 58px;
-    border-radius: 12px;
+    border-radius: 6px;
 }
 
 .cell-content {
     flex: 1;
     display: flex;
-    flex-direction: column;
+    flex-grow: 1;
 }
 
 .cell-text {
@@ -45,6 +45,7 @@
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 34px;
     font-weight: bold;
+    flex-grow: 1;
 }
 
 .cell-detail {
