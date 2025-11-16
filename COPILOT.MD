@@ -221,6 +221,32 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### iOS Boot Sequence Loading Screen (November 2025)
+- ✅ **Added iOS-style boot sequence loading screen**
+  - Shows during initial page load while Blazor is initializing
+  - Displays barebones iPhone frame with rounded corners and metallic styling
+  - Shows home button with inset square (matching iPhone 4/5 design)
+  - Features animated Apple logo (CSS-based representation)
+  - Includes rotating loading spinner below logo
+  - Fully responsive design that adapts to different screen sizes
+  - Smooth pulsing animation on Apple logo
+  - Matches iOS boot aesthetic with dark theme and white accents
+  - Applied to both MAUI and Web index.html files
+  
+**Implementation Details:**
+- Boot screen is pure HTML/CSS (no JavaScript required)
+- Device frame: 320x568px base size (iPhone 5 dimensions), responsive scaling
+- Frame styling: Dark gradient background, metallic borders, shadow effects
+- Apple logo: CSS-generated using pseudo-elements (::before and ::after)
+- Loading spinner: CSS border animation rotating continuously
+- Home button: Gradient background with inset square, matching physical design
+- Auto-hides when Blazor finishes loading and mounts the app
+
+**Files Modified:**
+- `OldiOS/OldiOS/wwwroot/index.html` (MAUI)
+- `OldiOS.Shared/wwwroot/index.html` (Web)
+- `OldiOS.Shared/wwwroot/css/app.css` (Boot screen styles)
+
 ### User Feedback Implementation - Complete (November 2025)
 
 **Major Updates in Response to User Feedback:**
