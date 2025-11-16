@@ -67,6 +67,9 @@ namespace OldiOS.Shared.Services
             if (_appStates.TryGetValue(appId, out var appState))
             {
                 appState.ExecutionState = AppExecutionState.NotRunning;
+                // Clear saved state when force quitting
+                appState.SavedStateSnapshot = null;
+                appState.ComponentInstance = null;
                 _appStates.Remove(appId);
                 _recentApps.RemoveAll(s => s.App.Id == appId);
                 OnAppStatesChanged?.Invoke();
@@ -119,6 +122,47 @@ namespace OldiOS.Shared.Services
         {
             appState.ExecutionState = AppExecutionState.Background;
             appState.BackgroundedAt = DateTime.Now;
+            
+            // Save app state if it implements IResumableApp
+            if (appState.ComponentInstance is IResumableApp resumableApp)
+            {
+                try
+                {
+                    appState.SavedStateSnapshot = resumableApp.SaveState();
+                }
+                catch
+                {
+                    // If state save fails, clear the snapshot
+                    appState.SavedStateSnapshot = null;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Attempts to restore app state if it was previously saved.
+        /// Should be called after app component is created but before it's displayed.
+        /// </summary>
+        public void RestoreAppStateIfAvailable(int appId, object componentInstance)
+        {
+            if (_appStates.TryGetValue(appId, out var appState) && 
+                appState.SavedStateSnapshot != null &&
+                componentInstance is IResumableApp resumableApp)
+            {
+                try
+                {
+                    resumableApp.RestoreState(appState.SavedStateSnapshot);
+                }
+                catch
+                {
+                    // If state restore fails, just start fresh
+                }
+            }
+            
+            // Store component instance for future state saves
+            if (_appStates.TryGetValue(appId, out var state))
+            {
+                state.ComponentInstance = componentInstance;
+            }
         }
     }
 }

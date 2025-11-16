@@ -19,7 +19,7 @@
                 {
                     @if (displayedApp.ComponentType != null)
                     {
-                        <DynamicComponent Type="@displayedApp.ComponentType" />
+                        <DynamicComponent Type="@displayedApp.ComponentType" @ref="dynamicComponentRef" />
                     }
                     else
                     {
@@ -51,6 +51,7 @@
     private AppInfo? previousApp = null;
     private AppInfo? displayedApp = null; // The app to display during animations
     private CancellationTokenSource? animationCts = null;
+    private DynamicComponent? dynamicComponentRef = null;
 
     private bool isAppSwitcherVisible = false;
     
@@ -147,6 +148,21 @@
         }
         
         previousApp = CurrentApp;
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // After the component has rendered, try to restore state if available
+        if (displayedApp != null && dynamicComponentRef != null)
+        {
+            var componentInstance = dynamicComponentRef.Instance;
+            if (componentInstance != null)
+            {
+                AppManager.RestoreAppStateIfAvailable(displayedApp.Id, componentInstance);
+            }
+        }
+        
+        await base.OnAfterRenderAsync(firstRender);
     }
     
     public void Dispose()

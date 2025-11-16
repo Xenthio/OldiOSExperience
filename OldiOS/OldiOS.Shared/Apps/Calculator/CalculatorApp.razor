@@ -1,3 +1,6 @@
+@using OldiOS.Shared.Models
+@implements IResumableApp
+
 @* iOS 5 Calculator App *@
 
 <div class="calculator-app">
@@ -48,6 +51,37 @@
     private decimal StoredValue = 0;
     private string CurrentOperation = "";
     private bool NewNumber = true;
+    
+    // IResumableApp implementation
+    public Dictionary<string, object> SaveState()
+    {
+        return new Dictionary<string, object>
+        {
+            { "DisplayValue", DisplayValue },
+            { "CurrentValue", CurrentValue },
+            { "StoredValue", StoredValue },
+            { "CurrentOperation", CurrentOperation },
+            { "NewNumber", NewNumber }
+        };
+    }
+    
+    public void RestoreState(Dictionary<string, object> state)
+    {
+        if (state.TryGetValue("DisplayValue", out var displayValue))
+            DisplayValue = displayValue.ToString() ?? "0";
+        
+        if (state.TryGetValue("CurrentValue", out var currentValue))
+            CurrentValue = Convert.ToDecimal(currentValue);
+        
+        if (state.TryGetValue("StoredValue", out var storedValue))
+            StoredValue = Convert.ToDecimal(storedValue);
+        
+        if (state.TryGetValue("CurrentOperation", out var currentOperation))
+            CurrentOperation = currentOperation.ToString() ?? "";
+        
+        if (state.TryGetValue("NewNumber", out var newNumber))
+            NewNumber = Convert.ToBoolean(newNumber);
+    }
     
     private void HandleNumber(string number)
     {
