@@ -1,0 +1,37 @@
+@using OldiOS.Shared.Apps.UIKit
+
+<div class="settings-about-app">
+    <UINavigationBar Title="About" BackButtonText="General" OnBackClick="@HandleBack" />
+    
+    <div class="navigation-view-content">
+        <UITableView Grouped="true">
+            <UITableViewSection>
+                <UITableViewCell Text="Name" Detail="@deviceName" ShowDisclosure="true" />
+                <UITableViewCell Text="Software Version" Detail="iOS 5.1.1" ShowDisclosure="true" />
+                <UITableViewCell Text="Carrier" Detail="No SIM" />
+                <UITableViewCell Text="Model" Detail="iPhone 4" />
+                <UITableViewCell Text="Serial Number" Detail="DLXK12345678" />
+                <UITableViewCell Text="Wi-Fi Address" Detail="00:00:00:00:00:00" />
+                <UITableViewCell Text="Bluetooth" Detail="00:00:00:00:00:00" IsLast="true" />
+            </UITableViewSection>
+            
+            <UITableViewSection Header="LEGAL">
+                <UITableViewCell Text="Regulatory" ShowDisclosure="true" />
+                <UITableViewCell Text="License" ShowDisclosure="true" />
+                <UITableViewCell Text="Warranty" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    private string deviceName = "iPhone";
+    
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+    
+    private async Task HandleBack()
+    {
+        await OnBack.InvokeAsync();
+    }
+}

@@ -53,6 +53,7 @@
     {
         builder.OpenComponent<GeneralSettings>(0);
         builder.AddAttribute(1, "OnBack", EventCallback.Factory.Create(this, () => navigator.Pop()));
+        builder.AddAttribute(2, "OnNavigate", EventCallback.Factory.Create<RenderFragment>(this, (fragment) => navigator.Push(fragment)));
         builder.CloseComponent();
     };
 }

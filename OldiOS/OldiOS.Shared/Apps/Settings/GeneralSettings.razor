@@ -5,14 +5,42 @@
     
     <div class="navigation-view-content">
         <UITableView Grouped="true">
-            <UITableViewSection Header="ABOUT">
-                <UITableViewCell Text="Name" Detail="@deviceName" ShowDisclosure="true" />
-                <UITableViewCell Text="Software Version" Detail="iOS 5.1.1" ShowDisclosure="true" />
-                <UITableViewCell Text="Carrier" Detail="No SIM" />
-                <UITableViewCell Text="Model" Detail="iPhone 4" />
-                <UITableViewCell Text="Serial Number" Detail="DLXK12345678" IsLast="true" />
+            <UITableViewSection>
+                <UITableViewCell Text="About" ShowDisclosure="true" OnClick="@GoToAbout" />
+                <UITableViewCell Text="Software Update" ShowDisclosure="true" /> 
+                <UITableViewCell Text="Usage" ShowDisclosure="true" IsLast="true" />
             </UITableViewSection>
-            
+
+            <UITableViewSection>
+                <UITableViewCell Text="Siri" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+
+            <UITableViewSection>
+                <UITableViewCell Text="Network" ShowDisclosure="true" />
+                <UITableViewCell Text="Bluetooth" Detail="On" ShowDisclosure="true" />
+                <UITableViewCell Text="iTunes Wi-Fi Sync" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+
+            <UITableViewSection>
+                <UITableViewCell Text="Spotlight Search" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+
+            <UITableViewSection>
+                <UITableViewCell Text="Auto-Lock" Detail="1 Minute" ShowDisclosure="true" />
+                <UITableViewCell Text="Restrictions" Detail="Off" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+
+            <UITableViewSection>
+                <UITableViewCell Text="Date & Time" ShowDisclosure="true" />
+                <UITableViewCell Text="Keyboard" ShowDisclosure="true" /> 
+                <UITableViewCell Text="International" ShowDisclosure="true" /> 
+                <UITableViewCell Text="Accessibility" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+
+            <UITableViewSection>
+                <UITableViewCell Text="Profiles" ShowDisclosure="true" IsLast="true" />
+            </UITableViewSection>
+
             <UITableViewSection Header="ACCESSIBILITY">
                 <UITableViewCell Text="VoiceOver" ShowToggle="true" ToggleValue="@voiceOverEnabled" OnToggleChange="@(v => voiceOverEnabled = v)" />
                 <UITableViewCell Text="Zoom" ShowToggle="true" ToggleValue="@zoomEnabled" OnToggleChange="@(v => zoomEnabled = v)" />
@@ -81,10 +109,25 @@
     [Parameter]
     public EventCallback OnBack { get; set; }
     
+    [Parameter]
+    public EventCallback<RenderFragment> OnNavigate { get; set; }
+    
     private async Task HandleBack()
     {
         await OnBack.InvokeAsync();
     }
+    
+    private async Task GoToAbout()
+    {
+        await OnNavigate.InvokeAsync(RenderAboutSettings());
+    }
+    
+    private RenderFragment RenderAboutSettings() => builder =>
+    {
+        builder.OpenComponent<AboutSettings>(0);
+        builder.AddAttribute(1, "OnBack", EventCallback.Factory.Create(this, async () => await OnBack.InvokeAsync()));
+        builder.CloseComponent();
+    };
     
     private void HandleTextSizeChange(double size)
     {
