@@ -31,5 +31,11 @@ namespace OldiOS.Shared.Models
         
         /// <summary>App-specific state data (for future use)</summary>
         public Dictionary<string, object> StateData { get; set; } = new();
+        
+        /// <summary>Saved state snapshot for resumable apps (null if no state saved)</summary>
+        public Dictionary<string, object>? SavedStateSnapshot { get; set; } = null;
+        
+        /// <summary>Reference to the app component instance (used for state save/restore)</summary>
+        public object? ComponentInstance { get; set; } = null;
     }
 }
