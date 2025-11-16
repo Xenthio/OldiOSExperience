@@ -1,4 +1,6 @@
 @using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@implements IResumableApp
 
 <div class="notes-app">
     <UINavigationBar Title="@noteTitle" 
@@ -49,6 +51,29 @@
     
     [Parameter]
     public EventCallback OnBack { get; set; }
+    
+    // IResumableApp implementation
+    public Dictionary<string, object> SaveState()
+    {
+        return new Dictionary<string, object>
+        {
+            { "NoteTitle", noteTitle },
+            { "NoteContent", noteContent },
+            { "LastModified", lastModified }
+        };
+    }
+    
+    public void RestoreState(Dictionary<string, object> state)
+    {
+        if (state.TryGetValue("NoteTitle", out var title))
+            noteTitle = title.ToString() ?? "New Note";
+        
+        if (state.TryGetValue("NoteContent", out var content))
+            noteContent = content.ToString() ?? "";
+        
+        if (state.TryGetValue("LastModified", out var modified))
+            lastModified = modified.ToString() ?? "November 9, 2013";
+    }
     
     private async Task HandleBack()
     {
