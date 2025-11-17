@@ -4,11 +4,12 @@
     display: flex;
     align-items: center;
     padding: 14px 14px;
-    border-top: 2px solid #FCFCFC;
-    border-bottom: 2px solid #BEBEBE;
-    background-color: #F5F5F5;
+    border-top: 2px solid #FDFDFD;
+    border-bottom: 2px solid #CACACA;
+    background-color: #F7F7F7;
     cursor: pointer;
-    min-height: 88px;
+    min-height: 86px;
+    height: 88px;
     /* transition: background-color 0.1s ease; */
 }
 
@@ -17,7 +18,8 @@
 }
 
 .uitableviewcell:last-child {
-    border-bottom: none;
+    border-bottom: 0px none;
+    height: 86px;
 }
 
 .uitableviewcell:active {
@@ -25,6 +27,7 @@
     background-image: url(images/uikit/UITableSelection@2x.png);
     background-size: 2px 86px;
     background-repeat: repeat-x;
+    border-top: none;
 }
 
 .cell-icon {
