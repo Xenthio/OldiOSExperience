@@ -21,18 +21,24 @@
         <div class="boot-phone-container">
             <div class="boot-screen-viewport">
                 <img src="_content/OldiOS.Shared/images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
+                <div class="loading-bar-container">
+                    <div class="loading-bar"></div>
+                </div>
             </div>
             <div class="boot-home-button">
                 <div class="boot-home-button-square"></div>
             </div>
         </div>
     </div>
-    
+
     <div id="app">
         <div class="boot-wrapper">
             <div class="boot-phone-container">
                 <div class="boot-screen-viewport">
                     <img src="_content/OldiOS.Shared/images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
+                    <div class="loading-bar-container">
+                        <div class="loading-bar"></div>
+                    </div>
                 </div>
                 <div class="boot-home-button">
                     <div class="boot-home-button-square"></div>
@@ -50,7 +56,7 @@
         window.getElementWidth = (element) => {
             return element.getBoundingClientRect().width;
         };
-        
+
         // Hide loading screen when Blazor has initialized
         window.addEventListener('load', () => {
             // Wait for Blazor to fully initialize and render
@@ -64,12 +70,12 @@
                     obs.disconnect();
                 }
             });
-            
+
             observer.observe(document.body, {
                 childList: true,
                 subtree: true
             });
-            
+
             // Fallback: hide after 5 seconds if Blazor hasn't rendered
             setTimeout(() => {
                 const loadingScreen = document.getElementById('blazor-loading-screen');
