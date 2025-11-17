@@ -16,18 +16,19 @@
 </head>
 
 <body>
-    <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)">
-        <div class="boot-wrapper">
-            <div class="boot-phone-container">
-                <div class="boot-screen-viewport">
-                    <img src="_content/OldiOS.Shared/images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
-                </div>
-                <div class="boot-home-button">
-                    <div class="boot-home-button-square"></div>
-                </div>
+    <div id="blazor-loading-screen" class="boot-wrapper">
+        <div class="boot-phone-container">
+            <div class="boot-screen-viewport">
+                <img src="_content/OldiOS.Shared/images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
+            </div>
+            <div class="boot-home-button">
+                <div class="boot-home-button-square"></div>
             </div>
         </div>
-    </Routes>
+    </div>
+    
+    <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
+    
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/OldiOS.Shared/js/app-animations.js"></script>
     <script src="_content/OldiOS.Shared/js/utils.js"></script>
@@ -37,6 +38,14 @@
         window.getElementWidth = (element) => {
             return element.getBoundingClientRect().width;
         };
+        
+        // Hide loading screen when Blazor starts
+        Blazor.start().then(() => {
+            const loadingScreen = document.getElementById('blazor-loading-screen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+        });
     </script>
 </body>
 
