@@ -28,7 +28,7 @@
     overflow-x: auto;
     overflow-y: hidden;
     box-sizing: border-box;
-    background-image: url('/_content/OldiOS.Shared/images/folderswitcher_bg.png');
+    background-image: url('images/folderswitcher_bg.png');
     background-repeat: repeat-x;
     box-shadow:
     /* Top inner shadow for depth */

@@ -983,3 +983,31 @@ This ensures:
 - SpringBoard reverse engineering resources
 - .NET MAUI Blazor Hybrid documentation
 - Blazor WebAssembly documentation
+
+## CSS Image Path Fix (November 2025)
+
+**Date:** November 17, 2025
+
+**Issue:** CSS image paths in scoped Razor component CSS files were being duplicated when bundled, resulting in broken image references:
+- **Problem:** Paths like `url(_content/OldiOS.Shared/images/...)` in source CSS files were being bundled and served from `/_content/OldiOS.Shared/bundle.css`, causing the browser to resolve them as `/_content/OldiOS.Shared/_content/OldiOS.Shared/images/...`
+- **Impact:** All images referenced in CSS (status bar, navigation bar, switches, backgrounds, etc.) were broken in both local and GitHub Pages deployments
+
+**Solution:** Changed all CSS image URLs from `url(_content/OldiOS.Shared/images/...)` to `url(images/...)` 
+- The bundled CSS is served from `/_content/OldiOS.Shared/OldiOS.Shared.bundle.scp.css`
+- Relative paths like `images/...` correctly resolve to `/_content/OldiOS.Shared/images/...`
+- This works for both local development (`https://localhost:5001/`) and GitHub Pages deployment (`https://xenthio.github.io/OldiOSExperience/`)
+
+**Files Modified:**
+- `System/StatusBar.razor.css` - 2 image paths fixed
+- `Apps/UIKit/UINavigationBar.razor.css` - 5 image paths fixed
+- `Apps/UIKit/UISwitch.razor.css` - 3 image paths fixed
+- `Apps/UIKit/UITableView.razor.css` - 1 image path fixed
+- `Apps/UIKit/UITableViewCell.razor.css` - 2 image paths fixed
+- `Pages/Springboard/Components/AppIcon.razor.css` - 2 image paths fixed
+- `Pages/Springboard/Components/AppSwitcher.razor.css` - 1 image path fixed
+- `Pages/Springboard/Components/LockScreen.razor.css` - 5 image paths fixed
+- `Pages/Springboard/Springboard.razor.css` - 3 image paths fixed
+
+**Total:** 24 image path references fixed across 9 CSS files
+
+**Build Status:** ✅ Clean build with 0 errors, 0 warnings (except 1 existing unused field warning in GeneralSettings.razor)

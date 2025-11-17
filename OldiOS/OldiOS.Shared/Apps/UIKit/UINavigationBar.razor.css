@@ -4,7 +4,7 @@
     height: 88px;
     min-height: 88px;
     /*    background: linear-gradient(to bottom, #b0b9c5 0%, #8e98a6 50%, #6d7886 51%, #4e5866 100%);*/
-    background-image: url(_content/OldiOS.Shared/images/uikit/UINavigationBar_bg.png);
+    background-image: url(images/uikit/UINavigationBar_bg.png);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -118,7 +118,7 @@
     gap: 5px;
     border-style: solid;
     border-width: 10px;
-    border-image-source: url(_content/OldiOS.Shared/images/uikit/UINavigationBar_button.png);
+    border-image-source: url(images/uikit/UINavigationBar_button.png);
     border-image-slice: 10 fill;
     border-image-repeat: stretch;
     background-color: transparent;
@@ -136,17 +136,17 @@
 
 .navbar-back-button:active,
 .navbar-button:active {  
-    border-image-source: url(_content/OldiOS.Shared/images/uikit/UINavigationBar_button_pressed.png);
+    border-image-source: url(images/uikit/UINavigationBar_button_pressed.png);
 }
 
 
 .navbar-back-button {
     border-left-width: 29px;
-    border-image-source: url(_content/OldiOS.Shared/images/uikit/UINavigationBar_button_back.png);
+    border-image-source: url(images/uikit/UINavigationBar_button_back.png);
     border-image-slice: 10 10 10 29 fill;
 }
 .navbar-back-button:active {  
-    border-image-source: url(_content/OldiOS.Shared/images/uikit/UINavigationBar_button_back_pressed.png);
+    border-image-source: url(images/uikit/UINavigationBar_button_back_pressed.png);
 }
 
 .back-chevron {
