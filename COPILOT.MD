@@ -221,6 +221,44 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### iOS Boot Sequence Loading Screen (November 2025)
+- ✅ **Added simplified iOS boot loading screen matching Index.razor structure**
+  - Shows during initial page load while Blazor is initializing
+  - Matches the device frame structure from Index.razor (simulation-wrapper, phone-container, screen-viewport, home-button)
+  - Displays static Apple logo image in center (image path: `images/apple-logo.png` for Web, `_content/OldiOS.Shared/images/apple-logo.png` for MAUI)
+  - No animations - clean and simple design
+  - Home button with inset square matching Index.razor styling
+  - Applied to both MAUI and Web index.html files
+  
+- ✅ **Disabled caching in development mode**
+  - Added cache-control headers in Program.cs middleware
+  - Added meta tags to index.html files to prevent browser caching
+  - Fixes hot-reload issues during development
+  - Makes boot screen more visible (no longer loads instantly from cache)
+  
+**Implementation Details:**
+- Boot screen structure mirrors Index.razor for consistency
+- Device frame: 640x960px (iPhone 4 dimensions) matching production layout
+- Apple logo: Static `<img>` tag pointing to `images/apple-logo.png` (user will provide the PNG)
+- Home button: Radial gradient background with inset square, matching Index.razor.css
+- Zero animations per user request - just a static loading screen
+- Auto-hides when Blazor finishes loading and mounts the app
+
+**Caching Disabled:**
+- Development middleware adds `Cache-Control: no-cache, no-store, must-revalidate` headers
+- HTML meta tags prevent browser-level caching
+- Improves hot-reload reliability and makes loading screen visible
+
+**Files Modified:**
+- `OldiOS/OldiOS/wwwroot/index.html` (MAUI) - Boot screen HTML structure + cache meta tags
+- `OldiOS.Shared/wwwroot/index.html` (Web/WebAssembly) - Boot screen HTML structure + cache meta tags
+- `OldiOS.Web/Components/App.razor` (Web) - **Boot screen as standalone div + JavaScript to hide on load** + cache meta tags
+- `OldiOS.Shared/wwwroot/css/app.css` (Boot screen styles matching Index.razor.css)
+- `OldiOS.Web/Program.cs` - Added cache-control middleware for development
+
+**Image Path:**
+- User will place Apple logo PNG at: `OldiOS/OldiOS.Shared/wwwroot/images/apple-logo.png`
+
 ### User Feedback Implementation - Complete (November 2025)
 
 **Major Updates in Response to User Feedback:**

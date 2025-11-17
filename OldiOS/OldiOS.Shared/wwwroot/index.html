@@ -4,6 +4,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
 
     <title>OldiOSExperience</title>
     <base href="/" />
@@ -17,11 +20,16 @@
 
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="boot-wrapper">
+            <div class="boot-phone-container">
+                <div class="boot-screen-viewport">
+                    <img src="images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
+                </div>
+                <div class="boot-home-button">
+                    <div class="boot-home-button-square"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">

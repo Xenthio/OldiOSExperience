@@ -17,6 +17,70 @@ html, body {
     -webkit-touch-callout: none;
 }
 
+/* ========================================
+   iOS Boot Loading Screen
+   Matches Index.razor structure
+   ======================================== */
+
+/* Wrapper to center the phone (matching simulation-wrapper) */
+.boot-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #000;
+}
+
+/* Phone container (matching phone-container) */
+.boot-phone-container {
+    width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+/* Screen viewport (matching screen-viewport) */
+.boot-screen-viewport {
+    width: 640px;
+    height: 960px;
+    background-color: #000;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Apple logo in center */
+.boot-apple-logo {
+    width: 80px;
+    height: 80px;
+}
+
+/* Home button (matching home-button from Index.razor.css) */
+.boot-home-button {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    background: radial-gradient(circle at 30% 30%, #090909, #000000);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.boot-home-button-square {
+    width: 33px;
+    height: 33px;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
 
 h1:focus {
     outline: none;
