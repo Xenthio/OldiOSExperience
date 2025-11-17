@@ -22,7 +22,7 @@
 
 .uitableviewcell:active {
     /* background-color: #d0d3d9; */
-    background-image: url(/_content/OldiOS.Shared/images/uikit/UITableSelection@2x.png);
+    background-image: url(_content/OldiOS.Shared/images/uikit/UITableSelection@2x.png);
     background-size: 2px 86px;
     background-repeat: repeat-x;
 }
@@ -69,7 +69,7 @@
 .cell-accessory.disclosure {
     width: 20px;
     height: 26px;
-    background-image: url(/_content/OldiOS.Shared/images/uikit/UITableNext@2x.png);
+    background-image: url(_content/OldiOS.Shared/images/uikit/UITableNext@2x.png);
 }
 
 .cell-accessory.checkmark {
