@@ -27,11 +27,11 @@ This project is an iOS 5 replica built with Blazor, simulating an iPhone 4. The 
 The project now consists of:
 - **OldiOS/**: .NET MAUI project for native apps (iOS, Android, Windows, macOS)
 - **OldiOS.Shared/**: Shared Razor component library (used by all platforms)
-- **OldiOS.Web/**: ASP.NET Core web server
-- **OldiOS.Web.Client/**: Blazor WebAssembly client
-- **OldiOSExperience/**: Original Blazor WebAssembly project (preserved for reference)
+- **OldiOS.Web/**: Standalone Blazor WebAssembly project (simplified from server+client architecture)
 
 All iOS 5 replica code now lives in **OldiOS.Shared** and is shared across web and native platforms.
+
+**November 2025 Update**: Simplified web architecture from ASP.NET Core server + WebAssembly client to a single standalone Blazor WebAssembly project, matching the original OldiOSExperience structure. This reduces complexity and makes deployment simpler while maintaining all functionality.
 
 ## Architecture
 
@@ -59,14 +59,12 @@ OldiOS/
 │   ├── Layout/                # Layout components (MainLayout)
 │   ├── wwwroot/               # Static assets (CSS, JS, images)
 │   └── Routes.razor           # Blazor routing configuration
-├── OldiOS.Web/                # ASP.NET Core web server
-│   ├── Components/
-│   │   └── App.razor          # Web app root component
-│   └── Program.cs             # Web server configuration
-└── OldiOS.Web.Client/         # Blazor WebAssembly client
-    └── Program.cs             # WebAssembly client DI configuration
-
-OldiOSExperience/              # Original project (preserved for reference)
+└── OldiOS.Web/                # Standalone Blazor WebAssembly project
+    ├── wwwroot/
+    │   └── index.html         # Main HTML page
+    ├── App.razor              # Root component with router
+    ├── Program.cs             # WebAssembly host and DI configuration
+    └── NullHapticService.cs   # Web platform services
 ```
 
 ### Core Services
@@ -220,6 +218,24 @@ The animation system is designed for complex, multi-element animations:
 - All animations use ease-out timing for smooth entrance
 
 ## Recent Improvements (Current Session)
+
+### Web Architecture Simplification (November 2025)
+- ✅ **Consolidated OldiOS.Web and OldiOS.Web.Client into single Blazor WebAssembly project**
+  - Removed unnecessary ASP.NET Core server project (OldiOS.Web)
+  - Removed separate client project (OldiOS.Web.Client)
+  - Created single standalone Blazor WebAssembly project matching original OldiOSExperience structure
+  - Simplified Program.cs to match the old version referenced in issue
+  - No functional changes - same services, same components, same behavior
+  - Easier to understand, deploy, and maintain
+  - Removed from solution: OldiOSExperience reference (no longer needed)
+  
+**Why This Change:**
+The split server/client architecture was more complex than necessary for a WebAssembly-only app. The original OldiOSExperience had a simple standalone Blazor WebAssembly setup, which is more appropriate for this use case. The new structure:
+- Uses `Microsoft.NET.Sdk.BlazorWebAssembly` (not `Microsoft.NET.Sdk.Web`)
+- Single Program.cs with service registrations
+- index.html in wwwroot (not App.razor in Components)
+- Uses `blazor.webassembly.js` (not `blazor.web.js`)
+- Simpler deployment (just static files, no server needed)
 
 ### iOS Boot Sequence Loading Screen (November 2025)
 - ✅ **Added simplified iOS boot loading screen matching Index.razor structure**
@@ -721,15 +737,12 @@ AppSwitcher currently shows app icons instead of preview snapshots. To implement
 
 ## Testing Notes
 
-**Original Project (OldiOSExperience):**
-- Build: `cd OldiOSExperience && dotnet build`
-- Run: `cd OldiOSExperience && dotnet run`
-- Uses .NET 9.0 and Blazor WebAssembly
-
-**New Web App (OldiOS.Web):**
+**Web App (OldiOS.Web):**
 - Build: `cd OldiOS/OldiOS.Web && dotnet build`
 - Run: `cd OldiOS/OldiOS.Web && dotnet run`
 - Navigate to http://localhost:5000 or https://localhost:5001
+- Uses standalone Blazor WebAssembly (no separate server project)
+- Simple Program.cs matching original OldiOSExperience structure
 
 **Shared Library (OldiOS.Shared):**
 - Build: `cd OldiOS/OldiOS.Shared && dotnet build`
