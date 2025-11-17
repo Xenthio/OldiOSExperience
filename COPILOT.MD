@@ -251,7 +251,8 @@ The animation system is designed for complex, multi-element animations:
 
 **Files Modified:**
 - `OldiOS/OldiOS/wwwroot/index.html` (MAUI) - Boot screen HTML structure + cache meta tags
-- `OldiOS.Shared/wwwroot/index.html` (Web) - Boot screen HTML structure + cache meta tags
+- `OldiOS.Shared/wwwroot/index.html` (Web/WebAssembly) - Boot screen HTML structure + cache meta tags
+- `OldiOS.Web/Components/App.razor` (Web) - **Boot screen as Routes loading content** + cache meta tags
 - `OldiOS.Shared/wwwroot/css/app.css` (Boot screen styles matching Index.razor.css)
 - `OldiOS.Web/Program.cs` - Added cache-control middleware for development
 
