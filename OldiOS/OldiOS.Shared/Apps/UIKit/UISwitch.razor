@@ -1,6 +1,6 @@
 @* iOS 5 UISwitch Component - Standalone Toggle Switch *@
 
-<label class="uiswitch @(Disabled ? "disabled" : "")">
+<label class="uiswitch @(Disabled ? "disabled" : "")" style="@SwitchStyle">
     <input type="checkbox" 
            checked="@Value" 
            disabled="@Disabled"
@@ -24,6 +24,11 @@
     [Parameter]
     public EventCallback<bool> OnChange { get; set; }
     
+    [Parameter]
+    public string? OnTrackColor { get; set; }
+
+    private string? SwitchStyle => OnTrackColor is not null ? $"--uiswitch-on-track-color: {OnTrackColor}" : null;
+
     private async Task HandleChange(ChangeEventArgs e)
     {
         if (!Disabled)

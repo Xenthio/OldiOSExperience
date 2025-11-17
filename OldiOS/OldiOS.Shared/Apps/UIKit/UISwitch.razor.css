@@ -54,7 +54,7 @@
     left: 0; /* Positioned for the ON state */
     width: 129px; /* Width of the ON part */
     height: 54px;
-    background: linear-gradient( to right, #007FEA, #007FEA 96%, rgba(0,0,0,0) 100%);
+    background: linear-gradient( to right, var(--uiswitch-on-track-color, #007FEA), var(--uiswitch-on-track-color, #007FEA) 96%, rgba(0,0,0,0) 100%);
     /*    background: #007FEA;*/
     z-index: 0;
     opacity: 0;

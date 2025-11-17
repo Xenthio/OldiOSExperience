@@ -28,7 +28,7 @@
     else if (ShowToggle)
     {
         <div class="cell-toggle">
-            <UISwitch Value="@ToggleValue" OnChange="@HandleToggleChange" />
+            <UISwitch Value="@ToggleValue" OnChange="@HandleToggleChange" OnTrackColor="@ToggleOnTrackColor" />
         </div>
     }
 </div>
@@ -55,6 +55,9 @@
     [Parameter]
     public bool ToggleValue { get; set; } = false;
     
+    [Parameter]
+    public string? ToggleOnTrackColor { get; set; }
+
     [Parameter]
     public EventCallback<bool> OnToggleChange { get; set; }
     
