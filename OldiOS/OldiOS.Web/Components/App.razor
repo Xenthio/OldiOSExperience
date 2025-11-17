@@ -39,12 +39,32 @@
             return element.getBoundingClientRect().width;
         };
         
-        // Hide loading screen when Blazor starts
-        Blazor.start().then(() => {
-            const loadingScreen = document.getElementById('blazor-loading-screen');
-            if (loadingScreen) {
-                loadingScreen.style.display = 'none';
-            }
+        // Hide loading screen when Blazor has initialized
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for Blazor to fully initialize and render
+            const observer = new MutationObserver((mutations, obs) => {
+                // Check if Routes component has rendered content
+                if (document.querySelector('.simulation-wrapper') || document.querySelector('.lock-screen')) {
+                    const loadingScreen = document.getElementById('blazor-loading-screen');
+                    if (loadingScreen) {
+                        loadingScreen.style.display = 'none';
+                    }
+                    obs.disconnect();
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Fallback: hide after 5 seconds if Blazor hasn't rendered
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('blazor-loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+            }, 5000);
         });
     </script>
 </body>
