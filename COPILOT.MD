@@ -12,10 +12,11 @@
 9. [Implementation Details](#implementation-details)
 10. [Known Issues](#known-issues)
 11. [Testing Notes](#testing-notes)
-12. [Contributing Guidelines](#contributing-guidelines)
-13. [Migration to MAUI](#migration-to-maui-blazor-hybrid-and-web-app-november-2025)
-14. [Bug Fixes](#bug-fixes)
-15. [References](#references)
+12. [Deployment](#deployment)
+13. [Contributing Guidelines](#contributing-guidelines)
+14. [Migration to MAUI](#migration-to-maui-blazor-hybrid-and-web-app-november-2025)
+15. [Bug Fixes](#bug-fixes)
+16. [References](#references)
 
 ## Overview
 This project is an iOS 5 replica built with Blazor, simulating an iPhone 4. The architecture is designed to mirror real iOS components and services for authenticity and maintainability.
@@ -218,6 +219,40 @@ The animation system is designed for complex, multi-element animations:
 - All animations use ease-out timing for smooth entrance
 
 ## Recent Improvements (Current Session)
+
+### GitHub Pages Deployment Setup (November 2025)
+- ✅ **Automated GitHub Pages deployment configured**
+  - Created GitHub Actions workflow (`.github/workflows/deploy-gh-pages.yml`)
+  - Automatic deployment on push to main branch
+  - Manual deployment trigger available via workflow_dispatch
+  - Configured as project site at `https://xenthio.github.io/OldiOSExperience/`
+  - Base path automatically updated to `/OldiOSExperience/` for subdirectory deployment
+  - Uses official GitHub Pages actions for deployment
+  - No gh-pages branch needed - uses GitHub Pages artifact upload
+  - Added `.nojekyll` file to prevent Jekyll processing
+  
+**Implementation Details:**
+- Workflow builds the Blazor WebAssembly project in Release mode
+- Uses .NET 9.0 SDK for building
+- Publishes to `./publish` directory and deploys `wwwroot` contents
+- Automatically updates `index.html` base tag from `/` to `/OldiOSExperience/`
+- Compatible with existing user GitHub Pages site (deployed as project site)
+
+**Documentation Created:**
+- `README.md` - Comprehensive project overview with live demo link
+- `GITHUB_PAGES_SETUP.md` - Detailed setup and troubleshooting guide
+- Updated COPILOT.MD with Deployment section
+
+**Setup Required:**
+- User must configure: Settings → Pages → Source: "GitHub Actions"
+- Workflow will automatically deploy on next push to main
+
+**Testing:**
+- ✅ Build process validated locally
+- ✅ Publish step tested successfully
+- ✅ Base path update verified
+- ✅ Output structure confirmed correct
+- ✅ YAML syntax validated
 
 ### Web Architecture Simplification (November 2025)
 - ✅ **Consolidated OldiOS.Web and OldiOS.Web.Client into single Blazor WebAssembly project**
@@ -752,6 +787,37 @@ AppSwitcher currently shows app icons instead of preview snapshots. To implement
 - Requires .NET MAUI workloads: `dotnet workload install maui`
 - Build for specific platform: `dotnet build -f net9.0-android`
 - Note: May not build in CI/CD without platform SDKs
+
+## Deployment
+
+### GitHub Pages Deployment (November 2025)
+
+The web app is automatically deployed to GitHub Pages on every push to the `main` branch.
+
+**Live URL**: https://xenthio.github.io/OldiOSExperience/
+
+**Deployment Process:**
+1. GitHub Actions workflow (`.github/workflows/deploy-gh-pages.yml`) is triggered on push to main
+2. Workflow builds the Blazor WebAssembly project in Release mode
+3. Updates the base path in `index.html` to `/OldiOSExperience/` for subdirectory deployment
+4. Adds `.nojekyll` file to prevent Jekyll processing
+5. Deploys to GitHub Pages using the official `deploy-pages` action
+
+**Configuration:**
+- **Deployment Type**: Project site (not user site)
+- **Base Path**: `/OldiOSExperience/` (configured in workflow)
+- **Branch**: Deployed via GitHub Pages artifact (no gh-pages branch needed)
+- **Source**: GitHub Actions workflow
+
+**Note**: Since the repository owner already has a GitHub Pages user site, this is configured as a project site at `https://<username>.github.io/OldiOSExperience/`.
+
+**Manual Deployment:**
+The workflow can also be triggered manually via the "Actions" tab in GitHub (workflow_dispatch).
+
+**Repository Settings Required:**
+1. Go to repository Settings → Pages
+2. Under "Build and deployment", select "Source: GitHub Actions"
+3. No additional configuration needed - the workflow handles everything
 
 ## Contributing Guidelines
 
