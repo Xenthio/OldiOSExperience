@@ -1,5 +1,8 @@
 @* iOS 5 Safari Browser *@
 @using OldiOS.Shared.Apps.UIKit
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 <div class="safari-app">
     <div class="safari-header">
@@ -8,31 +11,255 @@
                 <input type="text" 
                        class="url-input" 
                        placeholder="Search or enter website name"
-                       value="@CurrentUrl" />
+                       @bind="urlInput"
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown" />
             </div>
-            <button class="refresh-button">↻</button>
+            <button class="refresh-button" @onclick="Reload">↻</button>
         </div>
     </div>
     
     <div class="safari-content">
-        <div class="browser-view">
-            <div class="placeholder-page">
-                <div class="placeholder-icon">🌐</div>
-                <div class="placeholder-text">Safari</div>
-                <div class="placeholder-hint">Enter a URL to browse</div>
+        @if (showPlaceholder)
+        {
+            <div class="browser-view">
+                <div class="placeholder-page">
+                    <div class="placeholder-icon">🌐</div>
+                    <div class="placeholder-text">Safari</div>
+                    <div class="placeholder-hint">Enter a URL or search term to browse the web</div>
+                    <div class="example-sites">
+                        <div class="example-title">Try visiting:</div>
+                        <button class="example-site" @onclick='() => LoadUrl("example.com")'>example.com</button>
+                        <button class="example-site" @onclick='() => LoadUrl("wikipedia.org")'>wikipedia.org</button>
+                        <button class="example-site" @onclick='() => LoadUrl("archive.org")'>archive.org</button>
+                    </div>
+                    <div class="iframe-warning">
+                        ⚠️ Note: Many modern websites prevent loading in embedded frames for security.
+                        Sites may redirect or show error messages.
+                    </div>
+                </div>
             </div>
-        </div>
+        }
+        else if (showError)
+        {
+            <div class="browser-view">
+                <div class="error-page">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-title">Cannot Open Page</div>
+                    <div class="error-message">@errorMessage</div>
+                    <div class="error-details">
+                        This website cannot be displayed in Safari due to security restrictions.
+                        Many sites use X-Frame-Options headers to prevent loading in embedded frames.
+                    </div>
+                    <button class="try-anyway-button" @onclick="() => showError = false">Try Anyway</button>
+                    <button class="go-back-button" @onclick="ShowPlaceholder">Go Back</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="browser-view">
+                @if (isLoading)
+                {
+                    <div class="loading-overlay">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Loading...</div>
+                    </div>
+                }
+                <iframe id="safari-iframe" 
+                        src="@currentUrl" 
+                        class="safari-iframe"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+            </div>
+        }
     </div>
     
     <UIToolbar>
-        <button class="toolbar-button">◄</button>
-        <button class="toolbar-button disabled">►</button>
-        <button class="toolbar-button">📑</button>
-        <button class="toolbar-button">📖</button>
-        <button class="toolbar-button">⋯</button>
+        <button class="toolbar-button" @onclick="NavigateBack" disabled="@(!canGoBack)">◄</button>
+        <button class="toolbar-button" @onclick="NavigateForward" disabled="@(!canGoForward)">►</button>
+        <button class="toolbar-button" @onclick="ShowBookmarks">📑</button>
+        <button class="toolbar-button" @onclick="ShowReadingList">📖</button>
+        <button class="toolbar-button" @onclick="ShowMore">⋯</button>
     </UIToolbar>
 </div>
 
 @code {
-    private string CurrentUrl = "";
+    private string urlInput = "";
+    private string currentUrl = "";
+    private bool showPlaceholder = true;
+    private bool showError = false;
+    private bool isLoading = false;
+    private string errorMessage = "";
+    private bool canGoBack = false;
+    private bool canGoForward = false;
+    private DotNetObjectReference<SafariApp>? dotNetReference;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetReference = DotNetObjectReference.Create(this);
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("safariInterop.setupIframeErrorHandling", "safari-iframe", dotNetReference);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Safari JS setup error: {ex.Message}");
+            }
+        }
+    }
+    
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await LoadUrl(urlInput);
+        }
+    }
+    
+    private async Task LoadUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return;
+            
+        urlInput = url;
+        showError = false;
+        showPlaceholder = false;
+        isLoading = true;
+        
+        // Force a render so the iframe exists before we try to load the URL
+        StateHasChanged();
+        await Task.Delay(100); // Give Blazor time to render the iframe
+        
+        try
+        {
+            var normalizedUrl = await JSRuntime.InvokeAsync<string>("safariInterop.loadUrlInIframe", "safari-iframe", url);
+            if (!string.IsNullOrEmpty(normalizedUrl))
+            {
+                currentUrl = normalizedUrl;
+                urlInput = normalizedUrl;
+            }
+            else
+            {
+                // If we got empty string, iframe probably doesn't exist yet
+                // Just set the currentUrl directly
+                if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                {
+                    if (url.Contains(".") && !url.Contains(" "))
+                    {
+                        currentUrl = "https://" + url;
+                    }
+                    else
+                    {
+                        currentUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
+                    }
+                }
+                else
+                {
+                    currentUrl = url;
+                }
+                urlInput = currentUrl;
+            }
+        }
+        catch (Exception ex)
+        {
+            showError = true;
+            errorMessage = ex.Message;
+            isLoading = false;
+        }
+        
+        StateHasChanged();
+    }
+    
+    [JSInvokable]
+    public void OnIframeLoaded(string url)
+    {
+        isLoading = false;
+        currentUrl = url;
+        urlInput = url;
+        StateHasChanged();
+    }
+    
+    [JSInvokable]
+    public void OnIframeError(string error)
+    {
+        isLoading = false;
+        showError = true;
+        errorMessage = error;
+        StateHasChanged();
+    }
+    
+    private async Task NavigateBack()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Navigate back error: {ex.Message}");
+        }
+    }
+    
+    private async Task NavigateForward()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Navigate forward error: {ex.Message}");
+        }
+    }
+    
+    private async Task Reload()
+    {
+        if (showPlaceholder)
+            return;
+            
+        isLoading = true;
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Reload error: {ex.Message}");
+            isLoading = false;
+        }
+        StateHasChanged();
+    }
+    
+    private void ShowPlaceholder()
+    {
+        showPlaceholder = true;
+        showError = false;
+        currentUrl = "";
+        urlInput = "";
+    }
+    
+    private void ShowBookmarks()
+    {
+        // TODO: Implement bookmarks view
+        Console.WriteLine("Bookmarks clicked");
+    }
+    
+    private void ShowReadingList()
+    {
+        // TODO: Implement reading list
+        Console.WriteLine("Reading list clicked");
+    }
+    
+    private void ShowMore()
+    {
+        // TODO: Implement more options menu
+        Console.WriteLine("More options clicked");
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        dotNetReference?.Dispose();
+    }
 }

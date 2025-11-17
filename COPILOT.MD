@@ -220,6 +220,129 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### Safari Browser Implementation (November 2025)
+
+**Goal:** Make Safari app functional with real web browsing capabilities, working around iframe limitations.
+
+**Status: ✅ COMPLETED**
+
+**Implementation Summary:**
+Successfully implemented a functional Safari browser with the following features:
+
+**✅ Features Implemented:**
+1. **URL Input & Navigation**
+   - Address bar with search/URL input
+   - Auto-detection of URLs vs search queries
+   - Automatic protocol addition (https://)
+   - Search integration (Google search for non-URL queries)
+   
+2. **Browser Controls**
+   - Back/Forward navigation buttons (with disabled states)
+   - Reload button
+   - Bookmarks button (placeholder)
+   - Reading list button (placeholder)
+   - More options button (placeholder)
+
+3. **Loading States**
+   - Welcome/placeholder screen with example sites
+   - Loading spinner during page load
+   - Error page with helpful messaging
+   
+4. **JavaScript Interop**
+   - Custom safari.js for iframe management
+   - URL normalization and validation
+   - Navigation history support
+   - Error handling
+
+5. **User Experience**
+   - Example site buttons (example.com, wikipedia.org, archive.org)
+   - Clear warning about iframe limitations
+   - Professional error messages when sites block embedding
+   - iPhone 4 era aesthetic (iOS 5 style)
+
+**📋 Iframe Limitations (Expected Behavior):**
+Modern web browsers block most websites from loading in iframes due to security headers (X-Frame-Options, CSP). This is a fundamental web security feature and cannot be bypassed in a browser-based Blazor WebAssembly app.
+
+**Sites that typically BLOCK iframe embedding:**
+- Most major websites (Google, Facebook, Twitter, GitHub, etc.)
+- Banking and financial sites
+- E-commerce sites
+- News websites
+- Any site with X-Frame-Options: DENY or SAMEORIGIN headers
+
+**Sites that MAY ALLOW iframe embedding:**
+- Some older websites
+- Educational resources
+- Personal blogs
+- Developer documentation sites
+- Explicitly iframe-friendly services
+
+**🔧 Technical Implementation:**
+
+Files Created/Modified:
+- ✅ `/OldiOS/OldiOS.Shared/wwwroot/js/safari.js` - Safari JavaScript interop
+- ✅ `/OldiOS/OldiOS.Shared/Apps/Safari/SafariApp.razor` - Main Safari component
+- ✅ `/OldiOS/OldiOS.Shared/Apps/Safari/SafariApp.razor.css` - Safari styling
+- ✅ `/OldiOS/OldiOS.Web/wwwroot/index.html` - Added safari.js script reference
+- ✅ `/OldiOS/OldiOS/wwwroot/index.html` - Added safari.js script reference (MAUI)
+
+**Safari JavaScript API:**
+```javascript
+safariInterop.loadUrlInIframe(iframeId, url)        // Load URL in iframe
+safariInterop.navigateBack(iframeId)                 // Navigate back
+safariInterop.navigateForward(iframeId)              // Navigate forward
+safariInterop.reload(iframeId)                       // Reload page
+safariInterop.getCurrentUrl(iframeId)                // Get current URL
+safariInterop.setupIframeErrorHandling(...)          // Setup error callbacks
+```
+
+**iPhone 4 User Agent Reference:**
+```
+Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3
+```
+*Note: Modern browsers don't allow changing user agent via JavaScript. This would require browser extensions or dev tools.*
+
+**🎯 Alternative Solutions for Native Apps:**
+
+For the MAUI native app version, Safari can use the platform's native WebView control which does NOT have iframe restrictions:
+- iOS: WKWebView
+- Android: WebView
+- Windows: WebView2
+- macOS: WKWebView
+
+Native WebViews can load any website without X-Frame-Options restrictions and support custom user agents.
+
+**💡 Recommendations for Users:**
+
+1. **For Web Version (GitHub Pages):**
+   - Safari will work with iframe-friendly sites
+   - Most modern sites will be blocked (expected behavior)
+   - Use for demonstration and testing with compatible sites
+
+2. **For MAUI Native Apps:**
+   - Implement platform-specific WebView wrapper
+   - Full website compatibility
+   - Custom user agent support
+   - Better performance
+
+**🧪 Testing Results:**
+- ✅ Safari app opens successfully
+- ✅ URL input works correctly
+- ✅ Example site buttons functional
+- ✅ Loading states display properly
+- ✅ Error handling works when sites block embedding
+- ✅ Navigation buttons respond to state
+- ✅ Reload button functional
+- ✅ iOS 5 styling accurate
+- ✅ Builds with zero errors
+
+**Screenshots:**
+- Lock screen: [Screenshot 1](https://github.com/user-attachments/assets/6bc8c9ae-0b11-4c28-95ae-5ded3893e185)
+- Safari placeholder: [Screenshot 2](https://github.com/user-attachments/assets/814baf60-2ad5-49cd-a41e-a9fa6a60135e)
+- Safari loading: [Screenshot 3](https://github.com/user-attachments/assets/97c4e20a-905a-41d6-8696-f48be3c7b39f)
+
+## Recent Improvements (Current Session - Previous)
+
 ### GitHub Pages CSS Path Fix (November 2025)
 - ✅ **Fixed CSS and Razor image paths for GitHub Pages deployment**
   - **Issue**: CSS files and Razor components used absolute paths starting with `/` (e.g., `url(/_content/OldiOS.Shared/images/wallpaper.png)`)
