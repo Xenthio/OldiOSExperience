@@ -230,6 +230,12 @@ The animation system is designed for complex, multi-element animations:
   - Home button with inset square matching Index.razor styling
   - Applied to both MAUI and Web index.html files
   
+- ✅ **Disabled caching in development mode**
+  - Added cache-control headers in Program.cs middleware
+  - Added meta tags to index.html files to prevent browser caching
+  - Fixes hot-reload issues during development
+  - Makes boot screen more visible (no longer loads instantly from cache)
+  
 **Implementation Details:**
 - Boot screen structure mirrors Index.razor for consistency
 - Device frame: 640x960px (iPhone 4 dimensions) matching production layout
@@ -238,10 +244,16 @@ The animation system is designed for complex, multi-element animations:
 - Zero animations per user request - just a static loading screen
 - Auto-hides when Blazor finishes loading and mounts the app
 
+**Caching Disabled:**
+- Development middleware adds `Cache-Control: no-cache, no-store, must-revalidate` headers
+- HTML meta tags prevent browser-level caching
+- Improves hot-reload reliability and makes loading screen visible
+
 **Files Modified:**
-- `OldiOS/OldiOS/wwwroot/index.html` (MAUI) - Boot screen HTML structure
-- `OldiOS.Shared/wwwroot/index.html` (Web) - Boot screen HTML structure  
+- `OldiOS/OldiOS/wwwroot/index.html` (MAUI) - Boot screen HTML structure + cache meta tags
+- `OldiOS.Shared/wwwroot/index.html` (Web) - Boot screen HTML structure + cache meta tags
 - `OldiOS.Shared/wwwroot/css/app.css` (Boot screen styles matching Index.razor.css)
+- `OldiOS.Web/Program.cs` - Added cache-control middleware for development
 
 **Image Path:**
 - User will place Apple logo PNG at: `OldiOS/OldiOS.Shared/wwwroot/images/apple-logo.png`
