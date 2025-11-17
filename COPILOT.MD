@@ -220,6 +220,21 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### GitHub Pages CSS Path Fix (November 2025)
+- ✅ **Fixed CSS and Razor image paths for GitHub Pages deployment**
+  - **Issue**: CSS files and Razor components used absolute paths starting with `/` (e.g., `url(/_content/OldiOS.Shared/images/wallpaper.png)`)
+  - **Problem**: When deployed to GitHub Pages at `https://xenthio.github.io/OldiOSExperience/`, absolute paths resolved to the domain root instead of including the base path
+  - **Solution**: Converted all image paths from absolute to relative by removing the leading `/`
+  - **Result**: Paths now correctly resolve relative to the `<base href>` tag, which is set to `/OldiOSExperience/` by the deployment workflow
+  
+**Files Updated (33 paths fixed):**
+- 8 CSS files: StatusBar.razor.css, UISwitch.razor.css, UITableViewCell.razor.css, UITableView.razor.css, UINavigationBar.razor.css, Springboard.razor.css, LockScreen.razor.css, AppIcon.razor.css
+- 1 Razor file: SettingsApp.razor (20 icon paths)
+
+**Path Resolution:**
+- Before: `url(/_content/OldiOS.Shared/images/wallpaper.png)` → `https://xenthio.github.io/_content/...` ❌
+- After: `url(_content/OldiOS.Shared/images/wallpaper.png)` → `https://xenthio.github.io/OldiOSExperience/_content/...` ✅
+
 ### GitHub Pages Deployment Setup (November 2025)
 - ✅ **Automated GitHub Pages deployment configured**
   - Created GitHub Actions workflow (`.github/workflows/deploy-gh-pages.yml`)
