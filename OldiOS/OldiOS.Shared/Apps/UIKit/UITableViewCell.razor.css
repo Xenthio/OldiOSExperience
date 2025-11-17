@@ -4,17 +4,17 @@
     display: flex;
     align-items: center;
     padding: 14px 14px;
-    border-top: 2px solid #FDFDFD;
+    /*    border-top: 2px solid #FDFDFD;*/
+    box-shadow: #FDFDFD 0px 2px inset; /* use box-shadow instead of border top to avoid the inner content movement when we need to remove it on active*/
     border-bottom: 2px solid #CACACA;
     background-color: #F7F7F7;
-    cursor: pointer;
     min-height: 86px;
     height: 88px;
     /* transition: background-color 0.1s ease; */
 }
 
 .uitableviewcell:first-child {
-    border-top: none;
+    box-shadow: none;
 }
 
 .uitableviewcell:last-child {
@@ -22,12 +22,15 @@
     height: 86px;
 }
 
-.uitableviewcell:active {
+.uitableviewcell.selectable {
+    cursor: pointer;
+}
+.uitableviewcell.selectable:active {
     /* background-color: #d0d3d9; */
     background-image: url(images/uikit/UITableSelection@2x.png);
     background-size: 2px 86px;
-    background-repeat: repeat-x;
-    border-top: none;
+    background-repeat: repeat-x; 
+    box-shadow: none;
 }
 
 .cell-icon {
@@ -53,7 +56,7 @@
     font-weight: bold;
     flex-grow: 1;
 }
-.uitableviewcell:active .cell-text {
+.uitableviewcell.selectable:active .cell-text {
         color: white;
 }
 

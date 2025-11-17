@@ -1,7 +1,7 @@
 @* iOS 5 UITableViewCell Component *@
 @using OldiOS.Shared.Apps.UIKit
 
-<div class="uitableviewcell @(IsLast ? "last" : "")" @onclick="OnClick">
+<div class="uitableviewcell @(IsLast ? "last" : "") @(IsSelectable ? "selectable" : "")" @onclick="OnClick">
     @if (!string.IsNullOrEmpty(Icon))
     {
         <div class="cell-icon">
@@ -63,6 +63,8 @@
     
     [Parameter]
     public bool IsLast { get; set; } = false;
+
+    public bool IsSelectable => ShowDisclosure;
     
     private async Task HandleToggleChange(bool newValue)
     {
