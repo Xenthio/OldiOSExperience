@@ -225,7 +225,7 @@ The animation system is designed for complex, multi-element animations:
   - Created GitHub Actions workflow (`.github/workflows/deploy-gh-pages.yml`)
   - Automatic deployment on push to main branch
   - Manual deployment trigger available via workflow_dispatch
-  - Configured as project site at `https://<username>.github.io/OldiOSExperience/`
+  - Configured as project site at `https://xenthio.github.io/OldiOSExperience/`
   - Base path automatically updated to `/OldiOSExperience/` for subdirectory deployment
   - Uses official GitHub Pages actions for deployment
   - No gh-pages branch needed - uses GitHub Pages artifact upload
@@ -237,6 +237,22 @@ The animation system is designed for complex, multi-element animations:
 - Publishes to `./publish` directory and deploys `wwwroot` contents
 - Automatically updates `index.html` base tag from `/` to `/OldiOSExperience/`
 - Compatible with existing user GitHub Pages site (deployed as project site)
+
+**Documentation Created:**
+- `README.md` - Comprehensive project overview with live demo link
+- `GITHUB_PAGES_SETUP.md` - Detailed setup and troubleshooting guide
+- Updated COPILOT.MD with Deployment section
+
+**Setup Required:**
+- User must configure: Settings → Pages → Source: "GitHub Actions"
+- Workflow will automatically deploy on next push to main
+
+**Testing:**
+- ✅ Build process validated locally
+- ✅ Publish step tested successfully
+- ✅ Base path update verified
+- ✅ Output structure confirmed correct
+- ✅ YAML syntax validated
 
 ### Web Architecture Simplification (November 2025)
 - ✅ **Consolidated OldiOS.Web and OldiOS.Web.Client into single Blazor WebAssembly project**
