@@ -18,7 +18,7 @@
         top: 0;
         bottom: 0;
         z-index: 1;
-        background-image: url(_content/OldiOS.Shared/images/uikit/UISwitch_shape_shadow.png); 
+        background-image: url(images/uikit/UISwitch_shape_shadow.png); 
         mix-blend-mode:normal;
     }
 
@@ -85,11 +85,11 @@
     left: -2px;
     top: 0px;
     transition: .3s; 
-    background-image: url(_content/OldiOS.Shared/images/uikit/UISwitch_thumb.png);
+    background-image: url(images/uikit/UISwitch_thumb.png);
     z-index: 10;
 }
     .slider-knob:active {
-        background-image: url(_content/OldiOS.Shared/images/uikit/UISwitch_thumb_pressed.png);
+        background-image: url(images/uikit/UISwitch_thumb_pressed.png);
     }
 
 input:checked + .switch-slider {

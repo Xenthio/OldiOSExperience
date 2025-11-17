@@ -14,7 +14,7 @@
     font-weight: bold;
     border-style: solid;
     border-width: 4px;
-    border-image-source: url(_content/OldiOS.Shared/images/status/translucent_base.png);
+    border-image-source: url(images/status/translucent_base.png);
     border-image-slice: 4 fill;
     border-image-repeat: stretch;
 }
@@ -40,7 +40,7 @@
 
 /* Coloured style - for apps */
 .status-bar-coloured {
-    border-image-source: url(_content/OldiOS.Shared/images/status/silver_base.png);
+    border-image-source: url(images/status/silver_base.png);
     background-color: #000000;
     color: black;
     text-shadow: 0 1px 0 rgba(255,255,255,0.8), 0 2px 0 rgba(255,255,255,0.4);
