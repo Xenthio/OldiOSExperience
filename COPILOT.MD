@@ -222,30 +222,29 @@ The animation system is designed for complex, multi-element animations:
 ## Recent Improvements (Current Session)
 
 ### iOS Boot Sequence Loading Screen (November 2025)
-- ✅ **Added iOS-style boot sequence loading screen**
+- ✅ **Added simplified iOS boot loading screen matching Index.razor structure**
   - Shows during initial page load while Blazor is initializing
-  - Displays barebones iPhone frame with rounded corners and metallic styling
-  - Shows home button with inset square (matching iPhone 4/5 design)
-  - Features animated Apple logo (CSS-based representation)
-  - Includes rotating loading spinner below logo
-  - Fully responsive design that adapts to different screen sizes
-  - Smooth pulsing animation on Apple logo
-  - Matches iOS boot aesthetic with dark theme and white accents
+  - Matches the device frame structure from Index.razor (simulation-wrapper, phone-container, screen-viewport, home-button)
+  - Displays static Apple logo image in center (image path: `images/apple-logo.png` for Web, `_content/OldiOS.Shared/images/apple-logo.png` for MAUI)
+  - No animations - clean and simple design
+  - Home button with inset square matching Index.razor styling
   - Applied to both MAUI and Web index.html files
   
 **Implementation Details:**
-- Boot screen is pure HTML/CSS (no JavaScript required)
-- Device frame: 320x568px base size (iPhone 5 dimensions), responsive scaling
-- Frame styling: Dark gradient background, metallic borders, shadow effects
-- Apple logo: CSS-generated using pseudo-elements (::before and ::after)
-- Loading spinner: CSS border animation rotating continuously
-- Home button: Gradient background with inset square, matching physical design
+- Boot screen structure mirrors Index.razor for consistency
+- Device frame: 640x960px (iPhone 4 dimensions) matching production layout
+- Apple logo: Static `<img>` tag pointing to `images/apple-logo.png` (user will provide the PNG)
+- Home button: Radial gradient background with inset square, matching Index.razor.css
+- Zero animations per user request - just a static loading screen
 - Auto-hides when Blazor finishes loading and mounts the app
 
 **Files Modified:**
-- `OldiOS/OldiOS/wwwroot/index.html` (MAUI)
-- `OldiOS.Shared/wwwroot/index.html` (Web)
-- `OldiOS.Shared/wwwroot/css/app.css` (Boot screen styles)
+- `OldiOS/OldiOS/wwwroot/index.html` (MAUI) - Boot screen HTML structure
+- `OldiOS.Shared/wwwroot/index.html` (Web) - Boot screen HTML structure  
+- `OldiOS.Shared/wwwroot/css/app.css` (Boot screen styles matching Index.razor.css)
+
+**Image Path:**
+- User will place Apple logo PNG at: `OldiOS/OldiOS.Shared/wwwroot/images/apple-logo.png`
 
 ### User Feedback Implementation - Complete (November 2025)
 
