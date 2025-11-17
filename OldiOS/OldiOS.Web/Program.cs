@@ -1,43 +1,25 @@
-using OldiOS.Web.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using OldiOS.Shared.Services;
+using OldiOS.Web;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-	.AddInteractiveWebAssemblyComponents();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-var app = builder.Build();
+// Register iOS system services
+builder.Services.AddSingleton<DisplaySettings>();
+builder.Services.AddSingleton<AnimationService>();
+builder.Services.AddSingleton<BackgroundAppManager>();
+builder.Services.AddSingleton<SpringboardService>();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	app.UseWebAssemblyDebugging();
-	
-	// Disable caching in development to fix hot-reload issues
-	app.Use(async (context, next) =>
-	{
-		context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-		context.Response.Headers["Pragma"] = "no-cache";
-		context.Response.Headers["Expires"] = "0";
-		await next();
-	});
-}
-else
-{
-	app.UseExceptionHandler("/Error", createScopeForErrors: true);
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
-}
+// Register null native battery service for web (uses JavaScript API instead)
+builder.Services.AddSingleton<INativeBatteryService, NullNativeBatteryService>();
+builder.Services.AddSingleton<BatteryService>();
 
-app.UseHttpsRedirection();
+// Register null haptic service for web
+builder.Services.AddSingleton<IHapticService, NullHapticService>();
 
-app.UseStaticFiles();
-app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-	.AddInteractiveWebAssemblyRenderMode()
-	.AddAdditionalAssemblies(
-		typeof(OldiOS.Shared._Imports).Assembly,
-		typeof(OldiOS.Web.Client._Imports).Assembly);
-
-app.Run();
+await builder.Build().RunAsync();

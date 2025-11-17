@@ -1,6 +1,6 @@
 using OldiOS.Shared.Services;
 
-namespace OldiOS.Web.Client.Services
+namespace OldiOS.Web
 {
     /// <summary>
     /// Null implementation of native battery service for web platforms.

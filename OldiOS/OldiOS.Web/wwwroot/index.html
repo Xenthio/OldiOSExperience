@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -7,12 +7,13 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <title>OldiOS Experience</title>
     <base href="/" />
+    <link rel="preload" id="webassembly" />
     <link rel="stylesheet" href="_content/OldiOS.Shared/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="_content/OldiOS.Shared/css/app.css" />
-    <link rel="stylesheet" href="OldiOS.Web.styles.css" />
+    <link href="OldiOS.Web.styles.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="_content/OldiOS.Shared/favicon.png" />
-    <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
 
 <body>
@@ -20,16 +21,33 @@
         <div class="boot-phone-container">
             <div class="boot-screen-viewport">
                 <img src="_content/OldiOS.Shared/images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
+                <div class="loading-bar-container">
+                    <div class="loading-bar"></div>
+                </div>
             </div>
             <div class="boot-home-button">
                 <div class="boot-home-button-square"></div>
             </div>
         </div>
     </div>
-    
-    <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
-    
-    <script src="_framework/blazor.web.js"></script>
+
+    <div id="app">
+        <div class="boot-wrapper">
+            <div class="boot-phone-container">
+                <div class="boot-screen-viewport">
+                    <img src="_content/OldiOS.Shared/images/apple-logo.png" alt="Apple" class="boot-apple-logo" />
+                    <div class="loading-bar-container">
+                        <div class="loading-bar"></div>
+                    </div>
+                </div>
+                <div class="boot-home-button">
+                    <div class="boot-home-button-square"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/OldiOS.Shared/js/app-animations.js"></script>
     <script src="_content/OldiOS.Shared/js/utils.js"></script>
     <script src="_content/OldiOS.Shared/js/battery.js"></script>
@@ -38,12 +56,12 @@
         window.getElementWidth = (element) => {
             return element.getBoundingClientRect().width;
         };
-        
+
         // Hide loading screen when Blazor has initialized
-        document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('load', () => {
             // Wait for Blazor to fully initialize and render
             const observer = new MutationObserver((mutations, obs) => {
-                // Check if Routes component has rendered content
+                // Check if app component has rendered content
                 if (document.querySelector('.simulation-wrapper') || document.querySelector('.lock-screen')) {
                     const loadingScreen = document.getElementById('blazor-loading-screen');
                     if (loadingScreen) {
@@ -52,12 +70,12 @@
                     obs.disconnect();
                 }
             });
-            
+
             observer.observe(document.body, {
                 childList: true,
                 subtree: true
             });
-            
+
             // Fallback: hide after 5 seconds if Blazor hasn't rendered
             setTimeout(() => {
                 const loadingScreen = document.getElementById('blazor-loading-screen');

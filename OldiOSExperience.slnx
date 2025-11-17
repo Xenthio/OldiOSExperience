@@ -1,9 +1,7 @@
 <Solution>
   <Project Path="OldiOS/OldiOS.Shared/OldiOS.Shared.csproj" Id="bcaa7b12-ca95-40be-b77d-fa1808e9bc6e" />
-  <Project Path="OldiOS/OldiOS.Web.Client/OldiOS.Web.Client.csproj" Id="3eb24b2c-13e0-467c-bdfe-e77d9651cdf7" />
   <Project Path="OldiOS/OldiOS.Web/OldiOS.Web.csproj" Id="0038fbd8-0341-4725-9b43-75119d0537fe" />
   <Project Path="OldiOS/OldiOS/OldiOS.csproj" Id="9ddb11cd-5789-4f4c-b662-f9119e8d67cb">
     <Deploy Solution="Debug|*" />
   </Project>
-  <Project Path="OldiOSExperience/OldiOSExperience.csproj" />
 </Solution>
