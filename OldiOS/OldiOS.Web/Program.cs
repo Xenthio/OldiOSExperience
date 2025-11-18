@@ -15,6 +15,9 @@ builder.Services.AddSingleton<AnimationService>();
 builder.Services.AddSingleton<BackgroundAppManager>();
 builder.Services.AddSingleton<SpringboardService>();
 
+// Register Safari WebView service (no-op for web)
+builder.Services.AddSingleton<OldiOS.Services.ISafariWebViewService, OldiOS.Services.SafariWebViewService>();
+
 // Register null native battery service for web (uses JavaScript API instead)
 builder.Services.AddSingleton<INativeBatteryService, NullNativeBatteryService>();
 builder.Services.AddSingleton<BatteryService>();

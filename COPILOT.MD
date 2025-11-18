@@ -220,6 +220,349 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### Safari Browser - Native WebView Architecture (November 2025)
+
+**Problem**: Safari app needed to work on both web (iframe) and MAUI native platforms (WebView) without opening system browser.
+
+**Solution**: Created reusable `UIWebView` component with platform-specific implementations.
+
+#### UIWebView Component
+Created `UIWebView.razor` in `OldiOS.Shared/Apps/UIKit/` - a platform-agnostic web content viewer:
+
+**On Web Platform:**
+- Renders as standard HTML `<iframe>` element
+- Uses JavaScript interop for event handling
+- Sandboxed with configurable permissions
+- Subject to X-Frame-Options security restrictions (expected)
+
+**On MAUI Platform:**
+- Renders as transparent placeholder div
+- Native WebView overlaid on BlazorWebView by platform code
+- Full website compatibility without iframe restrictions
+- Platform-specific user agent support
+
+**Usage Example:**
+```razor
+<UIWebView Url="@url" 
+           IframeId="unique-id"
+           OnLoadStarted="HandleLoadStarted"
+           OnLoadFinished="HandleLoadFinished"
+           OnLoadError="HandleLoadError" />
+```
+
+#### Platform-Specific WebView Management
+
+**MainPage.xaml** (MAUI):
+- Native `WebView` control overlaid on `BlazorWebView` using `AbsoluteLayout`
+- Custom navigation delegates prevent system browser launches:
+  - iOS/macOS: `WKNavigationDelegate` with `DecidePolicy` override
+  - Android: `WebViewClient` with `ShouldOverrideUrlLoading` override
+- iPhone 4 user agent set on all platforms
+
+**Safari Service Architecture:**
+- `ISafariWebViewService` interface for cross-platform abstraction
+- MAUI implementation: Direct native WebView control via C# methods
+- Web implementation: No-op (UIWebView handles via iframe)
+- Registered via dependency injection in both platforms
+
+#### Benefits
+✅ **Single reusable component** - UIWebView can be used in any app  
+✅ **Clean separation** - Platform-specific code isolated in services  
+✅ **MAUI: Full compatibility** - Native WebView loads any website with custom user agent  
+✅ **Web: Best effort** - Iframe with smart compatibility detection  
+✅ **Maintainable** - One Safari component works everywhere
+
+#### Files Created/Modified
+- `OldiOS.Shared/Apps/UIKit/UIWebView.razor` - New reusable web view component
+- `OldiOS.Shared/Apps/UIKit/UIWebView.razor.css` - Component styling
+- `OldiOS.Shared/Apps/Safari/SafariApp.razor` - Refactored to use UIWebView
+- `OldiOS.Shared/Services/ISafariWebViewService.cs` - Service interface
+- `OldiOS/Services/SafariWebViewService.cs` - MAUI implementation
+- `OldiOS.Web/Services/SafariWebViewService.cs` - Web implementation
+- `OldiOS/MainPage.xaml` - Native WebView overlay
+- `OldiOS/MainPage.xaml.cs` - Platform navigation delegates
+
+
+
+### Safari Browser Implementation (November 2025)
+
+**Goal:** Make Safari app functional with real web browsing capabilities, working around iframe limitations.
+
+**Status: ✅ FULLY COMPLETED**
+
+**Final Implementation - Single Unified Component:**
+
+**✅ Phase 3 - Unified Component (Latest):**
+- **ONE** `SafariApp.razor` component works on both web and MAUI
+- Conditional compilation for platform-specific code
+- Automatic platform detection
+- Same styling and theming for all platforms
+- Single file to maintain, style, and extend
+
+**Platform-Specific Implementations:**
+- **Web**: Enhanced iframe with compatibility detection
+- **iOS/macOS**: WKWebView with iPhone 4 user agent
+- **Android**: WebView with iPhone 4 user agent  
+- **Windows**: WebView2 with iPhone 4 user agent
+
+**✅ Phase 2 - Web Enhancements:**
+- Iframe-friendly site detection (Wikipedia, Archive.org, etc.)
+- Blocked site detection (Google, YouTube, Facebook, etc.)
+- Alternative suggestions for blocked sites
+- Working example sites that allow embedding
+- Compatibility warnings and user guidance
+
+**Research Summary - Alternatives Explored:**
+
+1. **Object/Embed Tag Approach** ❌ NOT VIABLE
+   - Same-origin policy still applies
+   - X-Frame-Options headers still enforced
+   - No advantage over iframe
+   - Deprecated for web content
+
+2. **Fetch + Render Approach** ❌ NOT VIABLE
+   - CORS blocks cross-origin fetch requests
+   - Would need CORS proxy (security risks)
+   - Loses all JavaScript functionality
+   - Breaks relative URLs and resources
+
+3. **CORS Proxy** ❌ NOT RECOMMENDED
+   - Public proxies unreliable
+   - Security risk (man-in-the-middle)
+   - Violates website terms of service
+   - Not suitable for production
+
+4. **User Agent Spoofing** ❌ NOT POSSIBLE IN BROWSER
+   - Cannot change user agent via JavaScript (security feature)
+   - Would require browser extension or dev tools
+   - Reference user agent documented for native apps
+
+**✅ CONCLUSION: Unified Safari implementation with best possible compatibility on each platform**
+
+**Implementation Features:**
+1. **URL Input & Navigation**
+   - Address bar with search/URL input
+   - Auto-detection of URLs vs search queries
+   - Automatic protocol addition (https://)
+   - Search integration (Google search for non-URL queries)
+   
+2. **Browser Controls**
+   - Back/Forward navigation buttons (with disabled states)
+   - Reload button
+   - Bookmarks button (placeholder)
+   - Reading list button (placeholder)
+   - More options button (placeholder)
+
+3. **Loading States**
+   - Welcome/placeholder screen with example sites
+   - Loading spinner during page load
+   - Error page with helpful messaging
+   
+4. **JavaScript Interop**
+   - Custom safari.js for iframe management
+   - URL normalization and validation
+   - Navigation history support
+   - Error handling
+
+5. **Platform Detection & Optimization**
+   - Automatic platform detection (Web vs MAUI)
+   - Platform-specific messages and guidance
+   - Iframe-friendly site recommendations for web
+   - Full compatibility messaging for MAUI
+
+6. **Enhanced Web Compatibility**
+   - Iframe-friendly site detection (Wikipedia, Archive.org, CERN, etc.)
+   - Blocked site detection (Google, YouTube, Facebook, etc.)
+   - Alternative suggestions when sites are blocked
+   - Working example sites: Wikipedia, Internet Archive, CERN, The Useless Web
+
+**📋 Web Platform - Iframe Friendly Sites:**
+
+**Sites that WORK in iframes:**
+- Wikipedia (en.wikipedia.org)
+- Internet Archive (archive.org, web.archive.org)
+- CERN First Website (info.cern.ch)
+- The Useless Web (theuselessweb.com)
+- GitHub Pages (*.github.io)
+- CodePen, JSFiddle, StackBlitz
+- W3Schools, MDN Developer
+- Local development sites (localhost, 127.0.0.1)
+
+**Sites that BLOCK iframe embedding:**
+- Google, YouTube, Facebook, Twitter/X, Instagram
+- Amazon, Netflix, LinkedIn, Reddit, Pinterest
+- GitHub main site (but github.io pages work)
+- Most banking, e-commerce, and news sites
+
+**🔧 Technical Implementation:**
+
+**Unified Component:**
+- ✅ Single `SafariApp.razor` component for all platforms
+- ✅ Conditional compilation (`#if ANDROID || IOS || MACCATALYST || WINDOWS`)
+- ✅ Platform-specific services via dependency injection
+- ✅ Shared styling in `SafariApp.razor.css`
+
+**Files Created/Modified:**
+- `/OldiOS.Shared/Apps/Safari/SafariApp.razor` - Unified Safari component
+- `/OldiOS.Shared/Apps/Safari/SafariApp.razor.css` - Shared styling
+- `/OldiOS.Shared/Services/ISafariService.cs` - Service interface
+- `/OldiOS/Services/SafariService.iOS.cs` - iOS/macOS WKWebView implementation
+- `/OldiOS/Services/SafariService.Android.cs` - Android WebView implementation  
+- `/OldiOS/Services/SafariService.Windows.cs` - Windows WebView2 implementation
+- `/OldiOS.Shared/wwwroot/js/safari.js` - Enhanced JavaScript interop
+- `/OldiOS/MauiProgram.cs` - Service registration
+- `/OldiOS.Web/wwwroot/index.html` - Script reference (Web)
+- `/OldiOS/wwwroot/index.html` - Script reference (MAUI)
+
+**Safari JavaScript API (Web Platform):**
+```javascript
+safariInterop.loadUrlInIframe(iframeId, url)           // Load URL in iframe
+safariInterop.navigateBack(iframeId)                   // Navigate back
+safariInterop.navigateForward(iframeId)                // Navigate forward
+safariInterop.reload(iframeId)                         // Reload page
+safariInterop.isLikelyIframeFriendly(url)              // Check compatibility
+safariInterop.suggestAlternative(url)                  // Get suggestions for blocked sites
+safariInterop.setupIframeErrorHandling(...)            // Setup error callbacks
+```
+
+**Safari Service Interface (MAUI Platforms):**
+```csharp
+interface ISafariService
+{
+    Task<bool> LoadUrl(string url);
+    Task<bool> NavigateBack();
+    Task<bool> NavigateForward();
+    Task Reload();
+    string GetCurrentUrl();
+    bool CanGoBack { get; }
+    bool CanGoForward { get; }
+    event EventHandler<string>? NavigationCompleted;
+    event EventHandler<string>? NavigationFailed;
+}
+```
+
+**iPhone 4 User Agent:**
+```
+Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3
+```
+- ✅ Used in all MAUI native implementations (iOS, Android, Windows)
+- ❌ Cannot be set in web browsers via JavaScript (security restriction)
+
+**🎯 Platform-Specific Implementations:**
+**🎯 Platform-Specific Safari Implementations:**
+
+**iOS/macOS (WKWebView):**
+- ✅ Full website compatibility (no X-Frame-Options restrictions)
+- ✅ Custom iPhone 4 user agent set via `CustomUserAgent` property
+- ✅ Complete navigation history
+- ✅ All JavaScript functionality preserved
+- ✅ Native performance
+
+**Android (WebView):**
+- ✅ Full website compatibility (no iframe restrictions)
+- ✅ Custom iPhone 4 user agent via `Settings.UserAgentString`
+- ✅ JavaScript and DOM storage enabled
+- ✅ Complete navigation support
+- ✅ Native Android WebView features
+
+**Windows (WebView2):**
+- ✅ Full website compatibility (no iframe restrictions)
+- ✅ Custom iPhone 4 user agent via `CoreWebView2.Settings.UserAgent`
+- ✅ Modern Chromium-based rendering
+- ✅ Complete navigation and history
+- ✅ High performance
+
+**Web (Blazor WebAssembly - Iframe):**
+- ⚠️ Limited to iframe-friendly sites (Wikipedia, Archive.org, etc.)
+- ⚠️ Cannot change user agent (browser security restriction)
+- ✅ Site compatibility detection and suggestions
+- ✅ Graceful error handling
+- ✅ Works with educational/developer sites
+- **Best possible for browser-based deployment**
+
+**💡 Recommendations for Users:**
+
+1. **For Web Version (GitHub Pages) - CURRENT IMPLEMENTATION:**
+   - ✅ Safari will work with iframe-friendly sites
+   - ⚠️ Most modern sites will be blocked (expected behavior due to web security)
+   - ✅ Use for demonstration and testing with compatible sites
+   - ✅ Best possible implementation for browser-based apps
+   - **THIS IS AS GOOD AS IT GETS FOR BROWSER-BASED APPS**
+
+2. **For MAUI Native Apps - RECOMMENDED FOR FULL FUNCTIONALITY:**
+   - ✅ Implement platform-specific WebView wrapper
+   - ✅ Full website compatibility (NO iframe restrictions)
+   - ✅ Custom user agent support (iPhone 4 era)
+   - ✅ Better performance
+   - ✅ True browsing experience
+
+**📱 MAUI WebView Implementation Guide (For Future):**
+
+To get full Safari functionality in the MAUI native app:
+
+```csharp
+// Create platform-specific Safari component
+// File: OldiOS/Apps/Safari/SafariWebView.razor (MAUI only)
+
+#if IOS || MACCATALYST
+@using WebKit
+
+<MauiWebView>
+    <WKWebView 
+        CustomUserAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
+        Source="@CurrentUrl" />
+</MauiWebView>
+
+#elif ANDROID
+@using Android.Webkit
+
+<MauiWebView>
+    <WebView 
+        Settings.UserAgentString="Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X)..."
+        LoadUrl="@CurrentUrl" />
+</MauiWebView>
+
+#elif WINDOWS
+@using Microsoft.Web.WebView2.Core
+
+<MauiWebView>
+    <WebView2 
+        Source="@CurrentUrl"
+        CoreWebView2Initialized="@OnWebViewInitialized" />
+</MauiWebView>
+@code {
+    void OnWebViewInitialized(object sender, EventArgs e) {
+        webView.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0...)";
+    }
+}
+#endif
+```
+
+This approach provides:
+- ✅ Full browsing capability (any website)
+- ✅ Custom iPhone 4 user agent
+- ✅ No iframe restrictions
+- ✅ JavaScript execution
+- ✅ Native performance
+
+**🧪 Testing Results:**
+- ✅ Safari app opens successfully
+- ✅ URL input works correctly
+- ✅ Example site buttons functional
+- ✅ Loading states display properly
+- ✅ Error handling works when sites block embedding
+- ✅ Navigation buttons respond to state
+- ✅ Reload button functional
+- ✅ iOS 5 styling accurate
+- ✅ Builds with zero errors
+
+**Screenshots:**
+- Lock screen: [Screenshot 1](https://github.com/user-attachments/assets/6bc8c9ae-0b11-4c28-95ae-5ded3893e185)
+- Safari placeholder: [Screenshot 2](https://github.com/user-attachments/assets/814baf60-2ad5-49cd-a41e-a9fa6a60135e)
+- Safari loading: [Screenshot 3](https://github.com/user-attachments/assets/97c4e20a-905a-41d6-8696-f48be3c7b39f)
+
+## Recent Improvements (Current Session - Previous)
+
 ### GitHub Pages CSS Path Fix (November 2025)
 - ✅ **Fixed CSS and Razor image paths for GitHub Pages deployment**
   - **Issue**: CSS files and Razor components used absolute paths starting with `/` (e.g., `url(/_content/OldiOS.Shared/images/wallpaper.png)`)

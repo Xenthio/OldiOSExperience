@@ -1,0 +1,142 @@
+@* UIWebView - Platform-agnostic web content viewer *@
+@* On web: renders as iframe *@
+@* On MAUI: renders as transparent placeholder (native WebView is overlaid by platform code) *@
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div class="uiwebview-container" style="width: 100%; height: 100%; position: relative;">
+    @if (IsMauiPlatform)
+    {
+        @* MAUI: Native WebView is managed by platform-specific code (MainPage) *@
+        @* This div acts as a transparent placeholder that receives pointer events *@
+        @* The native WebView is overlaid on top of the BlazorWebView *@
+        <div class="native-webview-placeholder" 
+             style="width: 100%; height: 100%; background: transparent; position: absolute; top: 0; left: 0; pointer-events: none;">
+        </div>
+    }
+    else
+    {
+        @* Web: Use standard iframe *@
+        <iframe id="@IframeId" 
+                src="@Url" 
+                class="uiwebview-iframe @CssClass"
+                sandbox="@GetSandboxAttribute()"
+                style="width: 100%; height: 100%; border: none; display: block;"
+                @ref="iframeElement"></iframe>
+    }
+</div>
+
+@code {
+    private ElementReference iframeElement;
+    private DotNetObjectReference<UIWebView>? dotNetReference;
+    
+    /// <summary>
+    /// The URL to load in the web view
+    /// </summary>
+    [Parameter]
+    public string Url { get; set; } = "about:blank";
+    
+    /// <summary>
+    /// Unique identifier for the iframe element (web platform only)
+    /// </summary>
+    [Parameter]
+    public string IframeId { get; set; } = $"uiwebview-{Guid.NewGuid():N}";
+    
+    /// <summary>
+    /// Additional CSS classes to apply to the iframe
+    /// </summary>
+    [Parameter]
+    public string CssClass { get; set; } = "";
+    
+    /// <summary>
+    /// Event fired when the WebView starts loading
+    /// </summary>
+    [Parameter]
+    public EventCallback OnLoadStarted { get; set; }
+    
+    /// <summary>
+    /// Event fired when the WebView finishes loading
+    /// </summary>
+    [Parameter]
+    public EventCallback OnLoadFinished { get; set; }
+    
+    /// <summary>
+    /// Event fired when the WebView encounters an error
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnLoadError { get; set; }
+    
+    /// <summary>
+    /// Custom sandbox permissions for iframe (web platform only)
+    /// Default: allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox
+    /// </summary>
+    [Parameter]
+    public string? SandboxPermissions { get; set; }
+
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+    private bool IsMauiPlatform => true;
+#else
+    private bool IsMauiPlatform => false;
+#endif
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !IsMauiPlatform)
+        {
+            // Setup iframe event handling for web platform
+            dotNetReference = DotNetObjectReference.Create(this);
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("safariInterop.setupIframeErrorHandling", IframeId, dotNetReference);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UIWebView JS setup error: {ex.Message}");
+            }
+        }
+    }
+    
+    private string GetSandboxAttribute()
+    {
+        if (!string.IsNullOrEmpty(SandboxPermissions))
+        {
+            return SandboxPermissions;
+        }
+        
+        // Default sandbox permissions
+        return "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox";
+    }
+    
+    /// <summary>
+    /// Called from JavaScript when iframe load starts
+    /// </summary>
+    [JSInvokable]
+    public async Task OnIframeLoadStart()
+    {
+        await OnLoadStarted.InvokeAsync();
+    }
+    
+    /// <summary>
+    /// Called from JavaScript when iframe load completes
+    /// </summary>
+    [JSInvokable]
+    public async Task OnIframeLoadComplete()
+    {
+        await OnLoadFinished.InvokeAsync();
+    }
+    
+    /// <summary>
+    /// Called from JavaScript when iframe encounters an error
+    /// </summary>
+    [JSInvokable]
+    public async Task OnIframeError(string error)
+    {
+        await OnLoadError.InvokeAsync(error);
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        dotNetReference?.Dispose();
+    }
+}

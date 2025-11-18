@@ -1,0 +1,13 @@
+.uiwebview-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.uiwebview-iframe {
+    background: white;
+}
+
+.native-webview-placeholder {
+    /* Transparent placeholder for MAUI native WebView */
+    /* The actual WebView is rendered by platform-specific code */
+}

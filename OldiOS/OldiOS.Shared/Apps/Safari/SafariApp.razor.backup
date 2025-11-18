@@ -1,9 +1,7 @@
 @* iOS 5 Safari Browser - Works on both Web and MAUI *@
 @using OldiOS.Shared.Apps.UIKit
 @using Microsoft.JSInterop
-@using OldiOS.Services
 @inject IJSRuntime JSRuntime
-@inject ISafariWebViewService SafariWebViewService
 @implements IAsyncDisposable
 
 <div class="safari-app">
@@ -86,13 +84,11 @@
                     </div>
                 }
                 
-                @* UIWebView: Platform-agnostic component that renders iframe on web, native WebView on MAUI *@
-                <UIWebView Url="@currentUrl" 
-                           IframeId="safari-iframe"
-                           CssClass="safari-iframe"
-                           OnLoadStarted="OnWebViewLoadStarted"
-                           OnLoadFinished="OnWebViewLoadFinished"
-                           OnLoadError="OnWebViewLoadError" />
+                @* Use iframe on all platforms - we're already in a WebView in MAUI *@
+                <iframe id="safari-iframe" 
+                        src="@currentUrl" 
+                        class="safari-iframe"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation"></iframe>
             </div>
         }
     </div>
@@ -127,7 +123,7 @@
     {
         if (firstRender)
         {
-            // Setup iframe interop for all platforms (web and MAUI)
+            // Setup iframe interop for all platforms
             dotNetReference = DotNetObjectReference.Create(this);
             try
             {
@@ -139,6 +135,25 @@
             }
         }
     }
+    
+    private void OnMauiNavigationCompleted(object? sender, string url)
+    {
+        isLoading = false;
+        currentUrl = url;
+        urlInput = url;
+        canGoBack = safariService?.CanGoBack ?? false;
+        canGoForward = safariService?.CanGoForward ?? false;
+        StateHasChanged();
+    }
+    
+    private void OnMauiNavigationFailed(object? sender, string error)
+    {
+        isLoading = false;
+        showError = true;
+        errorMessage = error;
+        StateHasChanged();
+    }
+#endif
     
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
@@ -158,83 +173,61 @@
         showPlaceholder = false;
         isLoading = true;
         
-        StateHasChanged();
-        await Task.Delay(100); // Give Blazor time to render
-        
-        // Normalize URL first
-        string normalizedUrl = url;
-        if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        // MAUI platform - use native WebView
+        if (safariService != null)
         {
-            if (url.Contains(".") && !url.Contains(" "))
+            var success = await safariService.LoadUrl(url);
+            if (!success)
             {
-                normalizedUrl = "https://" + url;
-            }
-            else
-            {
-                normalizedUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
+                isLoading = false;
+                showError = true;
+                errorMessage = "Failed to load URL";
             }
         }
+        StateHasChanged();
+#else
+        // Web platform - use iframe with compatibility check
+        StateHasChanged();
+        await Task.Delay(100); // Give Blazor time to render the iframe
         
         try
         {
-#if ANDROID || IOS || MACCATALYST || WINDOWS
-            if (IsMauiPlatform)
+            // Check if site is likely to be blocked
+            var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
+            var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
+            
+            if (!string.IsNullOrEmpty(suggestion))
             {
-                // MAUI: Use service to control native WebView
+                Console.WriteLine($"Safari compatibility warning: {suggestion}");
+            }
+            
+            var normalizedUrl = await JSRuntime.InvokeAsync<string>("safariInterop.loadUrlInIframe", "safari-iframe", url);
+            if (!string.IsNullOrEmpty(normalizedUrl))
+            {
                 currentUrl = normalizedUrl;
                 urlInput = normalizedUrl;
-                SafariWebViewService.NavigateToUrl(normalizedUrl);
-                SafariWebViewService.Show();
-                
-                // Clear loading state after a delay (native will handle the actual loading)
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(2000);
-                    isLoading = false;
-                    await InvokeAsync(StateHasChanged);
-                });
             }
             else
-#endif
             {
-                // Web: Use iframe with compatibility check
-                try
+                // If we got empty string, iframe probably doesn't exist yet
+                // Just set the currentUrl directly
+                if (!url.StartsWith("http://") && !url.StartsWith("https://"))
                 {
-                    var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
-                    var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
-                    
-                    if (!string.IsNullOrEmpty(suggestion))
+                    if (url.Contains(".") && !url.Contains(" "))
                     {
-                        Console.WriteLine($"Safari compatibility warning: {suggestion}");
+                        currentUrl = "https://" + url;
+                    }
+                    else
+                    {
+                        currentUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
                     }
                 }
-                catch (Exception jsEx)
+                else
                 {
-                    Console.WriteLine($"Safari JS compatibility check error: {jsEx.Message}");
+                    currentUrl = url;
                 }
-                
-                currentUrl = normalizedUrl;
-                urlInput = normalizedUrl;
-                
-                try
-                {
-                    await JSRuntime.InvokeVoidAsync("safariInterop.loadUrlInIframe", "safari-iframe", normalizedUrl);
-                }
-                catch (Exception jsEx)
-                {
-                    Console.WriteLine($"Safari JS loadUrlInIframe error: {jsEx.Message}");
-                }
-                
-                // Set a timeout to clear the loading state if iframe doesn't load
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(5000);
-                    if (isLoading)
-                    {
-                        isLoading = false;
-                        await InvokeAsync(StateHasChanged);
-                    }
-                });
+                urlInput = currentUrl;
             }
         }
         catch (Exception ex)
@@ -245,6 +238,7 @@
         }
         
         StateHasChanged();
+#endif
     }
     
     [JSInvokable]
@@ -265,69 +259,48 @@
         StateHasChanged();
     }
     
-    // UIWebView event handlers
-    private Task OnWebViewLoadStarted()
-    {
-        // Optional: Handle load started
-        return Task.CompletedTask;
-    }
-    
-    private Task OnWebViewLoadFinished()
-    {
-        isLoading = false;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-    
-    private Task OnWebViewLoadError(string error)
-    {
-        isLoading = false;
-        showError = true;
-        errorMessage = error;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-    
     private async Task NavigateBack()
     {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.NavigateBack();
+            canGoBack = safariService.CanGoBack;
+            canGoForward = safariService.CanGoForward;
+            StateHasChanged();
+        }
+#else
         try
         {
-#if ANDROID || IOS || MACCATALYST || WINDOWS
-            if (IsMauiPlatform)
-            {
-                SafariWebViewService.GoBack();
-            }
-            else
-#endif
-            {
-                await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
-            }
+            await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Navigate back error: {ex.Message}");
         }
+#endif
     }
     
     private async Task NavigateForward()
     {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.NavigateForward();
+            canGoBack = safariService.CanGoBack;
+            canGoForward = safariService.CanGoForward;
+            StateHasChanged();
+        }
+#else
         try
         {
-#if ANDROID || IOS || MACCATALYST || WINDOWS
-            if (IsMauiPlatform)
-            {
-                SafariWebViewService.GoForward();
-            }
-            else
-#endif
-            {
-                await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
-            }
+            await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Navigate forward error: {ex.Message}");
         }
+#endif
     }
     
     private async Task Reload()
@@ -337,24 +310,22 @@
             
         isLoading = true;
         
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.Reload();
+        }
+#else
         try
         {
-#if ANDROID || IOS || MACCATALYST || WINDOWS
-            if (IsMauiPlatform)
-            {
-                SafariWebViewService.Reload();
-            }
-            else
-#endif
-            {
-                await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
-            }
+            await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Reload error: {ex.Message}");
             isLoading = false;
         }
+#endif
         StateHasChanged();
     }
     
@@ -364,13 +335,6 @@
         showError = false;
         currentUrl = "";
         urlInput = "";
-        
-#if ANDROID || IOS || MACCATALYST || WINDOWS
-        if (IsMauiPlatform)
-        {
-            SafariWebViewService.Hide();
-        }
-#endif
     }
     
     private void ShowBookmarks()
@@ -394,6 +358,14 @@
     public async ValueTask DisposeAsync()
     {
         dotNetReference?.Dispose();
+        
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            safariService.NavigationCompleted -= OnMauiNavigationCompleted;
+            safariService.NavigationFailed -= OnMauiNavigationFailed;
+        }
+#endif
         await Task.CompletedTask;
     }
 }
