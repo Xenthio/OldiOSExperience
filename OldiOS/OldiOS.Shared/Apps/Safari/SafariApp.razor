@@ -86,19 +86,13 @@
                     </div>
                 }
                 
-                @if (IsMauiPlatform)
-                {
-                    @* MAUI: Native WebView is overlaid by MainPage, just show transparent area *@
-                    <div class="native-webview-placeholder" style="width: 100%; height: 100%;"></div>
-                }
-                else
-                {
-                    @* Web: Use iframe *@
-                    <iframe id="safari-iframe" 
-                            src="@currentUrl" 
-                            class="safari-iframe"
-                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
-                }
+                @* UIWebView: Platform-agnostic component that renders iframe on web, native WebView on MAUI *@
+                <UIWebView Url="@currentUrl" 
+                           IframeId="safari-iframe"
+                           CssClass="safari-iframe"
+                           OnLoadStarted="OnWebViewLoadStarted"
+                           OnLoadFinished="OnWebViewLoadFinished"
+                           OnLoadError="OnWebViewLoadError" />
             </div>
         }
     </div>
@@ -260,6 +254,29 @@
         showError = true;
         errorMessage = error;
         StateHasChanged();
+    }
+    
+    // UIWebView event handlers
+    private Task OnWebViewLoadStarted()
+    {
+        // Optional: Handle load started
+        return Task.CompletedTask;
+    }
+    
+    private Task OnWebViewLoadFinished()
+    {
+        isLoading = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+    
+    private Task OnWebViewLoadError(string error)
+    {
+        isLoading = false;
+        showError = true;
+        errorMessage = error;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
     
     private async Task NavigateBack()

@@ -220,6 +220,70 @@ The animation system is designed for complex, multi-element animations:
 
 ## Recent Improvements (Current Session)
 
+### Safari Browser - Native WebView Architecture (November 2025)
+
+**Problem**: Safari app needed to work on both web (iframe) and MAUI native platforms (WebView) without opening system browser.
+
+**Solution**: Created reusable `UIWebView` component with platform-specific implementations.
+
+#### UIWebView Component
+Created `UIWebView.razor` in `OldiOS.Shared/Apps/UIKit/` - a platform-agnostic web content viewer:
+
+**On Web Platform:**
+- Renders as standard HTML `<iframe>` element
+- Uses JavaScript interop for event handling
+- Sandboxed with configurable permissions
+- Subject to X-Frame-Options security restrictions (expected)
+
+**On MAUI Platform:**
+- Renders as transparent placeholder div
+- Native WebView overlaid on BlazorWebView by platform code
+- Full website compatibility without iframe restrictions
+- Platform-specific user agent support
+
+**Usage Example:**
+```razor
+<UIWebView Url="@url" 
+           IframeId="unique-id"
+           OnLoadStarted="HandleLoadStarted"
+           OnLoadFinished="HandleLoadFinished"
+           OnLoadError="HandleLoadError" />
+```
+
+#### Platform-Specific WebView Management
+
+**MainPage.xaml** (MAUI):
+- Native `WebView` control overlaid on `BlazorWebView` using `AbsoluteLayout`
+- Custom navigation delegates prevent system browser launches:
+  - iOS/macOS: `WKNavigationDelegate` with `DecidePolicy` override
+  - Android: `WebViewClient` with `ShouldOverrideUrlLoading` override
+- iPhone 4 user agent set on all platforms
+
+**Safari Service Architecture:**
+- `ISafariWebViewService` interface for cross-platform abstraction
+- MAUI implementation: Direct native WebView control via C# methods
+- Web implementation: No-op (UIWebView handles via iframe)
+- Registered via dependency injection in both platforms
+
+#### Benefits
+✅ **Single reusable component** - UIWebView can be used in any app  
+✅ **Clean separation** - Platform-specific code isolated in services  
+✅ **MAUI: Full compatibility** - Native WebView loads any website with custom user agent  
+✅ **Web: Best effort** - Iframe with smart compatibility detection  
+✅ **Maintainable** - One Safari component works everywhere
+
+#### Files Created/Modified
+- `OldiOS.Shared/Apps/UIKit/UIWebView.razor` - New reusable web view component
+- `OldiOS.Shared/Apps/UIKit/UIWebView.razor.css` - Component styling
+- `OldiOS.Shared/Apps/Safari/SafariApp.razor` - Refactored to use UIWebView
+- `OldiOS.Shared/Services/ISafariWebViewService.cs` - Service interface
+- `OldiOS/Services/SafariWebViewService.cs` - MAUI implementation
+- `OldiOS.Web/Services/SafariWebViewService.cs` - Web implementation
+- `OldiOS/MainPage.xaml` - Native WebView overlay
+- `OldiOS/MainPage.xaml.cs` - Platform navigation delegates
+
+
+
 ### Safari Browser Implementation (November 2025)
 
 **Goal:** Make Safari app functional with real web browsing capabilities, working around iframe limitations.
