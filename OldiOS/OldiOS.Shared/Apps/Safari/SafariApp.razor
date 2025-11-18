@@ -84,11 +84,11 @@
                     </div>
                 }
                 
-                @* Use iframe on all platforms - MAUI version has fewer restrictions *@
+                @* Use iframe on all platforms - same sandbox restrictions everywhere *@
                 <iframe id="safari-iframe" 
                         src="@currentUrl" 
                         class="safari-iframe"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox @(IsMauiPlatform ? "allow-top-navigation" : "")"></iframe>
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
             </div>
         }
     </div>
