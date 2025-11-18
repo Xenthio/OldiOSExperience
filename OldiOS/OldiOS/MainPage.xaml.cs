@@ -13,6 +13,9 @@ namespace OldiOS
 			// Setup Safari WebView
 			SetupSafariWebView();
 			
+			// Setup BlazorWebView to prevent external navigation
+			blazorWebView.UrlLoading += OnBlazorUrlLoading;
+			
 			// Register as the Safari WebView controller
 			if (Application.Current?.Handler?.MauiContext?.Services != null)
 			{
@@ -21,6 +24,17 @@ namespace OldiOS
 				{
 					service.SetWebView(safariWebView);
 				}
+			}
+		}
+		
+		private void OnBlazorUrlLoading(object? sender, UrlLoadingEventArgs e)
+		{
+			// Only allow loading of the Blazor app itself
+			// Block all external URLs from the BlazorWebView to prevent opening system browser
+			if (e.Url.Host != "0.0.0.0" && e.Url.Host != "localhost")
+			{
+				Console.WriteLine($"Blocking external URL from BlazorWebView: {e.Url}");
+				e.UrlLoadingStrategy = UrlLoadingStrategy.CancelLoad;
 			}
 		}
 		
@@ -33,6 +47,9 @@ namespace OldiOS
 				if (safariWebView.Handler?.PlatformView is WebKit.WKWebView wv)
 				{
 					wv.CustomUserAgent = iPhone4UserAgent;
+					
+					// IMPORTANT: Create a custom navigation delegate to handle all navigation in-app
+					wv.NavigationDelegate = new SafariNavigationDelegate();
 				}
 			};
 #elif ANDROID
@@ -44,6 +61,9 @@ namespace OldiOS
 					wv.Settings.JavaScriptEnabled = true;
 					wv.Settings.DomStorageEnabled = true;
 					wv.Settings.UserAgentString = iPhone4UserAgent;
+					
+					// IMPORTANT: Set WebViewClient to prevent external browser launches
+					wv.SetWebViewClient(new SafariWebViewClient());
 				}
 			};
 #endif
@@ -56,6 +76,14 @@ namespace OldiOS
 		private void OnSafariNavigating(object? sender, WebNavigatingEventArgs e)
 		{
 			Console.WriteLine($"Safari navigating to: {e.Url}");
+			
+			// CRITICAL: Cancel navigation if it's trying to open externally
+			// Keep all navigation within the WebView
+			if (e.NavigationEvent == WebNavigationEvent.NewPage)
+			{
+				// Allow navigation within the WebView
+				e.Cancel = false;
+			}
 		}
 		
 		private void OnSafariNavigated(object? sender, WebNavigatedEventArgs e)
@@ -70,4 +98,30 @@ namespace OldiOS
 			}
 		}
 	}
+
+#if IOS || MACCATALYST
+	// Custom navigation delegate for iOS to keep all navigation in-app
+	internal class SafariNavigationDelegate : WebKit.WKNavigationDelegate
+	{
+		public override void DecidePolicy(WebKit.WKWebView webView, WebKit.WKNavigationAction navigationAction, Action<WebKit.WKNavigationActionPolicy> decisionHandler)
+		{
+			// Allow all navigation within the WebView (don't open external Safari)
+			decisionHandler(WebKit.WKNavigationActionPolicy.Allow);
+		}
+	}
+#elif ANDROID
+	// Custom WebViewClient for Android to keep all navigation in-app
+	internal class SafariWebViewClient : Android.Webkit.WebViewClient
+	{
+		public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView? view, Android.Webkit.IWebResourceRequest? request)
+		{
+			// Return false to let WebView handle the URL (don't open external browser)
+			if (view != null && request?.Url != null)
+			{
+				view.LoadUrl(request.Url.ToString());
+			}
+			return true; // We handled it
+		}
+	}
+#endif
 }
