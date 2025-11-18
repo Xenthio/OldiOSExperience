@@ -14,9 +14,10 @@ namespace OldiOS
 		
 		private void OnUrlLoading(object? sender, UrlLoadingEventArgs e)
 		{
+			Console.WriteLine(e.Url.Host);
 			// Only allow navigation within the app's own domain
 			// Block all external URLs from opening in system browser
-			if (e.Url.Host != "0.0.0.0" && e.Url.Host != "localhost")
+			if (e.Url.Host != "0.0.0.0" && e.Url.Host != "localhost" && e.Url.Host != "0.0.0.1" )
 			{
 				// Cancel external navigation - keep it in the iframe
 				e.UrlLoadingStrategy = UrlLoadingStrategy.CancelLoad;
