@@ -84,11 +84,11 @@
                     </div>
                 }
                 
-                @* Use iframe on all platforms - MAUI version has fewer restrictions *@
+                @* Use iframe on all platforms - we're already in a WebView in MAUI *@
                 <iframe id="safari-iframe" 
                         src="@currentUrl" 
                         class="safari-iframe"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox @(IsMauiPlatform ? "allow-top-navigation" : "")"></iframe>
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation"></iframe>
             </div>
         }
     </div>
@@ -123,7 +123,7 @@
     {
         if (firstRender)
         {
-            // Setup iframe interop for all platforms (web and MAUI)
+            // Setup iframe interop for all platforms
             dotNetReference = DotNetObjectReference.Create(this);
             try
             {
@@ -135,6 +135,25 @@
             }
         }
     }
+    
+    private void OnMauiNavigationCompleted(object? sender, string url)
+    {
+        isLoading = false;
+        currentUrl = url;
+        urlInput = url;
+        canGoBack = safariService?.CanGoBack ?? false;
+        canGoForward = safariService?.CanGoForward ?? false;
+        StateHasChanged();
+    }
+    
+    private void OnMauiNavigationFailed(object? sender, string error)
+    {
+        isLoading = false;
+        showError = true;
+        errorMessage = error;
+        StateHasChanged();
+    }
+#endif
     
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
@@ -154,7 +173,21 @@
         showPlaceholder = false;
         isLoading = true;
         
-        // Use iframe for all platforms (web and MAUI)
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        // MAUI platform - use native WebView
+        if (safariService != null)
+        {
+            var success = await safariService.LoadUrl(url);
+            if (!success)
+            {
+                isLoading = false;
+                showError = true;
+                errorMessage = "Failed to load URL";
+            }
+        }
+        StateHasChanged();
+#else
+        // Web platform - use iframe with compatibility check
         StateHasChanged();
         await Task.Delay(100); // Give Blazor time to render the iframe
         
@@ -205,6 +238,7 @@
         }
         
         StateHasChanged();
+#endif
     }
     
     [JSInvokable]
@@ -227,6 +261,15 @@
     
     private async Task NavigateBack()
     {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.NavigateBack();
+            canGoBack = safariService.CanGoBack;
+            canGoForward = safariService.CanGoForward;
+            StateHasChanged();
+        }
+#else
         try
         {
             await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
@@ -235,10 +278,20 @@
         {
             Console.WriteLine($"Navigate back error: {ex.Message}");
         }
+#endif
     }
     
     private async Task NavigateForward()
     {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.NavigateForward();
+            canGoBack = safariService.CanGoBack;
+            canGoForward = safariService.CanGoForward;
+            StateHasChanged();
+        }
+#else
         try
         {
             await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
@@ -247,6 +300,7 @@
         {
             Console.WriteLine($"Navigate forward error: {ex.Message}");
         }
+#endif
     }
     
     private async Task Reload()
@@ -256,6 +310,12 @@
             
         isLoading = true;
         
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.Reload();
+        }
+#else
         try
         {
             await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
@@ -265,6 +325,7 @@
             Console.WriteLine($"Reload error: {ex.Message}");
             isLoading = false;
         }
+#endif
         StateHasChanged();
     }
     
@@ -297,6 +358,14 @@
     public async ValueTask DisposeAsync()
     {
         dotNetReference?.Dispose();
+        
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            safariService.NavigationCompleted -= OnMauiNavigationCompleted;
+            safariService.NavigationFailed -= OnMauiNavigationFailed;
+        }
+#endif
         await Task.CompletedTask;
     }
 }
