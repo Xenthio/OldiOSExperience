@@ -84,11 +84,19 @@
                     </div>
                 }
                 
-                @* Use iframe on all platforms - same sandbox restrictions everywhere *@
-                <iframe id="safari-iframe" 
-                        src="@currentUrl" 
-                        class="safari-iframe"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+                @if (IsMauiPlatform)
+                {
+                    @* MAUI: Native WebView is overlaid by MainPage, just show transparent area *@
+                    <div class="native-webview-placeholder" style="width: 100%; height: 100%;"></div>
+                }
+                else
+                {
+                    @* Web: Use iframe *@
+                    <iframe id="safari-iframe" 
+                            src="@currentUrl" 
+                            class="safari-iframe"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+                }
             </div>
         }
     </div>
@@ -154,59 +162,75 @@
         showPlaceholder = false;
         isLoading = true;
         
-        // Use iframe for all platforms (web and MAUI)
         StateHasChanged();
-        await Task.Delay(100); // Give Blazor time to render the iframe
+        await Task.Delay(100); // Give Blazor time to render
         
         try
         {
-            // Check if site is likely to be blocked
-            var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
-            var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
-            
-            if (!string.IsNullOrEmpty(suggestion))
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+            if (IsMauiPlatform)
             {
-                Console.WriteLine($"Safari compatibility warning: {suggestion}");
-            }
-            
-            var normalizedUrl = await JSRuntime.InvokeAsync<string>("safariInterop.loadUrlInIframe", "safari-iframe", url);
-            if (!string.IsNullOrEmpty(normalizedUrl))
-            {
-                currentUrl = normalizedUrl;
-                urlInput = normalizedUrl;
+                // MAUI: Use hash-based navigation to communicate with native WebView
+                await JSRuntime.InvokeAsync<string>("safariNativeInterop.loadUrl", url);
+                
+                // Clear loading state after a delay (native will handle the actual loading)
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(2000);
+                    isLoading = false;
+                    await InvokeAsync(StateHasChanged);
+                });
             }
             else
+#endif
             {
-                // If we got empty string, iframe probably doesn't exist yet
-                // Just set the currentUrl directly
-                if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                // Web: Use iframe with compatibility check
+                var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
+                var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
+                
+                if (!string.IsNullOrEmpty(suggestion))
                 {
-                    if (url.Contains(".") && !url.Contains(" "))
-                    {
-                        currentUrl = "https://" + url;
-                    }
-                    else
-                    {
-                        currentUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
-                    }
+                    Console.WriteLine($"Safari compatibility warning: {suggestion}");
+                }
+                
+                var normalizedUrl = await JSRuntime.InvokeAsync<string>("safariInterop.loadUrlInIframe", "safari-iframe", url);
+                if (!string.IsNullOrEmpty(normalizedUrl))
+                {
+                    currentUrl = normalizedUrl;
+                    urlInput = normalizedUrl;
                 }
                 else
                 {
-                    currentUrl = url;
+                    // Normalize URL directly
+                    if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                    {
+                        if (url.Contains(".") && !url.Contains(" "))
+                        {
+                            currentUrl = "https://" + url;
+                        }
+                        else
+                        {
+                            currentUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
+                        }
+                    }
+                    else
+                    {
+                        currentUrl = url;
+                    }
+                    urlInput = currentUrl;
                 }
-                urlInput = currentUrl;
-            }
-            
-            // Set a timeout to clear the loading state if iframe doesn't load
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(5000); // 5 second timeout
-                if (isLoading)
+                
+                // Set a timeout to clear the loading state if iframe doesn't load
+                _ = Task.Run(async () =>
                 {
-                    isLoading = false;
-                    await InvokeAsync(StateHasChanged);
-                }
-            });
+                    await Task.Delay(5000);
+                    if (isLoading)
+                    {
+                        isLoading = false;
+                        await InvokeAsync(StateHasChanged);
+                    }
+                });
+            }
         }
         catch (Exception ex)
         {
@@ -240,7 +264,16 @@
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+            if (IsMauiPlatform)
+            {
+                await JSRuntime.InvokeVoidAsync("safariNativeInterop.goBack");
+            }
+            else
+#endif
+            {
+                await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
+            }
         }
         catch (Exception ex)
         {
@@ -252,7 +285,16 @@
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+            if (IsMauiPlatform)
+            {
+                await JSRuntime.InvokeVoidAsync("safariNativeInterop.goForward");
+            }
+            else
+#endif
+            {
+                await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
+            }
         }
         catch (Exception ex)
         {
@@ -269,7 +311,16 @@
         
         try
         {
-            await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+            if (IsMauiPlatform)
+            {
+                await JSRuntime.InvokeVoidAsync("safariNativeInterop.reload");
+            }
+            else
+#endif
+            {
+                await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
+            }
         }
         catch (Exception ex)
         {

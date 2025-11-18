@@ -6,10 +6,22 @@
              x:Class="OldiOS.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
-        <BlazorWebView.RootComponents>
-            <RootComponent Selector="#app" ComponentType="{x:Type shared:Routes}" />
-        </BlazorWebView.RootComponents>
-    </BlazorWebView>
+    <AbsoluteLayout>
+        <!-- Blazor Web View (always visible) -->
+        <BlazorWebView x:Name="blazorWebView" 
+                       HostPage="wwwroot/index.html"
+                       AbsoluteLayout.LayoutBounds="0,0,1,1" 
+                       AbsoluteLayout.LayoutFlags="All">
+            <BlazorWebView.RootComponents>
+                <RootComponent Selector="#app" ComponentType="{x:Type shared:Routes}" />
+            </BlazorWebView.RootComponents>
+        </BlazorWebView>
+        
+        <!-- Safari Native WebView (hidden by default, overlays when active) -->
+        <WebView x:Name="safariWebView"
+                 IsVisible="False"
+                 AbsoluteLayout.LayoutBounds="0,0,1,1" 
+                 AbsoluteLayout.LayoutFlags="All" />
+    </AbsoluteLayout>
 
 </ContentPage>
