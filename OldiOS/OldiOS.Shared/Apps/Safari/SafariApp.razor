@@ -196,6 +196,17 @@
                 }
                 urlInput = currentUrl;
             }
+            
+            // Set a timeout to clear the loading state if iframe doesn't load
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(5000); // 5 second timeout
+                if (isLoading)
+                {
+                    isLoading = false;
+                    await InvokeAsync(StateHasChanged);
+                }
+            });
         }
         catch (Exception ex)
         {
