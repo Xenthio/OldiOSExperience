@@ -31,6 +31,11 @@ namespace OldiOS
 			builder.Services.AddSingleton<INativeBatteryService, MauiNativeBatteryService>();
 			builder.Services.AddSingleton<BatteryService>();
 			
+			// Register Safari service for MAUI
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+			builder.Services.AddSingleton<ISafariService, OldiOS.Services.SafariService>();
+#endif
+			
 			// Register native haptic service for MAUI
 #if IOS
 				// iOS platform registration (in Platforms/iOS/HapticsRegistration_iOS.cs)

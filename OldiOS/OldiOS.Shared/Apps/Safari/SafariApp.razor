@@ -1,4 +1,4 @@
-@* iOS 5 Safari Browser *@
+@* iOS 5 Safari Browser - Works on both Web and MAUI *@
 @using OldiOS.Shared.Apps.UIKit
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
@@ -33,10 +33,19 @@
                         <button class="example-site" @onclick='() => LoadUrl("wikipedia.org")'>wikipedia.org</button>
                         <button class="example-site" @onclick='() => LoadUrl("archive.org")'>archive.org</button>
                     </div>
-                    <div class="iframe-warning">
-                        ⚠️ Note: Many modern websites prevent loading in embedded frames for security.
-                        Sites may redirect or show error messages.
-                    </div>
+                    @if (IsMauiPlatform)
+                    {
+                        <div class="platform-info maui-info">
+                            ✅ MAUI Native - Full website compatibility with iPhone 4 user agent
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="platform-info web-info">
+                            ⚠️ Web Browser - Many modern websites prevent loading in embedded frames for security.
+                            Sites may redirect or show error messages.
+                        </div>
+                    }
                 </div>
             </div>
         }
@@ -48,8 +57,15 @@
                     <div class="error-title">Cannot Open Page</div>
                     <div class="error-message">@errorMessage</div>
                     <div class="error-details">
-                        This website cannot be displayed in Safari due to security restrictions.
-                        Many sites use X-Frame-Options headers to prevent loading in embedded frames.
+                        @if (IsMauiPlatform)
+                        {
+                            <text>An error occurred while loading this website.</text>
+                        }
+                        else
+                        {
+                            <text>This website cannot be displayed in Safari due to security restrictions.
+                            Many sites use X-Frame-Options headers to prevent loading in embedded frames.</text>
+                        }
                     </div>
                     <button class="try-anyway-button" @onclick="() => showError = false">Try Anyway</button>
                     <button class="go-back-button" @onclick="ShowPlaceholder">Go Back</button>
@@ -66,10 +82,18 @@
                         <div class="loading-text">Loading...</div>
                     </div>
                 }
-                <iframe id="safari-iframe" 
-                        src="@currentUrl" 
-                        class="safari-iframe"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+                
+                @if (IsMauiPlatform)
+                {
+                    <div class="webview-container" id="safari-webview-container"></div>
+                }
+                else
+                {
+                    <iframe id="safari-iframe" 
+                            src="@currentUrl" 
+                            class="safari-iframe"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+                }
             </div>
         }
     </div>
@@ -94,10 +118,22 @@
     private bool canGoForward = false;
     private DotNetObjectReference<SafariApp>? dotNetReference;
     
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+    private OldiOS.Shared.Services.ISafariService? safariService;
+    private bool IsMauiPlatform => true;
+#else
+    private bool IsMauiPlatform => false;
+#endif
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+            // MAUI platform - initialize native WebView
+            await InitializeMauiWebView();
+#else
+            // Web platform - setup iframe interop
             dotNetReference = DotNetObjectReference.Create(this);
             try
             {
@@ -107,8 +143,51 @@
             {
                 Console.WriteLine($"Safari JS setup error: {ex.Message}");
             }
+#endif
         }
     }
+    
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+    private async Task InitializeMauiWebView()
+    {
+        try
+        {
+            // Get the platform-specific Safari service
+            // This will be injected via dependency injection
+            safariService = App.Current?.Handler?.MauiContext?.Services.GetService<OldiOS.Shared.Services.ISafariService>();
+            
+            if (safariService != null)
+            {
+                safariService.NavigationCompleted += OnMauiNavigationCompleted;
+                safariService.NavigationFailed += OnMauiNavigationFailed;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"MAUI WebView initialization error: {ex.Message}");
+        }
+        
+        await Task.CompletedTask;
+    }
+    
+    private void OnMauiNavigationCompleted(object? sender, string url)
+    {
+        isLoading = false;
+        currentUrl = url;
+        urlInput = url;
+        canGoBack = safariService?.CanGoBack ?? false;
+        canGoForward = safariService?.CanGoForward ?? false;
+        StateHasChanged();
+    }
+    
+    private void OnMauiNavigationFailed(object? sender, string error)
+    {
+        isLoading = false;
+        showError = true;
+        errorMessage = error;
+        StateHasChanged();
+    }
+#endif
     
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
@@ -128,7 +207,21 @@
         showPlaceholder = false;
         isLoading = true;
         
-        // Force a render so the iframe exists before we try to load the URL
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        // MAUI platform - use native WebView
+        if (safariService != null)
+        {
+            var success = await safariService.LoadUrl(url);
+            if (!success)
+            {
+                isLoading = false;
+                showError = true;
+                errorMessage = "Failed to load URL";
+            }
+        }
+        StateHasChanged();
+#else
+        // Web platform - use iframe
         StateHasChanged();
         await Task.Delay(100); // Give Blazor time to render the iframe
         
@@ -170,6 +263,7 @@
         }
         
         StateHasChanged();
+#endif
     }
     
     [JSInvokable]
@@ -192,6 +286,15 @@
     
     private async Task NavigateBack()
     {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.NavigateBack();
+            canGoBack = safariService.CanGoBack;
+            canGoForward = safariService.CanGoForward;
+            StateHasChanged();
+        }
+#else
         try
         {
             await JSRuntime.InvokeVoidAsync("safariInterop.navigateBack", "safari-iframe");
@@ -200,10 +303,20 @@
         {
             Console.WriteLine($"Navigate back error: {ex.Message}");
         }
+#endif
     }
     
     private async Task NavigateForward()
     {
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.NavigateForward();
+            canGoBack = safariService.CanGoBack;
+            canGoForward = safariService.CanGoForward;
+            StateHasChanged();
+        }
+#else
         try
         {
             await JSRuntime.InvokeVoidAsync("safariInterop.navigateForward", "safari-iframe");
@@ -212,6 +325,7 @@
         {
             Console.WriteLine($"Navigate forward error: {ex.Message}");
         }
+#endif
     }
     
     private async Task Reload()
@@ -220,6 +334,13 @@
             return;
             
         isLoading = true;
+        
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            await safariService.Reload();
+        }
+#else
         try
         {
             await JSRuntime.InvokeVoidAsync("safariInterop.reload", "safari-iframe");
@@ -229,6 +350,7 @@
             Console.WriteLine($"Reload error: {ex.Message}");
             isLoading = false;
         }
+#endif
         StateHasChanged();
     }
     
@@ -261,5 +383,14 @@
     public async ValueTask DisposeAsync()
     {
         dotNetReference?.Dispose();
+        
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (safariService != null)
+        {
+            safariService.NavigationCompleted -= OnMauiNavigationCompleted;
+            safariService.NavigationFailed -= OnMauiNavigationFailed;
+        }
+#endif
+        await Task.CompletedTask;
     }
 }

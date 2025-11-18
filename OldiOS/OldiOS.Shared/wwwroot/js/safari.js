@@ -5,6 +5,25 @@ window.safariInterop = {
     // iPhone 4 / iOS 5 User Agent
     iPhone4UserAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3',
     
+    // Iframe-friendly sites that typically allow embedding
+    iframeFriendlySites: [
+        'wikipedia.org',
+        'archive.org',
+        'github.io',
+        'codepen.io',
+        'jsfiddle.net',
+        'stackblitz.com',
+        'codesandbox.io',
+        'replit.com',
+        'glitch.com'
+    ],
+    
+    // Check if URL is likely iframe-friendly
+    isLikelyIframeFriendly: function(url) {
+        const urlLower = url.toLowerCase();
+        return this.iframeFriendlySites.some(site => urlLower.includes(site));
+    },
+    
     // Try to set a custom user agent (note: this doesn't actually work in modern browsers)
     // This is here for documentation purposes - actual user agent can't be changed in browser
     setUserAgent: function(userAgent) {
@@ -15,25 +34,7 @@ window.safariInterop = {
         return false;
     },
     
-    // Check if a URL can be loaded in an iframe
-    // This makes a HEAD request to check for X-Frame-Options
-    checkIframeCompatibility: async function(url) {
-        try {
-            const response = await fetch(url, { 
-                method: 'HEAD',
-                mode: 'no-cors' // Avoid CORS errors
-            });
-            
-            // Note: With no-cors mode, we can't actually read headers
-            // So we'll just return true and let the iframe try
-            return true;
-        } catch (error) {
-            console.log('Error checking URL:', error);
-            return false;
-        }
-    },
-    
-    // Load URL in iframe
+    // Load URL in iframe with enhanced compatibility
     loadUrlInIframe: function(iframeId, url) {
         const iframe = document.getElementById(iframeId);
         if (!iframe) {
