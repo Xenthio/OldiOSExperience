@@ -1,6 +1,7 @@
 #if ANDROID
 using Android.Webkit;
 using OldiOS.Shared.Services;
+using WebView = Android.Webkit.WebView;
 
 namespace OldiOS.Services;
 
