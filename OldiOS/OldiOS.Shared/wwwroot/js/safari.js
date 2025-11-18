@@ -15,13 +15,71 @@ window.safariInterop = {
         'stackblitz.com',
         'codesandbox.io',
         'replit.com',
-        'glitch.com'
+        'glitch.com',
+        'info.cern.ch',
+        'theuselessweb.com',
+        'w3schools.com',
+        'mdn.io',
+        'developer.mozilla.org',
+        'archive.is',
+        'web.archive.org',
+        'localhost',
+        '127.0.0.1'
+    ],
+    
+    // Sites known to block iframes
+    blockedSites: [
+        'google.com',
+        'youtube.com',
+        'facebook.com',
+        'twitter.com',
+        'x.com',
+        'instagram.com',
+        'amazon.com',
+        'netflix.com',
+        'github.com', // Main GitHub blocks, but github.io allows
+        'linkedin.com',
+        'reddit.com',
+        'pinterest.com'
     ],
     
     // Check if URL is likely iframe-friendly
     isLikelyIframeFriendly: function(url) {
         const urlLower = url.toLowerCase();
-        return this.iframeFriendlySites.some(site => urlLower.includes(site));
+        
+        // Check if it's a blocked site
+        const isBlocked = this.blockedSites.some(site => urlLower.includes(site));
+        if (isBlocked) {
+            console.log('URL likely blocked:', url);
+            return false;
+        }
+        
+        // Check if it's in our friendly list
+        const isFriendly = this.iframeFriendlySites.some(site => urlLower.includes(site));
+        if (isFriendly) {
+            console.log('URL likely iframe-friendly:', url);
+            return true;
+        }
+        
+        // Unknown - let it try
+        return null; // null means "unknown, try anyway"
+    },
+    
+    // Suggest alternatives for blocked sites
+    suggestAlternative: function(url) {
+        const urlLower = url.toLowerCase();
+        
+        if (urlLower.includes('google.com') && urlLower.includes('search')) {
+            return 'Google search results cannot be embedded. Try visiting Wikipedia or another site directly.';
+        }
+        if (urlLower.includes('youtube.com')) {
+            return 'YouTube cannot be embedded in this way. Try using youtube.com/embed/ links for specific videos.';
+        }
+        if (urlLower.includes('github.com')) {
+            return 'Main GitHub site blocks embedding. Try github.io pages instead.';
+        }
+        
+        return null;
     },
     
     // Try to set a custom user agent (note: this doesn't actually work in modern browsers)

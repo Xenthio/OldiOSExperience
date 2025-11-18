@@ -28,10 +28,11 @@
                     <div class="placeholder-text">Safari</div>
                     <div class="placeholder-hint">Enter a URL or search term to browse the web</div>
                     <div class="example-sites">
-                        <div class="example-title">Try visiting:</div>
-                        <button class="example-site" @onclick='() => LoadUrl("example.com")'>example.com</button>
-                        <button class="example-site" @onclick='() => LoadUrl("wikipedia.org")'>wikipedia.org</button>
-                        <button class="example-site" @onclick='() => LoadUrl("archive.org")'>archive.org</button>
+                        <div class="example-title">Iframe-friendly sites to try:</div>
+                        <button class="example-site" @onclick='() => LoadUrl("en.wikipedia.org")'>Wikipedia</button>
+                        <button class="example-site" @onclick='() => LoadUrl("archive.org")'>Internet Archive</button>
+                        <button class="example-site" @onclick='() => LoadUrl("info.cern.ch")'>CERN (First Website)</button>
+                        <button class="example-site" @onclick='() => LoadUrl("theuselessweb.com")'>The Useless Web</button>
                     </div>
                     @if (IsMauiPlatform)
                     {
@@ -221,12 +222,21 @@
         }
         StateHasChanged();
 #else
-        // Web platform - use iframe
+        // Web platform - use iframe with compatibility check
         StateHasChanged();
         await Task.Delay(100); // Give Blazor time to render the iframe
         
         try
         {
+            // Check if site is likely to be blocked
+            var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
+            var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
+            
+            if (!string.IsNullOrEmpty(suggestion))
+            {
+                Console.WriteLine($"Safari compatibility warning: {suggestion}");
+            }
+            
             var normalizedUrl = await JSRuntime.InvokeAsync<string>("safariInterop.loadUrlInIframe", "safari-iframe", url);
             if (!string.IsNullOrEmpty(normalizedUrl))
             {
