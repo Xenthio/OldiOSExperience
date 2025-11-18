@@ -1,7 +1,9 @@
 @* iOS 5 Safari Browser - Works on both Web and MAUI *@
 @using OldiOS.Shared.Apps.UIKit
 @using Microsoft.JSInterop
+@using OldiOS.Services
 @inject IJSRuntime JSRuntime
+@inject ISafariWebViewService SafariWebViewService
 @implements IAsyncDisposable
 
 <div class="safari-app">
@@ -170,8 +172,8 @@
 #if ANDROID || IOS || MACCATALYST || WINDOWS
             if (IsMauiPlatform)
             {
-                // MAUI: Use hash-based navigation to communicate with native WebView
-                await JSRuntime.InvokeAsync<string>("safariNativeInterop.loadUrl", url);
+                // MAUI: Use service to control native WebView
+                SafariWebViewService.NavigateToUrl(url);
                 
                 // Clear loading state after a delay (native will handle the actual loading)
                 _ = Task.Run(async () =>
@@ -267,7 +269,7 @@
 #if ANDROID || IOS || MACCATALYST || WINDOWS
             if (IsMauiPlatform)
             {
-                await JSRuntime.InvokeVoidAsync("safariNativeInterop.goBack");
+                SafariWebViewService.GoBack();
             }
             else
 #endif
@@ -288,7 +290,7 @@
 #if ANDROID || IOS || MACCATALYST || WINDOWS
             if (IsMauiPlatform)
             {
-                await JSRuntime.InvokeVoidAsync("safariNativeInterop.goForward");
+                SafariWebViewService.GoForward();
             }
             else
 #endif
@@ -314,7 +316,7 @@
 #if ANDROID || IOS || MACCATALYST || WINDOWS
             if (IsMauiPlatform)
             {
-                await JSRuntime.InvokeVoidAsync("safariNativeInterop.reload");
+                SafariWebViewService.Reload();
             }
             else
 #endif

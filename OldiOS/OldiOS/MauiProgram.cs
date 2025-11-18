@@ -27,6 +27,9 @@ namespace OldiOS
 			builder.Services.AddSingleton<BackgroundAppManager>();
 			builder.Services.AddSingleton<SpringboardService>();
 			
+			// Register Safari WebView service
+			builder.Services.AddSingleton<OldiOS.Services.ISafariWebViewService, OldiOS.Services.SafariWebViewService>();
+			
 			// Register native battery service for MAUI
 			builder.Services.AddSingleton<INativeBatteryService, MauiNativeBatteryService>();
 			builder.Services.AddSingleton<BatteryService>();
