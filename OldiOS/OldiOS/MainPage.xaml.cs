@@ -63,13 +63,8 @@ namespace OldiOS
 		{
 			Console.WriteLine($"Safari navigating to: {e.Url}");
 			
-			// CRITICAL: Cancel navigation if it's trying to open externally
-			// Keep all navigation within the WebView
-			if (e.NavigationEvent == WebNavigationEvent.NewPage)
-			{
-				// Allow navigation within the WebView
-				e.Cancel = false;
-			}
+			// Don't cancel any navigation - let the WebView handle it
+			// The navigation delegates (iOS/Android) already prevent external browser launches
 		}
 		
 		private void OnSafariNavigated(object? sender, WebNavigatedEventArgs e)

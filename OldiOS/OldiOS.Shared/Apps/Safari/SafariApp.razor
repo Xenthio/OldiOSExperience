@@ -161,13 +161,30 @@
         StateHasChanged();
         await Task.Delay(100); // Give Blazor time to render
         
+        // Normalize URL first
+        string normalizedUrl = url;
+        if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+        {
+            if (url.Contains(".") && !url.Contains(" "))
+            {
+                normalizedUrl = "https://" + url;
+            }
+            else
+            {
+                normalizedUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
+            }
+        }
+        
         try
         {
 #if ANDROID || IOS || MACCATALYST || WINDOWS
             if (IsMauiPlatform)
             {
                 // MAUI: Use service to control native WebView
-                SafariWebViewService.NavigateToUrl(url);
+                currentUrl = normalizedUrl;
+                urlInput = normalizedUrl;
+                SafariWebViewService.NavigateToUrl(normalizedUrl);
+                SafariWebViewService.Show();
                 
                 // Clear loading state after a delay (native will handle the actual loading)
                 _ = Task.Run(async () =>
@@ -181,39 +198,31 @@
 #endif
             {
                 // Web: Use iframe with compatibility check
-                var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
-                var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
-                
-                if (!string.IsNullOrEmpty(suggestion))
+                try
                 {
-                    Console.WriteLine($"Safari compatibility warning: {suggestion}");
+                    var compatibility = await JSRuntime.InvokeAsync<object>("safariInterop.isLikelyIframeFriendly", url);
+                    var suggestion = await JSRuntime.InvokeAsync<string>("safariInterop.suggestAlternative", url);
+                    
+                    if (!string.IsNullOrEmpty(suggestion))
+                    {
+                        Console.WriteLine($"Safari compatibility warning: {suggestion}");
+                    }
+                }
+                catch (Exception jsEx)
+                {
+                    Console.WriteLine($"Safari JS compatibility check error: {jsEx.Message}");
                 }
                 
-                var normalizedUrl = await JSRuntime.InvokeAsync<string>("safariInterop.loadUrlInIframe", "safari-iframe", url);
-                if (!string.IsNullOrEmpty(normalizedUrl))
+                currentUrl = normalizedUrl;
+                urlInput = normalizedUrl;
+                
+                try
                 {
-                    currentUrl = normalizedUrl;
-                    urlInput = normalizedUrl;
+                    await JSRuntime.InvokeVoidAsync("safariInterop.loadUrlInIframe", "safari-iframe", normalizedUrl);
                 }
-                else
+                catch (Exception jsEx)
                 {
-                    // Normalize URL directly
-                    if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-                    {
-                        if (url.Contains(".") && !url.Contains(" "))
-                        {
-                            currentUrl = "https://" + url;
-                        }
-                        else
-                        {
-                            currentUrl = "https://www.google.com/search?q=" + Uri.EscapeDataString(url);
-                        }
-                    }
-                    else
-                    {
-                        currentUrl = url;
-                    }
-                    urlInput = currentUrl;
+                    Console.WriteLine($"Safari JS loadUrlInIframe error: {jsEx.Message}");
                 }
                 
                 // Set a timeout to clear the loading state if iframe doesn't load
@@ -355,6 +364,13 @@
         showError = false;
         currentUrl = "";
         urlInput = "";
+        
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        if (IsMauiPlatform)
+        {
+            SafariWebViewService.Hide();
+        }
+#endif
     }
     
     private void ShowBookmarks()
