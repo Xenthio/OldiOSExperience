@@ -25,7 +25,7 @@
     <ApplicationTitle>OldiOS</ApplicationTitle>
 
     <!-- App Identifier -->
-    <ApplicationId>com.companyname.oldios</ApplicationId>
+    <ApplicationId>Xenthio.oldios</ApplicationId>
 
     <!-- Versions -->
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -40,6 +40,11 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net9.0-ios'">
+    <ProvisioningType>manual</ProvisioningType>
+    <CodesignProvision>iOS Team Provisioning Profile: Xenthio.oldios</CodesignProvision>
   </PropertyGroup>
 
   <ItemGroup>
