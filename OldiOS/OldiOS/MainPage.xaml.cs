@@ -13,9 +13,6 @@ namespace OldiOS
 			// Setup Safari WebView
 			SetupSafariWebView();
 			
-			// Setup BlazorWebView to prevent external navigation
-			blazorWebView.UrlLoading += OnBlazorUrlLoading;
-			
 			// Register as the Safari WebView controller
 			if (Application.Current?.Handler?.MauiContext?.Services != null)
 			{
@@ -24,17 +21,6 @@ namespace OldiOS
 				{
 					service.SetWebView(safariWebView);
 				}
-			}
-		}
-		
-		private void OnBlazorUrlLoading(object? sender, UrlLoadingEventArgs e)
-		{
-			// Only allow loading of the Blazor app itself
-			// Block all external URLs from the BlazorWebView to prevent opening system browser
-			if (e.Url.Host != "0.0.0.0" && e.Url.Host != "localhost")
-			{
-				Console.WriteLine($"Blocking external URL from BlazorWebView: {e.Url}");
-				e.UrlLoadingStrategy = UrlLoadingStrategy.CancelLoad;
 			}
 		}
 		
