@@ -2,61 +2,56 @@
 @using OldiOS.Shared.Apps.UIKit
 
 <div class="safari-app">
-    <div class="safari-header">
+    <div
+        class="safari-header @(IsTabSwitcherMode ? "hidden" : "") @(IsAnimatingEnter ? "animate-enter" : "") @(IsAnimatingExit ? "animate-exit" : "")">
         <div class="address-bar">
             <div class="search-field">
-                <input type="text" 
-                       class="url-input" 
-                       placeholder="Search or enter website name"
-                       @bind="CurrentTab.Url"
-                       @bind:event="oninput"
-                       @onkeydown="HandleKeyDown" />
+                <input type="text" class="url-input" placeholder="Search or enter website name" @bind="CurrentTab.Url"
+                    @bind:event="oninput" @onkeydown="HandleKeyDown" />
             </div>
             <button class="refresh-button">↻</button>
         </div>
     </div>
-    
+
     <div class="safari-content">
-        @if (IsTabSwitcherMode)
-        {
-            <div class="tab-switcher">
-                <div class="tab-list">
-                    @foreach (var tab in Tabs)
-                    {
-                        <div class="tab-item @(tab == CurrentTab ? "active" : "")" @onclick="() => SwitchToTab(tab)">
-                            <div class="tab-header">
-                                <span class="tab-title">@(string.IsNullOrEmpty(tab.Title) ? "New Page" : tab.Title)</span>
-                                <button class="close-tab-button" @onclick="() => CloseTab(tab)" @onclick:stopPropagation="true">×</button>
-                            </div>
-                            <div class="tab-snapshot">
-                                @if (!string.IsNullOrEmpty(tab.SnapshotData))
-                                {
-                                    <img src="@tab.SnapshotData" />
-                                }
-                                else
-                                {
-                                    <div class="tab-placeholder"></div>
-                                }
-                            </div>
+        <div
+            class="tab-switcher @(IsTabSwitcherMode ? "visible" : "") @(IsAnimatingEnter ? "animate-enter" : "") @(IsAnimatingExit ? "animate-exit" : "")">
+            <div class="tab-list">
+                @foreach (var tab in Tabs)
+                {
+                    <div class="tab-item @(tab == CurrentTab ? "active" : "")" @onclick="() => SwitchToTab(tab)">
+                        <div class="tab-header">
+                            <span class="tab-title">@(string.IsNullOrEmpty(tab.Title) ? "New Page" : tab.Title)</span>
+                            <button class="close-tab-button" @onclick="() => CloseTab(tab)"
+                            @onclick:stopPropagation="true">×</button>
                         </div>
-                    }
-                </div>
+                        <div class="tab-snapshot">
+                            @if (!string.IsNullOrEmpty(tab.SnapshotData))
+                            {
+                                <img src="@tab.SnapshotData" />
+                            }
+                            else
+                            {
+                                <div class="tab-placeholder"></div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
-        }
-        else
-        {
-            <div class="browser-view">
-                <UIWebView @ref="webView" Url="@CurrentTab.Url" OnUrlChanged="HandleUrlChanged" Style="width: 100%; height: 100%;" />
-            </div>
-        }
+        </div>
+
+        <div class="browser-view @(IsTabSwitcherMode ? "hidden" : "")">
+            <UIWebView @ref="webView" Url="@CurrentTab.Url" OnUrlChanged="HandleUrlChanged"
+                Style="width: 100%; height: 100%;" />
+        </div>
     </div>
-    
+
     <UIToolbar>
         @if (IsTabSwitcherMode)
         {
-             <button class="toolbar-button" @onclick="AddNewTab">➕</button>
-             <div class="toolbar-spacer"></div>
-             <button class="toolbar-button" @onclick="() => IsTabSwitcherMode = false">Done</button>
+            <button class="toolbar-button" @onclick="AddNewTab">➕</button>
+            <div class="toolbar-spacer"></div>
+            <button class="toolbar-button" @onclick="() => IsTabSwitcherMode = false">Done</button>
         }
         else
         {
@@ -71,7 +66,10 @@
 
 @code {
     private bool IsTabSwitcherMode = false;
-    private List<SafariTab> Tabs = new List<SafariTab>();
+    private bool IsAnimatingEnter = false;
+    private bool IsAnimatingExit = false;
+    private global::System.Collections.Generic.List<SafariTab> Tabs = new
+    global::System.Collections.Generic.List<SafariTab>();
     private SafariTab CurrentTab;
     private UIWebView webView;
 
@@ -85,7 +83,7 @@
     {
         CurrentTab.Url = newUrl;
         // Ideally we'd fetch the title too
-        CurrentTab.Title = newUrl; 
+        CurrentTab.Title = newUrl;
         StateHasChanged();
     }
 
@@ -119,23 +117,41 @@
         webView?.GoForward();
     }
 
-    private async Task ShowTabs()
+    private async global::System.Threading.Tasks.Task ShowTabs()
     {
         // Capture snapshot of current tab
         if (webView != null)
         {
             CurrentTab.SnapshotData = await webView.GetSnapshotAsync();
         }
-        
+
         IsTabSwitcherMode = true;
+        IsAnimatingEnter = true;
+        StateHasChanged();
+
+        await global::System.Threading.Tasks.Task.Delay(300); // Match CSS animation duration
+        IsAnimatingEnter = false;
         StateHasChanged();
     }
 
-    private void SwitchToTab(SafariTab tab)
+    private async global::System.Threading.Tasks.Task SwitchToTab(SafariTab tab)
     {
+        IsAnimatingExit = true;
+        StateHasChanged();
+
+        await global::System.Threading.Tasks.Task.Delay(300); // Match CSS animation duration
+        IsAnimatingExit = false;
+
         CurrentTab = tab;
         IsTabSwitcherMode = false;
         StateHasChanged();
+
+        // Force WebView to update position since it was hidden
+        await global::System.Threading.Tasks.Task.Delay(50); // Small delay to ensure DOM update
+        if (webView != null)
+        {
+            await webView.Refresh();
+        }
     }
 
     private void AddNewTab()
@@ -143,8 +159,14 @@
         var newTab = new SafariTab { Url = "https://www.google.com", Title = "New Page" };
         Tabs.Add(newTab);
         CurrentTab = newTab;
-        IsTabSwitcherMode = false; // Or true if we want to stay in switcher? iOS 5 usually jumps to new tab.
+        IsTabSwitcherMode = false; 
         StateHasChanged();
+        
+        // Force refresh for new tab too if needed
+        _ = global::System.Threading.Tasks.Task.Delay(50).ContinueWith(async _ => 
+        {
+            if (webView != null) await InvokeAsync(webView.Refresh);
+        });
     }
 
     private void CloseTab(SafariTab tab)

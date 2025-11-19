@@ -11,6 +11,21 @@
     background: linear-gradient(to bottom, #b4b4b4 0%, #8a8a8a 50%, #6d6d6d 100%);
     padding: 16px;
     border-bottom: 1px solid #4a4a4a;
+    transition: opacity 0.3s ease;
+}
+
+.safari-header.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.safari-header.animate-enter {
+    opacity: 0;
+}
+
+.safari-header.animate-exit {
+    opacity: 1 !important;
+    /* Override hidden */
 }
 
 .address-bar {
@@ -69,6 +84,10 @@
     position: relative;
 }
 
+.browser-view.hidden {
+    display: none;
+}
+
 /* Tab Switcher */
 .tab-switcher {
     width: 100%;
@@ -77,36 +96,31 @@
     /* Dark gray background */
     overflow-x: auto;
     overflow-y: hidden;
-    display: flex;
+    display: none;
+    /* Default hidden */
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
+    position: absolute;
+    /* Overlay */
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.tab-switcher.visible,
+.tab-switcher.animate-enter,
+.tab-switcher.animate-exit {
+    display: flex;
 }
 
 .tab-list {
     display: flex;
     gap: 20px;
-    height: 80%;
+    height: 70%;
+    /* Constrain height */
     padding: 0 20px;
-    /* Padding for scroll start/end */
-}
-
-.tab-item {
-    width: 200px;
-    /* Fixed width for tabs */
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-    /* Don't shrink */
-}
-
-.tab-item.active {
-    transform: scale(1.05);
-    border: 2px solid #007aff;
-    /* Highlight active tab */
+    align-items: center;
 }
 
 .tab-header {
@@ -169,6 +183,27 @@
     background-image: linear-gradient(to bottom, #fff, #e0e0e0);
 }
 
+.tab-item {
+    height: 100%;
+    /* Fill the container height */
+    width: auto;
+    /* Width derived from aspect ratio */
+    aspect-ratio: 2 / 3;
+    /* Maintain iPhone 4 aspect ratio */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    /* Don't shrink */
+}
+
+.tab-item.active {
+    transform: scale(1.05);
+    border: 2px solid #007aff;
+    /* Highlight active tab */
+}
+
 .toolbar-spacer {
     flex: 1;
 }
@@ -176,4 +211,39 @@
 .toolbar-button.disabled {
     opacity: 0.3;
     cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes zoomOutEnter {
+    from {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomInExit {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.tab-switcher.animate-enter {
+    animation: zoomOutEnter 0.4s ease-out forwards;
+    transform-origin: center center;
+}
+
+.tab-switcher.animate-exit {
+    animation: zoomInExit 0.4s ease-in forwards;
+    transform-origin: center center;
 }

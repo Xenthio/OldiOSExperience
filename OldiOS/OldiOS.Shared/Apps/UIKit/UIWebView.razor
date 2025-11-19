@@ -23,7 +23,7 @@
     [Parameter] public string Url { get; set; } = "";
     [Parameter] public string Style { get; set; } = "";
     [Parameter] public EventCallback<string> OnUrlChanged { get; set; }
-    
+
     private ElementReference containerRef;
     private IWebViewService? WebViewService;
     private string SnapshotData = "";
@@ -64,13 +64,13 @@
                 await JSRuntime.InvokeVoidAsync("startPositionTracking", containerRef, objRef);
 
                 // Delay showing the native webview until the app opening animation is likely complete (approx 600ms)
-                _ = Task.Delay(700).ContinueWith(async _ => 
+                _ = Task.Delay(700).ContinueWith(async _ =>
                 {
                     _isReady = true;
-                    await InvokeAsync(async () => 
-                    {
-                        await UpdateNativeWebViewPosition();
-                        StateHasChanged();
+                    await InvokeAsync(async () =>
+    {
+    await UpdateNativeWebViewPosition();
+    StateHasChanged();
                     });
                 });
             }
@@ -87,18 +87,18 @@
 
             // Since we are polling in JS, we can update directly.
             // We still want to avoid showing it if it's absurdly small (like during initial 0-scale animation)
-            
+
             // Debug logging (throttled by JS change detection)
             // double scale = (rect.OffsetWidth > 0) ? rect.Width / rect.OffsetWidth : 0;
             // Console.WriteLine($"UIWebView: {rect.Width:F0}x{rect.Height:F0} (Scale {scale:F2})");
 
             if (rect.Width > 10 && rect.Height > 10)
             {
-                 WebViewService.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
+                WebViewService.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
             }
             else
             {
-                 WebViewService.Hide();
+                WebViewService.Hide();
             }
         }
     }
@@ -124,6 +124,11 @@
         _ = UpdateNativeWebViewPosition();
     }
 
+    public async Task Refresh()
+    {
+        await UpdateNativeWebViewPosition();
+    }
+
     private async Task UpdateNativeWebViewPosition()
     {
         if (!_isReady) return;
@@ -131,10 +136,10 @@
         try
         {
             var rect = await JSRuntime.InvokeAsync<BoundingClientRect>("getElementBoundingClientRect", containerRef);
-            
+
             if (rect != null && rect.Width > 10)
             {
-                 WebViewService?.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
+                WebViewService?.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
             }
         }
         catch { }
