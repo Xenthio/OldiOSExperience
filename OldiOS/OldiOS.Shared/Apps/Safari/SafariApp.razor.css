@@ -11,9 +11,15 @@
     background: linear-gradient(to bottom, #b4b4b4 0%, #8a8a8a 50%, #6d6d6d 100%);
     padding: 16px;
     border-bottom: 1px solid #4a4a4a;
-    transition: opacity 0.3s ease;
+    transition: margin-top 0.3s ease;
+    /* Animate margin */
     position: relative;
     z-index: 20;
+}
+
+.safari-header.collapsed {
+    margin-top: -90px;
+    /* Collapsed state */
 }
 
 .safari-header.hidden {
@@ -27,7 +33,6 @@
 
 .safari-header.animate-exit {
     opacity: 1 !important;
-    /* Override hidden */
 }
 
 .address-bar {
@@ -95,17 +100,13 @@
     width: 100%;
     height: 100%;
     background-color: #2c2c2c;
-    /* Dark gray background */
     overflow-x: auto;
     overflow-y: hidden;
     display: none;
-    /* Default hidden */
     align-items: center;
     padding: 0;
-    /* Remove padding from container */
     box-sizing: border-box;
     position: absolute;
-    /* Overlay */
     top: 0;
     left: 0;
     z-index: 10;
@@ -121,12 +122,9 @@
     display: flex;
     gap: 20px;
     height: 70%;
-    /* Constrain height */
     padding: 0 40vw;
-    /* Large padding for centering */
     align-items: center;
     width: max-content;
-    /* Ensure it expands */
 }
 
 .tab-header {
@@ -179,7 +177,6 @@
     height: 100%;
     object-fit: cover;
     object-position: top;
-    /* Show top of page */
 }
 
 .tab-placeholder {
@@ -191,23 +188,19 @@
 
 .tab-item {
     height: 100%;
-    /* Fill the container height */
     width: auto;
-    /* Width derived from aspect ratio */
-    aspect-ratio: 2 / 3;
-    /* Maintain iPhone 4 aspect ratio */
+    aspect-ratio: 3 / 4;
+    /* Updated ratio */
     display: flex;
     flex-direction: column;
     position: relative;
     transition: transform 0.2s;
     flex-shrink: 0;
-    /* Don't shrink */
 }
 
 .tab-item.active {
     transform: scale(1.05);
     border: 2px solid #007aff;
-    /* Highlight active tab */
 }
 
 .toolbar-spacer {
@@ -222,7 +215,6 @@
 .safari-toolbar-container {
     position: relative;
     z-index: 30;
-    /* Ensure toolbar is above tab switcher */
 }
 
 /* Animations */

@@ -3,7 +3,7 @@
 
 <div class="safari-app">
     <div
-        class="safari-header @(IsTabSwitcherMode ? "hidden" : "") @(IsAnimatingEnter ? "animate-enter" : "") @(IsAnimatingExit ? "animate-exit" : "")">
+        class="safari-header @(IsTabSwitcherMode ? "hidden" : "") @(IsHeaderCollapsed ? "collapsed" : "") @(IsAnimatingEnter ? "animate-enter" : "") @(IsAnimatingExit ? "animate-exit" : "")">
         <div class="address-bar">
             <div class="search-field">
                 <input type="text" class="url-input" placeholder="Search or enter website name" @bind="CurrentTab.Url"
@@ -77,12 +77,37 @@
     private ElementReference tabSwitcherRef;
     private global::System.Collections.Generic.Dictionary<SafariTab, ElementReference> tabRefs = new();
 
+    private bool IsHeaderCollapsed = false;
+
     [Inject] private IJSRuntime JSRuntime { get; set; }
+    [Inject] private IWebViewService WebViewService { get; set; }
 
     protected override void OnInitialized()
     {
         // Initialize with one tab
         AddNewTab();
+
+        if (WebViewService != null)
+        {
+            WebViewService.OnScroll += HandleScroll;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (WebViewService != null)
+        {
+            WebViewService.OnScroll -= HandleScroll;
+        }
+    }
+
+    private void HandleScroll(bool isDown)
+    {
+        if (IsHeaderCollapsed != isDown)
+        {
+            IsHeaderCollapsed = isDown;
+            StateHasChanged();
+        }
     }
 
     private void HandleUrlChanged(string newUrl)
@@ -134,6 +159,9 @@
         IsTabSwitcherMode = true;
         IsAnimatingEnter = true;
         StateHasChanged();
+
+        // Allow DOM to update (display: flex) before scrolling
+        await global::System.Threading.Tasks.Task.Delay(10);
 
         // Center the current tab using index
         var index = Tabs.IndexOf(CurrentTab);

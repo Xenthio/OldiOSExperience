@@ -11,6 +11,7 @@ namespace OldiOS.Services
         private readonly MainPage _mainPage;
 
         public event Action<string> OnUrlChanged;
+        public event Action<bool>? OnScroll;
 
         public MauiWebViewService(MainPage mainPage)
         {
@@ -24,12 +25,58 @@ namespace OldiOS.Services
 
                 _nativeWebView.Navigating += (s, e) =>
                 {
-                    // Optional: Handle navigation events
+                    if (e.Url.StartsWith("oldios://scroll/"))
+                    {
+                        e.Cancel = true;
+                        bool isDown = e.Url.EndsWith("down");
+                        OnScroll?.Invoke(isDown);
+                    }
                 };
 
-                _nativeWebView.Navigated += (s, e) =>
+                _nativeWebView.Navigated += async (s, e) =>
                 {
                     OnUrlChanged?.Invoke(e.Url);
+
+                    // Inject scroll listener with capture phase to catch all scroll events
+                    string script = @"
+                        (function() {
+                            var lastScrollTop = 0;
+                            var ticking = false;
+                            var scrollHandler = function(e) {
+                                if (!ticking) {
+                                    window.requestAnimationFrame(function() {
+                                        // Try to get scroll position from the target or window
+                                        var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || (e.target ? e.target.scrollTop : 0);
+                                        
+                                        // If scrollTop is undefined or null, ignore
+                                        if (scrollTop === undefined || scrollTop === null) {
+                                            ticking = false;
+                                            return;
+                                        }
+
+                                        if (Math.abs(scrollTop - lastScrollTop) > 10) { // Threshold
+                                            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                                                window.location.href = 'oldios://scroll/down';
+                                            } else if (scrollTop < lastScrollTop) {
+                                                window.location.href = 'oldios://scroll/up';
+                                            }
+                                            lastScrollTop = scrollTop;
+                                        }
+                                        ticking = false;
+                                    });
+                                    ticking = true;
+                                }
+                            };
+                            
+                            // Use capture: true to detect scroll on any element (like overflow: scroll divs)
+                            window.addEventListener('scroll', scrollHandler, true);
+                        })();
+                    ";
+                    try
+                    {
+                        await _nativeWebView.EvaluateJavaScriptAsync(script);
+                    }
+                    catch { }
                 };
             }
         }
@@ -53,6 +100,16 @@ namespace OldiOS.Services
             _mainPage.Dispatcher.Dispatch(() =>
             {
                 _nativeWebView.IsVisible = false;
+            });
+        }
+
+        public void SetOpacity(double opacity)
+        {
+            if (_nativeWebView == null) return;
+
+            _mainPage.Dispatcher.Dispatch(() =>
+            {
+                _nativeWebView.Opacity = opacity;
             });
         }
 

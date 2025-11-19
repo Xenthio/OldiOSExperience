@@ -5,7 +5,7 @@
 @implements IDisposable
 
 <div @ref="containerRef" class="ui-webview-container" style="@Style">
-    @if (WebViewService == null)
+    @if (!isNativeWebView)
     {
         <iframe src="@Url" class="ui-webview-iframe" frameborder="0"></iframe>
     }
@@ -20,6 +20,9 @@
 </div>
 
 @code {
+    public static bool ForceIframeMode { get; set; } = false;
+    public static bool GhostMode { get; set; } = false;
+
     [Parameter] public string Url { get; set; } = "";
     [Parameter] public string Style { get; set; } = "";
     [Parameter] public EventCallback<string> OnUrlChanged { get; set; }
@@ -30,6 +33,10 @@
     private bool IsVisible = true;
     private DotNetObjectReference<UIWebView>? objRef;
     private global::System.Threading.Timer? _resizeDebounceTimer;
+    private bool isNativeWebView;
+    private string currentUrl;
+    private bool _isReady = false;
+    private bool _isGhostLoopRunning = false;
 
     protected override void OnInitialized()
     {
@@ -41,9 +48,81 @@
                 WebViewService.OnUrlChanged += HandleUrlChanged;
             }
         }
-        catch
+        catch { }
+
+        UpdateNativeState();
+        currentUrl = Url;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        UpdateNativeState();
+
+        if (Url != currentUrl)
         {
-            // Service not found, fallback to iframe
+            currentUrl = Url;
+            if (isNativeWebView)
+            {
+                WebViewService?.Navigate(Url);
+            }
+        }
+
+        // Handle Ghost Mode
+        if (isNativeWebView && WebViewService != null)
+        {
+            if (GhostMode)
+            {
+                WebViewService.SetOpacity(0.01);
+                if (!_isGhostLoopRunning)
+                {
+                    _isGhostLoopRunning = true;
+                    _ = RunGhostLoop();
+                }
+            }
+            else
+            {
+                WebViewService.SetOpacity(1.0);
+                _isGhostLoopRunning = false;
+                if (string.IsNullOrEmpty(SnapshotData))
+                {
+                    // Clear snapshot if we were ghosting but now normal
+                    // We rely on native view visibility
+                }
+            }
+        }
+    }
+
+    private async Task RunGhostLoop()
+    {
+        while (GhostMode && isNativeWebView && WebViewService != null)
+        {
+            SnapshotData = await WebViewService.CaptureSnapshotAsync();
+            StateHasChanged();
+            await Task.Delay(100); // 10 FPS snapshot update
+        }
+        _isGhostLoopRunning = false;
+        // Clean up when loop ends
+        if (!GhostMode && isNativeWebView && WebViewService != null)
+        {
+            WebViewService.SetOpacity(1.0);
+            SnapshotData = "";
+            StateHasChanged();
+            await UpdateNativeWebViewPosition();
+        }
+    }
+
+    private void UpdateNativeState()
+    {
+        // Native if: Not browser AND Not forced iframe AND Service exists
+        var shouldBeNative = !OperatingSystem.IsBrowser() && !ForceIframeMode && WebViewService != null;
+        
+        if (isNativeWebView != shouldBeNative)
+        {
+            isNativeWebView = shouldBeNative;
+            if (!isNativeWebView && WebViewService != null)
+            {
+                WebViewService.Hide();
+            }
         }
     }
 
@@ -51,8 +130,6 @@
     {
         InvokeAsync(() => OnUrlChanged.InvokeAsync(newUrl));
     }
-
-    private bool _isReady = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -68,9 +145,9 @@
                 {
                     _isReady = true;
                     await InvokeAsync(async () =>
-    {
-    await UpdateNativeWebViewPosition();
-    StateHasChanged();
+                    {
+                        await UpdateNativeWebViewPosition();
+                        StateHasChanged();
                     });
                 });
             }
@@ -80,32 +157,26 @@
     [JSInvokable]
     public void OnResize(BoundingClientRect rect)
     {
-        if (WebViewService != null && IsVisible && string.IsNullOrEmpty(SnapshotData))
+        if (isNativeWebView && IsVisible && (string.IsNullOrEmpty(SnapshotData) || GhostMode))
         {
             // Only update if ready (animation complete)
+            // In Ghost Mode, we still need the webview to be positioned correctly to capture snapshots
             if (!_isReady) return;
-
-            // Since we are polling in JS, we can update directly.
-            // We still want to avoid showing it if it's absurdly small (like during initial 0-scale animation)
-
-            // Debug logging (throttled by JS change detection)
-            // double scale = (rect.OffsetWidth > 0) ? rect.Width / rect.OffsetWidth : 0;
-            // Console.WriteLine($"UIWebView: {rect.Width:F0}x{rect.Height:F0} (Scale {scale:F2})");
 
             if (rect.Width > 10 && rect.Height > 10)
             {
-                WebViewService.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
+                WebViewService?.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
             }
             else
             {
-                WebViewService.Hide();
+                WebViewService?.Hide();
             }
         }
     }
 
     public async Task<string> GetSnapshotAsync()
     {
-        if (WebViewService != null)
+        if (isNativeWebView && WebViewService != null)
         {
             SnapshotData = await WebViewService.CaptureSnapshotAsync();
             WebViewService.Hide();
@@ -120,7 +191,6 @@
         SnapshotData = "";
         StateHasChanged();
         // Trigger a resize check to reshow
-        // We can't easily trigger the observer, but we can manually check
         _ = UpdateNativeWebViewPosition();
     }
 
@@ -131,7 +201,7 @@
 
     private async Task UpdateNativeWebViewPosition()
     {
-        if (!_isReady) return;
+        if (!_isReady || !isNativeWebView) return;
 
         try
         {
@@ -147,18 +217,23 @@
 
     public void GoBack()
     {
-        WebViewService?.GoBack();
+        if (isNativeWebView)
+            WebViewService?.GoBack();
     }
 
     public void GoForward()
     {
-        WebViewService?.GoForward();
+        if (isNativeWebView)
+            WebViewService?.GoForward();
     }
 
     public void Navigate(string url)
     {
         Url = url;
-        WebViewService?.Navigate(url);
+        if (isNativeWebView)
+        {
+            WebViewService?.Navigate(url);
+        }
         StateHasChanged();
     }
 

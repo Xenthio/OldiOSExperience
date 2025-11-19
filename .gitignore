@@ -401,3 +401,4 @@ FodyWeavers.xsd
 *.sln.iml
 .DS_Store
 build_output.txt
+build_log.txt

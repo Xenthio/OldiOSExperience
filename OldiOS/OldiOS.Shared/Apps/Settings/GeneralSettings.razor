@@ -2,12 +2,12 @@
 
 <div class="settings-general-app">
     <UINavigationBar Title="General" BackButtonText="Settings" OnBackClick="@HandleBack" />
-    
+
     <div class="navigation-view-content">
         <UITableView Grouped="true">
             <UITableViewSection>
                 <UITableViewCell Text="About" ShowDisclosure="true" OnClick="@GoToAbout" />
-                <UITableViewCell Text="Software Update" ShowDisclosure="true" /> 
+                <UITableViewCell Text="Software Update" ShowDisclosure="true" />
                 <UITableViewCell Text="Usage" ShowDisclosure="true" IsLast="true" />
             </UITableViewSection>
 
@@ -32,8 +32,8 @@
 
             <UITableViewSection>
                 <UITableViewCell Text="Date & Time" ShowDisclosure="true" />
-                <UITableViewCell Text="Keyboard" ShowDisclosure="true" /> 
-                <UITableViewCell Text="International" ShowDisclosure="true" /> 
+                <UITableViewCell Text="Keyboard" ShowDisclosure="true" />
+                <UITableViewCell Text="International" ShowDisclosure="true" />
                 <UITableViewCell Text="Accessibility" ShowDisclosure="true" IsLast="true" />
             </UITableViewSection>
 
@@ -42,41 +42,33 @@
             </UITableViewSection>
 
             <UITableViewSection Header="ACCESSIBILITY">
-                <UITableViewCell Text="VoiceOver" ShowToggle="true" ToggleValue="@voiceOverEnabled" OnToggleChange="@(v => voiceOverEnabled = v)" />
-                <UITableViewCell Text="Zoom" ShowToggle="true" ToggleValue="@zoomEnabled" OnToggleChange="@(v => zoomEnabled = v)" />
-                <UITableViewCell Text="Large Text" ShowToggle="true" ToggleValue="@largeTextEnabled" OnToggleChange="@(v => largeTextEnabled = v)" IsLast="true" />
+                <UITableViewCell Text="VoiceOver" ShowToggle="true" ToggleValue="@voiceOverEnabled"
+                    OnToggleChange="@(v => voiceOverEnabled = v)" />
+                <UITableViewCell Text="Zoom" ShowToggle="true" ToggleValue="@zoomEnabled"
+                    OnToggleChange="@(v => zoomEnabled = v)" />
+                <UITableViewCell Text="Large Text" ShowToggle="true" ToggleValue="@largeTextEnabled"
+                    OnToggleChange="@(v => largeTextEnabled = v)" IsLast="true" />
             </UITableViewSection>
-            
+
             <UITableViewSection Header="AUTO-LOCK">
                 <div class="settings-section-content">
-                    <UISegmentedControl 
-                        Segments="@autoLockOptions" 
-                        @bind-SelectedIndex="autoLockIndex" 
+                    <UISegmentedControl Segments="@autoLockOptions" @bind-SelectedIndex="autoLockIndex"
                         FullWidth="true" />
                 </div>
             </UITableViewSection>
-            
+
             <UITableViewSection Header="BRIGHTNESS" Footer="Adjust screen brightness for better battery life">
                 <div class="settings-section-content">
-                    <UISlider 
-                        @bind-Value="brightness" 
-                        Min="0" 
-                        Max="100" 
-                        FullWidth="true" />
+                    <UISlider @bind-Value="brightness" Min="0" Max="100" FullWidth="true" />
                 </div>
             </UITableViewSection>
-            
+
             <UITableViewSection Header="TEXT SIZE">
                 <div class="settings-section-content">
                     <div class="text-size-preview">
                         <UILabel Text="Sample Text" Style="@currentTextStyle" Alignment="TextAlignment.Center" />
                     </div>
-                    <UISlider 
-                        @bind-Value="textSize" 
-                        Min="0" 
-                        Max="5" 
-                        Step="1"
-                        OnChange="@HandleTextSizeChange"
+                    <UISlider @bind-Value="textSize" Min="0" Max="5" Step="1" OnChange="@HandleTextSizeChange"
                         FullWidth="true" />
                     <div class="text-size-labels">
                         <UILabel Text="Smaller" Style="UILabelStyle.Caption" />
@@ -84,10 +76,18 @@
                     </div>
                 </div>
             </UITableViewSection>
-            
+
+            <UITableViewSection Header="DEVELOPER">
+                <UITableViewCell Text="Force Iframe Mode" ShowToggle="true" ToggleValue="@UIWebView.ForceIframeMode"
+                    OnToggleChange="@(v => UIWebView.ForceIframeMode = v)" />
+                <UITableViewCell Text="Ghost Mode (Snapshot)" ShowToggle="true" ToggleValue="@UIWebView.GhostMode"
+                    OnToggleChange="@(v => UIWebView.GhostMode = v)" />
+            </UITableViewSection>
+
             <UITableViewSection>
                 <div class="settings-section-content">
-                    <UIButton Text="Reset All Settings" Style="UIButtonStyle.Destructive" FullWidth="true" OnClick="@HandleReset" />
+                    <UIButton Text="Reset All Settings" Style="UIButtonStyle.Destructive" FullWidth="true"
+                        OnClick="@HandleReset" />
                 </div>
             </UITableViewSection>
         </UITableView>
@@ -103,32 +103,32 @@
     private double brightness = 75;
     private double textSize = 2;
     private UILabelStyle currentTextStyle = UILabelStyle.Body;
-    
+
     private List<string> autoLockOptions = new() { "1 Min", "2 Min", "3 Min", "5 Min", "Never" };
-    
+
     [Parameter]
     public EventCallback OnBack { get; set; }
-    
+
     [Parameter]
     public EventCallback<RenderFragment> OnNavigate { get; set; }
-    
+
     private async Task HandleBack()
     {
         await OnBack.InvokeAsync();
     }
-    
+
     private async Task GoToAbout()
     {
         await OnNavigate.InvokeAsync(RenderAboutSettings());
     }
-    
+
     private RenderFragment RenderAboutSettings() => builder =>
     {
         builder.OpenComponent<AboutSettings>(0);
         builder.AddAttribute(1, "OnBack", EventCallback.Factory.Create(this, async () => await OnBack.InvokeAsync()));
         builder.CloseComponent();
     };
-    
+
     private void HandleTextSizeChange(double size)
     {
         currentTextStyle = size switch
@@ -142,7 +142,7 @@
             _ => UILabelStyle.Body
         };
     }
-    
+
     private void HandleReset()
     {
         // Reset all settings to defaults
