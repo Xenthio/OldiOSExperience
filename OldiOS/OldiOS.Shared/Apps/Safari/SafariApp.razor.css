@@ -12,6 +12,8 @@
     padding: 16px;
     border-bottom: 1px solid #4a4a4a;
     transition: opacity 0.3s ease;
+    position: relative;
+    z-index: 20;
 }
 
 .safari-header.hidden {
@@ -99,7 +101,8 @@
     display: none;
     /* Default hidden */
     align-items: center;
-    padding: 20px;
+    padding: 0;
+    /* Remove padding from container */
     box-sizing: border-box;
     position: absolute;
     /* Overlay */
@@ -119,8 +122,11 @@
     gap: 20px;
     height: 70%;
     /* Constrain height */
-    padding: 0 20px;
+    padding: 0 40vw;
+    /* Large padding for centering */
     align-items: center;
+    width: max-content;
+    /* Ensure it expands */
 }
 
 .tab-header {
@@ -211,6 +217,12 @@
 .toolbar-button.disabled {
     opacity: 0.3;
     cursor: not-allowed;
+}
+
+.safari-toolbar-container {
+    position: relative;
+    z-index: 30;
+    /* Ensure toolbar is above tab switcher */
 }
 
 /* Animations */

@@ -76,6 +76,31 @@
 
             requestAnimationFrame(checkPosition);
         };
+
+        window.scrollToElementCenter = (container, element) => {
+            if (!container || !element) return;
+            const containerWidth = container.offsetWidth;
+            const elementWidth = element.offsetWidth;
+            const elementLeft = element.offsetLeft;
+
+            const scrollLeft = elementLeft - (containerWidth / 2) + (elementWidth / 2);
+
+            container.scrollTo({
+                left: scrollLeft,
+                behavior: 'auto'
+            });
+        };
+
+        window.scrollToTab = (container, index) => {
+            if (!container) return;
+            const list = container.querySelector('.tab-list');
+            if (!list) return;
+            const items = list.children;
+            if (index < 0 || index >= items.length) return;
+
+            const element = items[index];
+            window.scrollToElementCenter(container, element);
+        };
     </script>
 
 </body>

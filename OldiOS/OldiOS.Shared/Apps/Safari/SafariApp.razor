@@ -13,55 +13,57 @@
         </div>
     </div>
 
-    <div class="safari-content">
-        <div
-            class="tab-switcher @(IsTabSwitcherMode ? "visible" : "") @(IsAnimatingEnter ? "animate-enter" : "") @(IsAnimatingExit ? "animate-exit" : "")">
-            <div class="tab-list">
-                @foreach (var tab in Tabs)
-                {
-                    <div class="tab-item @(tab == CurrentTab ? "active" : "")" @onclick="() => SwitchToTab(tab)">
-                        <div class="tab-header">
-                            <span class="tab-title">@(string.IsNullOrEmpty(tab.Title) ? "New Page" : tab.Title)</span>
-                            <button class="close-tab-button" @onclick="() => CloseTab(tab)"
-                            @onclick:stopPropagation="true">×</button>
-                        </div>
-                        <div class="tab-snapshot">
-                            @if (!string.IsNullOrEmpty(tab.SnapshotData))
-                            {
-                                <img src="@tab.SnapshotData" />
-                            }
-                            else
-                            {
-                                <div class="tab-placeholder"></div>
-                            }
-                        </div>
+    <div @ref="tabSwitcherRef"
+        class="tab-switcher @(IsTabSwitcherMode ? "visible" : "") @(IsAnimatingEnter ? "animate-enter" : "") @(IsAnimatingExit ? "animate-exit" : "")">
+        <div class="tab-list">
+            @foreach (var tab in Tabs)
+            {
+                <div class="tab-item @(tab == CurrentTab ? "active" : "")" @onclick="() => SwitchToTab(tab)">
+                    <div class="tab-header">
+                        <span class="tab-title">@(string.IsNullOrEmpty(tab.Title) ? "New Page" : tab.Title)</span>
+                        <button class="close-tab-button" @onclick="() => CloseTab(tab)"
+                        @onclick:stopPropagation="true">×</button>
                     </div>
-                }
-            </div>
+                    <div class="tab-snapshot">
+                        @if (!string.IsNullOrEmpty(tab.SnapshotData))
+                        {
+                            <img src="@tab.SnapshotData" />
+                        }
+                        else
+                        {
+                            <div class="tab-placeholder"></div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
+    </div>
 
+    <div class="safari-content">
         <div class="browser-view @(IsTabSwitcherMode ? "hidden" : "")">
             <UIWebView @ref="webView" Url="@CurrentTab.Url" OnUrlChanged="HandleUrlChanged"
                 Style="width: 100%; height: 100%;" />
         </div>
     </div>
 
-    <UIToolbar>
-        @if (IsTabSwitcherMode)
-        {
-            <button class="toolbar-button" @onclick="AddNewTab">➕</button>
-            <div class="toolbar-spacer"></div>
-            <button class="toolbar-button" @onclick="() => IsTabSwitcherMode = false">Done</button>
-        }
-        else
-        {
-            <button class="toolbar-button" @onclick="GoBack">◄</button>
-            <button class="toolbar-button" @onclick="GoForward">►</button>
-            <button class="toolbar-button" @onclick="ShowTabs">📑</button>
-            <button class="toolbar-button">📖</button>
-            <button class="toolbar-button">⋯</button>
-        }
-    </UIToolbar>
+    <div class="safari-toolbar-container">
+        <UIToolbar>
+            @if (IsTabSwitcherMode)
+            {
+                <button class="toolbar-button" @onclick="AddNewTab">➕</button>
+                <div class="toolbar-spacer"></div>
+                <button class="toolbar-button" @onclick="() => IsTabSwitcherMode = false">Done</button>
+            }
+            else
+            {
+                <button class="toolbar-button" @onclick="GoBack">◄</button>
+                <button class="toolbar-button" @onclick="GoForward">►</button>
+                <button class="toolbar-button" @onclick="ShowTabs">📑</button>
+                <button class="toolbar-button">📖</button>
+                <button class="toolbar-button">⋯</button>
+            }
+        </UIToolbar>
+    </div>
 </div>
 
 @code {
@@ -72,6 +74,10 @@
     global::System.Collections.Generic.List<SafariTab>();
     private SafariTab CurrentTab;
     private UIWebView webView;
+    private ElementReference tabSwitcherRef;
+    private global::System.Collections.Generic.Dictionary<SafariTab, ElementReference> tabRefs = new();
+
+    [Inject] private IJSRuntime JSRuntime { get; set; }
 
     protected override void OnInitialized()
     {
@@ -129,6 +135,13 @@
         IsAnimatingEnter = true;
         StateHasChanged();
 
+        // Center the current tab using index
+        var index = Tabs.IndexOf(CurrentTab);
+        if (index >= 0)
+        {
+            await JSRuntime.InvokeVoidAsync("scrollToTab", tabSwitcherRef, index);
+        }
+
         await global::System.Threading.Tasks.Task.Delay(300); // Match CSS animation duration
         IsAnimatingEnter = false;
         StateHasChanged();
@@ -159,11 +172,11 @@
         var newTab = new SafariTab { Url = "https://www.google.com", Title = "New Page" };
         Tabs.Add(newTab);
         CurrentTab = newTab;
-        IsTabSwitcherMode = false; 
+        IsTabSwitcherMode = false;
         StateHasChanged();
-        
+
         // Force refresh for new tab too if needed
-        _ = global::System.Threading.Tasks.Task.Delay(50).ContinueWith(async _ => 
+        _ = global::System.Threading.Tasks.Task.Delay(50).ContinueWith(async _ =>
         {
             if (webView != null) await InvokeAsync(webView.Refresh);
         });
