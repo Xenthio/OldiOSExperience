@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -37,6 +39,42 @@
     <script>
         window.getElementWidth = (element) => {
             return element.getBoundingClientRect().width;
+        };
+
+        window.getElementBoundingClientRect = (element) => {
+            const rect = element.getBoundingClientRect();
+            return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+        };
+
+        window.startPositionTracking = (element, dotNetHelper) => {
+            let lastRect = { x: 0, y: 0, width: 0, height: 0 };
+
+            const checkPosition = () => {
+                if (!element.isConnected) return; // Stop if element removed
+
+                const rect = element.getBoundingClientRect();
+
+                // Check if changed significantly (ignore sub-pixel jitter)
+                if (Math.abs(rect.x - lastRect.x) > 1 ||
+                    Math.abs(rect.y - lastRect.y) > 1 ||
+                    Math.abs(rect.width - lastRect.width) > 1 ||
+                    Math.abs(rect.height - lastRect.height) > 1) {
+
+                    lastRect = rect;
+                    dotNetHelper.invokeMethodAsync('OnResize', {
+                        x: rect.x,
+                        y: rect.y,
+                        width: rect.width,
+                        height: rect.height,
+                        offsetWidth: element.offsetWidth,
+                        offsetHeight: element.offsetHeight
+                    });
+                }
+
+                requestAnimationFrame(checkPosition);
+            };
+
+            requestAnimationFrame(checkPosition);
         };
     </script>
 

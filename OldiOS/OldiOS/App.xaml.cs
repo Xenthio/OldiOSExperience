@@ -1,15 +1,18 @@
 ﻿namespace OldiOS
 {
-	public partial class App : Application
-	{
-		public App()
-		{
-			InitializeComponent();
-		}
+    public partial class App : Application
+    {
+        private readonly MainPage _mainPage;
 
-		protected override Window CreateWindow(IActivationState? activationState)
-		{
-			return new Window(new MainPage()) { Title = "OldiOS" };
-		}
-	}
+        public App(MainPage mainPage)
+        {
+            InitializeComponent();
+            _mainPage = mainPage;
+        }
+
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(_mainPage) { Title = "OldiOS" };
+        }
+    }
 }

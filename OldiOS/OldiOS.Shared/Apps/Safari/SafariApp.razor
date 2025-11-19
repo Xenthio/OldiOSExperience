@@ -8,31 +8,162 @@
                 <input type="text" 
                        class="url-input" 
                        placeholder="Search or enter website name"
-                       value="@CurrentUrl" />
+                       @bind="CurrentTab.Url"
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown" />
             </div>
             <button class="refresh-button">↻</button>
         </div>
     </div>
     
     <div class="safari-content">
-        <div class="browser-view">
-            <div class="placeholder-page">
-                <div class="placeholder-icon">🌐</div>
-                <div class="placeholder-text">Safari</div>
-                <div class="placeholder-hint">Enter a URL to browse</div>
+        @if (IsTabSwitcherMode)
+        {
+            <div class="tab-switcher">
+                <div class="tab-list">
+                    @foreach (var tab in Tabs)
+                    {
+                        <div class="tab-item @(tab == CurrentTab ? "active" : "")" @onclick="() => SwitchToTab(tab)">
+                            <div class="tab-header">
+                                <span class="tab-title">@(string.IsNullOrEmpty(tab.Title) ? "New Page" : tab.Title)</span>
+                                <button class="close-tab-button" @onclick="() => CloseTab(tab)" @onclick:stopPropagation="true">×</button>
+                            </div>
+                            <div class="tab-snapshot">
+                                @if (!string.IsNullOrEmpty(tab.SnapshotData))
+                                {
+                                    <img src="@tab.SnapshotData" />
+                                }
+                                else
+                                {
+                                    <div class="tab-placeholder"></div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="browser-view">
+                <UIWebView @ref="webView" Url="@CurrentTab.Url" OnUrlChanged="HandleUrlChanged" Style="width: 100%; height: 100%;" />
+            </div>
+        }
     </div>
     
     <UIToolbar>
-        <button class="toolbar-button">◄</button>
-        <button class="toolbar-button disabled">►</button>
-        <button class="toolbar-button">📑</button>
-        <button class="toolbar-button">📖</button>
-        <button class="toolbar-button">⋯</button>
+        @if (IsTabSwitcherMode)
+        {
+             <button class="toolbar-button" @onclick="AddNewTab">➕</button>
+             <div class="toolbar-spacer"></div>
+             <button class="toolbar-button" @onclick="() => IsTabSwitcherMode = false">Done</button>
+        }
+        else
+        {
+            <button class="toolbar-button" @onclick="GoBack">◄</button>
+            <button class="toolbar-button" @onclick="GoForward">►</button>
+            <button class="toolbar-button" @onclick="ShowTabs">📑</button>
+            <button class="toolbar-button">📖</button>
+            <button class="toolbar-button">⋯</button>
+        }
     </UIToolbar>
 </div>
 
 @code {
-    private string CurrentUrl = "";
+    private bool IsTabSwitcherMode = false;
+    private List<SafariTab> Tabs = new List<SafariTab>();
+    private SafariTab CurrentTab;
+    private UIWebView webView;
+
+    protected override void OnInitialized()
+    {
+        // Initialize with one tab
+        AddNewTab();
+    }
+
+    private void HandleUrlChanged(string newUrl)
+    {
+        CurrentTab.Url = newUrl;
+        // Ideally we'd fetch the title too
+        CurrentTab.Title = newUrl; 
+        StateHasChanged();
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            Navigate();
+        }
+    }
+
+    private void Navigate()
+    {
+        if (!string.IsNullOrWhiteSpace(CurrentTab.Url))
+        {
+            if (!CurrentTab.Url.StartsWith("http://") && !CurrentTab.Url.StartsWith("https://"))
+            {
+                CurrentTab.Url = "https://" + CurrentTab.Url;
+            }
+            webView?.Navigate(CurrentTab.Url);
+        }
+    }
+
+    private void GoBack()
+    {
+        webView?.GoBack();
+    }
+
+    private void GoForward()
+    {
+        webView?.GoForward();
+    }
+
+    private async Task ShowTabs()
+    {
+        // Capture snapshot of current tab
+        if (webView != null)
+        {
+            CurrentTab.SnapshotData = await webView.GetSnapshotAsync();
+        }
+        
+        IsTabSwitcherMode = true;
+        StateHasChanged();
+    }
+
+    private void SwitchToTab(SafariTab tab)
+    {
+        CurrentTab = tab;
+        IsTabSwitcherMode = false;
+        StateHasChanged();
+    }
+
+    private void AddNewTab()
+    {
+        var newTab = new SafariTab { Url = "https://www.google.com", Title = "New Page" };
+        Tabs.Add(newTab);
+        CurrentTab = newTab;
+        IsTabSwitcherMode = false; // Or true if we want to stay in switcher? iOS 5 usually jumps to new tab.
+        StateHasChanged();
+    }
+
+    private void CloseTab(SafariTab tab)
+    {
+        Tabs.Remove(tab);
+        if (Tabs.Count == 0)
+        {
+            AddNewTab();
+        }
+        else if (CurrentTab == tab)
+        {
+            CurrentTab = Tabs.Last();
+        }
+    }
+
+    public class SafariTab
+    {
+        public string Url { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string SnapshotData { get; set; } = "";
+    }
 }

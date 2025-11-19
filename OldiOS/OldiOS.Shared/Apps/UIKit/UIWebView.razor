@@ -1,0 +1,180 @@
+@using Microsoft.JSInterop
+@using OldiOS.Shared.Services
+@inject IJSRuntime JSRuntime
+@inject IServiceProvider ServiceProvider
+@implements IDisposable
+
+<div @ref="containerRef" class="ui-webview-container" style="@Style">
+    @if (WebViewService == null)
+    {
+        <iframe src="@Url" class="ui-webview-iframe" frameborder="0"></iframe>
+    }
+    else if (!string.IsNullOrEmpty(SnapshotData))
+    {
+        <img src="@SnapshotData" class="ui-webview-snapshot" />
+    }
+    else
+    {
+        <div class="ui-webview-placeholder"></div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Url { get; set; } = "";
+    [Parameter] public string Style { get; set; } = "";
+    [Parameter] public EventCallback<string> OnUrlChanged { get; set; }
+    
+    private ElementReference containerRef;
+    private IWebViewService? WebViewService;
+    private string SnapshotData = "";
+    private bool IsVisible = true;
+    private DotNetObjectReference<UIWebView>? objRef;
+    private global::System.Threading.Timer? _resizeDebounceTimer;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            WebViewService = ServiceProvider.GetService(typeof(IWebViewService)) as IWebViewService;
+            if (WebViewService != null)
+            {
+                WebViewService.OnUrlChanged += HandleUrlChanged;
+            }
+        }
+        catch
+        {
+            // Service not found, fallback to iframe
+        }
+    }
+
+    private void HandleUrlChanged(string newUrl)
+    {
+        InvokeAsync(() => OnUrlChanged.InvokeAsync(newUrl));
+    }
+
+    private bool _isReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (WebViewService != null)
+            {
+                objRef = DotNetObjectReference.Create(this);
+                await JSRuntime.InvokeVoidAsync("startPositionTracking", containerRef, objRef);
+
+                // Delay showing the native webview until the app opening animation is likely complete (approx 600ms)
+                _ = Task.Delay(700).ContinueWith(async _ => 
+                {
+                    _isReady = true;
+                    await InvokeAsync(async () => 
+                    {
+                        await UpdateNativeWebViewPosition();
+                        StateHasChanged();
+                    });
+                });
+            }
+        }
+    }
+
+    [JSInvokable]
+    public void OnResize(BoundingClientRect rect)
+    {
+        if (WebViewService != null && IsVisible && string.IsNullOrEmpty(SnapshotData))
+        {
+            // Only update if ready (animation complete)
+            if (!_isReady) return;
+
+            // Since we are polling in JS, we can update directly.
+            // We still want to avoid showing it if it's absurdly small (like during initial 0-scale animation)
+            
+            // Debug logging (throttled by JS change detection)
+            // double scale = (rect.OffsetWidth > 0) ? rect.Width / rect.OffsetWidth : 0;
+            // Console.WriteLine($"UIWebView: {rect.Width:F0}x{rect.Height:F0} (Scale {scale:F2})");
+
+            if (rect.Width > 10 && rect.Height > 10)
+            {
+                 WebViewService.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
+            }
+            else
+            {
+                 WebViewService.Hide();
+            }
+        }
+    }
+
+    public async Task<string> GetSnapshotAsync()
+    {
+        if (WebViewService != null)
+        {
+            SnapshotData = await WebViewService.CaptureSnapshotAsync();
+            WebViewService.Hide();
+            StateHasChanged();
+            return SnapshotData;
+        }
+        return "";
+    }
+
+    public void ClearSnapshot()
+    {
+        SnapshotData = "";
+        StateHasChanged();
+        // Trigger a resize check to reshow
+        // We can't easily trigger the observer, but we can manually check
+        _ = UpdateNativeWebViewPosition();
+    }
+
+    private async Task UpdateNativeWebViewPosition()
+    {
+        if (!_isReady) return;
+
+        try
+        {
+            var rect = await JSRuntime.InvokeAsync<BoundingClientRect>("getElementBoundingClientRect", containerRef);
+            
+            if (rect != null && rect.Width > 10)
+            {
+                 WebViewService?.Show(Url, rect.X, rect.Y, rect.Width, rect.Height);
+            }
+        }
+        catch { }
+    }
+
+    public void GoBack()
+    {
+        WebViewService?.GoBack();
+    }
+
+    public void GoForward()
+    {
+        WebViewService?.GoForward();
+    }
+
+    public void Navigate(string url)
+    {
+        Url = url;
+        WebViewService?.Navigate(url);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _resizeDebounceTimer?.Dispose();
+        if (WebViewService != null)
+        {
+            WebViewService.OnUrlChanged -= HandleUrlChanged;
+            WebViewService.Hide();
+        }
+        objRef?.Dispose();
+    }
+
+    public class BoundingClientRect
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double OffsetWidth { get; set; }
+        public double OffsetHeight { get; set; }
+    }
+}

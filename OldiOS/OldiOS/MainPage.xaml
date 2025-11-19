@@ -6,10 +6,19 @@
              x:Class="OldiOS.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
-        <BlazorWebView.RootComponents>
-            <RootComponent Selector="#app" ComponentType="{x:Type shared:Routes}" />
-        </BlazorWebView.RootComponents>
-    </BlazorWebView>
+    <Grid>
+        <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
+            <BlazorWebView.RootComponents>
+                <RootComponent Selector="#app" ComponentType="{x:Type shared:Routes}" />
+            </BlazorWebView.RootComponents>
+        </BlazorWebView>
+        
+        <WebView x:Name="NativeWebView" 
+                 IsVisible="False" 
+                 HorizontalOptions="Start" 
+                 VerticalOptions="Start"
+                 WidthRequest="0"
+                 HeightRequest="0" />
+    </Grid>
 
 </ContentPage>
