@@ -33,6 +33,9 @@ namespace OldiOS
 
             // Register Media Library Service
             builder.Services.AddSingleton<IMediaLibraryService, MauiMediaLibraryService>();
+            
+            // Register Local File Service for loading local images
+            builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
 
             // Register native haptic service for MAUI
 #if IOS

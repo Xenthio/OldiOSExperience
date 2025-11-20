@@ -1,6 +1,7 @@
 @using OldiOS.Shared.Apps.UIKit
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Apps.Music
+@using OldiOS.Shared.Components
 
 <div class="album-page">
     <UINavigationBar Title="@Title" BackButtonText="Albums" OnBackClick="GoBack" />
@@ -13,7 +14,7 @@
                 <div class="album-artwork">
                     @if (!string.IsNullOrEmpty(AlbumArtPath))
                     {
-                        <img src="@AlbumArtPath" alt="@Title" />
+                        <LocalImage ImageSrc="@AlbumArtPath" Alt="@Title" />
                     }
                     else
                     {

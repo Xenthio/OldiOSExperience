@@ -178,7 +178,7 @@ namespace OldiOS.Services
                                 var coverPath = Path.Combine(parentDir.FullName, name + ext);
                                 if (File.Exists(coverPath))
                                 {
-                                    album.CoverArtPath = ConvertToFileUri(coverPath);
+                                    album.CoverArtPath = coverPath; // Store the actual file path
                                     break;
                                 }
                             }
@@ -194,7 +194,7 @@ namespace OldiOS.Services
 
                             if (firstImage != null)
                             {
-                                album.CoverArtPath = ConvertToFileUri(firstImage);
+                                album.CoverArtPath = firstImage; // Store the actual file path
                             }
                         }
                     }
@@ -206,24 +206,6 @@ namespace OldiOS.Services
             }
 
             await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Converts a local file path to a file:// URI that can be used in BlazorWebView
-        /// </summary>
-        private static string ConvertToFileUri(string localPath)
-        {
-            if (string.IsNullOrEmpty(localPath))
-                return string.Empty;
-
-            // Convert to absolute path
-            var absolutePath = Path.GetFullPath(localPath);
-
-            // Create a proper file:// URI
-            // On Windows, this will be file:///C:/path/to/file
-            // On Unix-like systems, this will be file:///path/to/file
-            var uri = new Uri(absolutePath);
-            return uri.AbsoluteUri;
         }
     }
 }

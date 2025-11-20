@@ -1,5 +1,6 @@
 @* iOS 5 UITableViewCell Component *@
 @using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Components
 
 <div class="uitableviewcell @(IsLast ? "last" : "") @(IsSelectable ? "selectable" : "")" @onclick="OnClick">
     @if (!string.IsNullOrEmpty(TrackNumber))
@@ -10,7 +11,7 @@
     @if (!string.IsNullOrEmpty(Icon))
     {
         <div class="cell-icon">
-            <img src="@Icon" alt="" />
+            <LocalImage ImageSrc="@Icon" Alt="" />
         </div>
     }
     
