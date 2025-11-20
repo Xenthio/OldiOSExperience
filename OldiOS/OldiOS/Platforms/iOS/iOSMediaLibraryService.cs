@@ -47,16 +47,18 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedSongs.Any()) return _cachedSongs;
 
+            // MediaPlayer queries must run on the main thread
+            var query = MPMediaQuery.SongsQuery;
+            var items = query.Items;
+
+            if (items == null || items.Length == 0)
+            {
+                return _cachedSongs;
+            }
+
+            // Process items off the main thread
             await Task.Run(() =>
             {
-                var query = MPMediaQuery.SongsQuery;
-                var items = query.Items;
-
-                if (items == null || items.Length == 0)
-                {
-                    return;
-                }
-
                 foreach (var item in items)
                 {
                     var song = ConvertToSong(item);
@@ -82,16 +84,18 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedAlbums.Any()) return _cachedAlbums;
 
+            // MediaPlayer queries must run on the main thread
+            var query = MPMediaQuery.AlbumsQuery;
+            var collections = query.Collections;
+
+            if (collections == null || collections.Length == 0)
+            {
+                return _cachedAlbums;
+            }
+
+            // Process collections off the main thread
             await Task.Run(() =>
             {
-                var query = MPMediaQuery.AlbumsQuery;
-                var collections = query.Collections;
-
-                if (collections == null || collections.Length == 0)
-                {
-                    return;
-                }
-
                 foreach (var collection in collections)
                 {
                     var album = ConvertToAlbum(collection);
@@ -117,16 +121,18 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedArtists.Any()) return _cachedArtists;
 
+            // MediaPlayer queries must run on the main thread
+            var query = MPMediaQuery.ArtistsQuery;
+            var collections = query.Collections;
+
+            if (collections == null || collections.Length == 0)
+            {
+                return _cachedArtists;
+            }
+
+            // Process collections off the main thread
             await Task.Run(() =>
             {
-                var query = MPMediaQuery.ArtistsQuery;
-                var collections = query.Collections;
-
-                if (collections == null || collections.Length == 0)
-                {
-                    return;
-                }
-
                 foreach (var collection in collections)
                 {
                     var artist = ConvertToArtist(collection);
@@ -152,16 +158,18 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedPlaylists.Any()) return _cachedPlaylists;
 
+            // MediaPlayer queries must run on the main thread
+            var query = MPMediaQuery.PlaylistsQuery;
+            var collections = query.Collections;
+
+            if (collections == null || collections.Length == 0)
+            {
+                return _cachedPlaylists;
+            }
+
+            // Process collections off the main thread
             await Task.Run(() =>
             {
-                var query = MPMediaQuery.PlaylistsQuery;
-                var collections = query.Collections;
-
-                if (collections == null || collections.Length == 0)
-                {
-                    return;
-                }
-
                 foreach (var collection in collections)
                 {
                     if (collection is MPMediaPlaylist playlist)
