@@ -59,7 +59,7 @@
     flex-shrink: 0;
 }
 
-.cell-icon img {
+.cell-icon ::deep img {
     width: 86px;
     height: 86px;
     border-radius: 6px;
