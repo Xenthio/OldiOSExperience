@@ -6,13 +6,25 @@
     <UINavigationBar Title="@Title" BackButtonText="Albums" OnBackClick="GoBack" />
 
     <div class="navigation-view-content">
-        <UITableView>
-            @foreach (var song in Songs)
-            {
-                <UITableViewCell Text="@song.Title" Detail="@FormatTime(song.Duration.TotalSeconds)"
-                OnClick="() => PlaySong(song)" />
-            }
-        </UITableView>
+        @if (Songs.Any())
+        {
+            <UITableView>
+                @foreach (var song in Songs)
+                {
+                    <UITableViewCell Text="@song.Title" Detail="@FormatTime(song.Duration.TotalSeconds)"
+                    OnClick="() => PlaySong(song)" />
+                }
+            </UITableView>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <img src="_content/OldiOS.Shared/images/icons/song-icon.png" alt="Song" />
+                </div>
+                <div class="empty-text">No Songs</div>
+            </div>
+        }
     </div>
 </div>
 

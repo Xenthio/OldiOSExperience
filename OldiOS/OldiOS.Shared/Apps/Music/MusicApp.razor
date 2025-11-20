@@ -121,15 +121,7 @@
             case "playlists":
                 return builder => { builder.OpenComponent<PlaylistsRoot>(0); builder.CloseComponent(); };
             default:
-                return builder => { 
-                    builder.OpenElement(0, "div"); 
-                    builder.AddAttribute(1, "class", "view-content");
-                    builder.OpenComponent<UINavigationBar>(2);
-                    builder.AddAttribute(3, "Title", "More");
-                    builder.CloseComponent();
-                    builder.AddMarkupContent(4, "<div style=\"padding: 20px; text-align: center; color: #666;\">Not Implemented</div>");
-                    builder.CloseElement();
-                };
+                return builder => { builder.OpenComponent<MoreRoot>(0); builder.CloseComponent(); };
         }
     }
 
