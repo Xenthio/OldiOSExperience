@@ -1,0 +1,120 @@
+.cover-flow-container {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    perspective: 800px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.cover-flow-stage {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+}
+
+.cover-item {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    transition: transform 0.3s ease-out, z-index 0s;
+    transform-style: preserve-3d;
+    -webkit-box-reflect: below 0px linear-gradient(to bottom, rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.4));
+}
+
+.cover-image {
+    width: 100%;
+    height: 100%;
+    background: #333;
+    border: 1px solid #444;
+}
+
+.cover-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-art {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #444, #222);
+}
+
+.note-icon {
+    font-size: 60px;
+    opacity: 0.5;
+}
+
+/* Reflection simulation for browsers that don't support box-reflect */
+.reflection {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleY(-1);
+    opacity: 0.4;
+    display: none;
+    /* Hidden by default, relying on box-reflect where supported */
+}
+
+@supports not (-webkit-box-reflect: below) {
+    .reflection {
+        display: block;
+    }
+}
+
+.reflection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), #000);
+}
+
+.album-info {
+    margin-top: 40px;
+    text-align: center;
+    color: white;
+    z-index: 200;
+}
+
+.album-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.album-artist {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.cover-flow-controls {
+    position: absolute;
+    bottom: 20px;
+    width: 80%;
+    z-index: 200;
+}
+
+.cover-flow-controls input[type=range] {
+    width: 100%;
+}
+
+.no-albums {
+    color: #666;
+    font-size: 24px;
+}

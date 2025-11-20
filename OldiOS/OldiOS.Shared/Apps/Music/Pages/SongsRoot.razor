@@ -1,0 +1,39 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="songs-root">
+    <UINavigationBar Title="Songs" LeftButtonText="@(MusicApp.CurrentSong != null ? "Now Playing" : "")"
+        OnLeftButtonClick="ShowNowPlaying" />
+
+    <div class="navigation-view-content">
+        <UITableView>
+            @foreach (var song in MusicApp.Songs)
+            {
+                <UITableViewCell Text="@song.Title" Detail="@song.Artist" OnClick="() => PlaySong(song)" />
+            }
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    private async Task PlaySong(Song song)
+    {
+        await MusicApp.PlaySong(song, MusicApp.Songs);
+        await Navigator.Push(RenderNowPlaying());
+    }
+
+    private async Task ShowNowPlaying()
+    {
+        await Navigator.Push(RenderNowPlaying());
+    }
+
+    private RenderFragment RenderNowPlaying() => builder =>
+    {
+        builder.OpenComponent<NowPlayingPage>(0);
+        builder.CloseComponent();
+    };
+}

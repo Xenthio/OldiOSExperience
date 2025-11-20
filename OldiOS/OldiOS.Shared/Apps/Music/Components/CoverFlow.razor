@@ -1,0 +1,148 @@
+@using OldiOS.Shared.Models
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div class="cover-flow-container" @onwheel="HandleWheel">
+    <div class="cover-flow-stage">
+        @if (Albums == null || !Albums.Any())
+        {
+            <div class="no-albums">No Albums</div>
+        }
+        else
+        {
+            @for (int i = 0; i < Albums.Count; i++)
+            {
+                var album = Albums[i];
+                var offset = i - SelectedIndex;
+                var transform = GetTransform(offset);
+                var zIndex = 100 - Math.Abs(offset);
+
+                <div class="cover-item"
+            style="transform: @transform; z-index: @zIndex; @(offset == 0 ? "box-shadow: 0 10px 30px rgba(0,0,0,0.5);" : "")"
+            @onclick="() => SelectAlbum(album)">
+
+                    <div class="cover-image">
+                        @if (!string.IsNullOrEmpty(album.CoverArtPath))
+                        {
+                            <img src="@album.CoverArtPath" alt="@album.Title" />
+                        }
+                        else
+                        {
+                            <!-- Placeholder Art -->
+                            <div class="placeholder-art">
+                                <span class="note-icon">🎵</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="reflection">
+                        @if (!string.IsNullOrEmpty(album.CoverArtPath))
+                        {
+                            <img src="@album.CoverArtPath" alt="" />
+                        }
+                        else
+                        {
+                            <div class="placeholder-art">
+                                <span class="note-icon">🎵</span>
+                            </div>
+                        }
+                        <div class="reflection-overlay"></div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @if (SelectedAlbum != null)
+    {
+        <div class="album-info">
+            <div class="album-title">@SelectedAlbum.Title</div>
+            <div class="album-artist">@SelectedAlbum.Artist</div>
+        </div>
+    }
+
+    <div class="cover-flow-controls">
+        <input type="range" min="0" max="@(Albums?.Count - 1 ?? 0)" value="@SelectedIndex" @oninput="HandleScroll" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Album> Albums { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Album> OnAlbumSelected { get; set; }
+
+    private int SelectedIndex = 0;
+    private Album? SelectedAlbum => (Albums != null && SelectedIndex >= 0 && SelectedIndex < Albums.Count) ?
+    Albums[SelectedIndex] : null;
+
+    protected override void OnParametersSet()
+    {
+        if (Albums != null && Albums.Any() && SelectedIndex >= Albums.Count)
+        {
+            SelectedIndex = 0;
+        }
+    }
+
+    private string GetTransform(int offset)
+    {
+        // Classic Cover Flow math
+        // Center item: flat, z=0
+        // Side items: rotated 45deg or -45deg, pushed back
+
+        const int spacing = 60; // px between covers
+        const int zDepth = -200; // how far back side items go
+        const int rotation = 60; // degrees
+
+        if (offset == 0)
+        {
+            return "translate3d(0, 0, 0) rotateY(0deg)";
+        }
+        else
+        {
+            var x = offset * spacing;
+            // Add extra gap for the center item
+            if (offset > 0) x += 100;
+            if (offset < 0) x -= 100;
+
+            var r = offset > 0 ? -rotation : rotation;
+
+            return $"translate3d({x}px, 0, {zDepth}px) rotateY({r}deg)";
+        }
+    }
+
+    private void SelectAlbum(Album album)
+    {
+        var index = Albums.IndexOf(album);
+        if (index == SelectedIndex)
+        {
+            // Flip or open details? For now just notify
+            OnAlbumSelected.InvokeAsync(album);
+        }
+        else
+        {
+            SelectedIndex = index;
+        }
+    }
+
+    private void HandleScroll(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            SelectedIndex = val;
+        }
+    }
+
+    private void HandleWheel(WheelEventArgs e)
+    {
+        if (e.DeltaY > 0)
+        {
+            if (SelectedIndex < Albums.Count - 1) SelectedIndex++;
+        }
+        else
+        {
+            if (SelectedIndex > 0) SelectedIndex--;
+        }
+    }
+}

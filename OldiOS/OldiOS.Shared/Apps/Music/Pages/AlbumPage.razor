@@ -1,0 +1,48 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="album-page">
+    <UINavigationBar Title="@Title" BackButtonText="Albums" OnBackClick="GoBack" />
+
+    <div class="navigation-view-content">
+        <UITableView>
+            @foreach (var song in Songs)
+            {
+                <UITableViewCell Text="@song.Title" Detail="@FormatTime(song.Duration.TotalSeconds)"
+                OnClick="() => PlaySong(song)" />
+            }
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Album";
+    [Parameter] public List<Song> Songs { get; set; } = new();
+
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    private async Task GoBack()
+    {
+        await Navigator.Pop();
+    }
+
+    private async Task PlaySong(Song song)
+    {
+        await MusicApp.PlaySong(song, Songs);
+        await Navigator.Push(RenderNowPlaying());
+    }
+
+    private RenderFragment RenderNowPlaying() => builder =>
+    {
+        builder.OpenComponent<NowPlayingPage>(0);
+        builder.CloseComponent();
+    };
+
+    private string FormatTime(double seconds)
+    {
+        var ts = TimeSpan.FromSeconds(seconds);
+        return $"{(int)ts.TotalMinutes}:{ts.Seconds:D2}";
+    }
+}

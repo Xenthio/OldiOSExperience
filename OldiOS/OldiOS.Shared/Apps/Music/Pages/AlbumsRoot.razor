@@ -1,0 +1,56 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="albums-root">
+    <UINavigationBar Title="Albums" RightButtonText="Cover Flow" OnRightButtonClick="ToggleCoverFlow" />
+
+    <div class="navigation-view-content">
+        <UITableView>
+            <UITableViewCell Text="All Songs" Icon="_content/OldiOS.Shared/images/icons/tab-songs.png"
+                OnClick="ShowAllSongs" ShowDisclosure="true" />
+            @foreach (var album in MusicApp.Albums)
+            {
+                <UITableViewCell Text="@album.Title" Detail="@album.Artist"
+                Icon="@(string.IsNullOrEmpty(album.CoverArtPath) ? "_content/OldiOS.Shared/images/icons/album-icon.png" : album.CoverArtPath)"
+                OnClick="() => ShowAlbumDetail(album)" ShowDisclosure="true" />
+            }
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    private void ToggleCoverFlow()
+    {
+        MusicApp.ToggleCoverFlow();
+    }
+
+    private async Task ShowAllSongs()
+    {
+        await Navigator.Push(RenderAllSongs());
+    }
+
+    private async Task ShowAlbumDetail(Album album)
+    {
+        await Navigator.Push(RenderAlbumPage(album));
+    }
+
+    private RenderFragment RenderAllSongs() => builder =>
+    {
+        builder.OpenComponent<AlbumPage>(0);
+        builder.AddAttribute(1, "Title", "All Songs");
+        builder.AddAttribute(2, "Songs", MusicApp.Songs);
+        builder.CloseComponent();
+    };
+
+    private RenderFragment RenderAlbumPage(Album album) => builder =>
+    {
+        builder.OpenComponent<AlbumPage>(0);
+        builder.AddAttribute(1, "Title", album.Title);
+        builder.AddAttribute(2, "Songs", album.Songs);
+        builder.CloseComponent();
+    };
+}

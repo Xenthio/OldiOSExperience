@@ -1,85 +1,310 @@
 @* iOS 5 Music/iPod App *@
 @using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Services
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music.Components
+@using OldiOS.Shared.Apps.Music.Pages
+@inject IMediaLibraryService MediaService
+@inject IJSRuntime JS
 
-<div class="music-app">
-    <UINavigationBar Title="@GetCurrentTitle()" />
-    
-    <div class="music-content">
-        @if (CurrentTab == "playlists")
+<CascadingValue Value="this">
+    <div class="music-app">
+        @if (IsCoverFlowVisible)
         {
-            <div class="playlists-list">
-                <div class="empty-state">
-                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/playlist-icon.png" alt="Playlist" /></div>
-                    <div class="empty-text">No Playlists</div>
-                </div>
+            <div class="cover-flow-wrapper">
+                <CoverFlow Albums="Albums" OnAlbumSelected="HandleCoverFlowSelection" />
+                <button class="cover-flow-toggle" @onclick="ToggleCoverFlow">Done</button>
             </div>
         }
-        else if (CurrentTab == "artists")
+        else
         {
-            <div class="artists-list">
-                <div class="empty-state">
-                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/artist-icon.png" alt="Artist" /></div>
-                    <div class="empty-text">No Artists</div>
-                </div>
+            <div class="music-content">
+                @if (IsLoading)
+                {
+                    <div class="loading-state">
+                        <UIActivityIndicator IsVisible="true" Size="UIActivityIndicatorSize.Large" />
+                        <div class="loading-text">Loading Library...</div>
+                    </div>
+                }
+                else
+                {
+                    @* We use @key to force re-render of ViewNavigator when tab changes, 
+                       effectively resetting the navigation stack for the new tab. *@
+                    <ViewNavigator @key="CurrentTab" RootView="GetRootViewForTab(CurrentTab)" />
+                }
             </div>
+
+            <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
         }
-        else if (CurrentTab == "songs")
-        {
-            <div class="songs-list">
-                <div class="empty-state">
-                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/song-icon.png" alt="Song" /></div>
-                    <div class="empty-text">No Songs</div>
-                </div>
-            </div>
-        }
-        else if (CurrentTab == "albums")
-        {
-            <div class="albums-grid">
-                <div class="empty-state">
-                    <div class="empty-icon"><img src="_content/OldiOS.Shared/images/icons/album-icon.png" alt="Album" /></div>
-                    <div class="empty-text">No Albums</div>
-                </div>
-            </div>
-        }
-        else if (CurrentTab == "more")
-        {
-            <UITableView>
-                <UITableViewSection>
-                    <UITableViewCell Text="Audiobooks" ShowDisclosure="true" />
-                    <UITableViewCell Text="Compilations" ShowDisclosure="true" />
-                    <UITableViewCell Text="Composers" ShowDisclosure="true" />
-                    <UITableViewCell Text="Genres" ShowDisclosure="true" />
-                    <UITableViewCell Text="iTunes U" ShowDisclosure="true" />
-                    <UITableViewCell Text="Podcasts" ShowDisclosure="true" IsLast="true" />
-                </UITableViewSection>
-            </UITableView>
-        }
+
+        <!-- Hidden Audio Element -->
+        <audio @ref="audioElement" @onended="PlayNext" @ontimeupdate="HandleTimeUpdate"></audio>
     </div>
-    
-    <UITabBar Items="@TabBarItems" OnItemSelected="HandleTabSelected" />
-</div>
+</CascadingValue>
 
 @code {
-    private string CurrentTab = "playlists";
+    public string CurrentTab { get; private set; } = "playlists";
+    public bool IsCoverFlowVisible { get; private set; } = false;
+    public bool IsLoading { get; private set; } = true;
+
+    public List<Song> Songs { get; private set; } = new();
+    public List<Album> Albums { get; private set; } = new();
+    public List<Artist> Artists { get; private set; } = new();
+
+    // Playback State
+    public Song? CurrentSong { get; private set; }
+    public bool IsPlaying { get; private set; } = false;
+    public double CurrentTime { get; private set; } = 0;
+    public double TotalDuration { get; private set; } = 0;
+    public double Volume { get; private set; } = 1.0;
     
+    public event Action? OnPlayerStateChanged;
+
+    private ElementReference audioElement;
+    private List<Song> PlayQueue = new();
+    private int CurrentQueueIndex = -1;
+
     private List<UITabBarItem> TabBarItems = new()
     {
-        new UITabBarItem { Title = "Playlists", Tag = "playlists", Icon = "_content/OldiOS.Shared/images/icons/tab-playlists.png", IsSelected = true },
+        new UITabBarItem
+        {
+            Title = "Playlists",
+            Tag = "playlists",
+            Icon = "_content/OldiOS.Shared/images/icons/tab-playlists.png",
+            IsSelected = true
+        },
         new UITabBarItem { Title = "Artists", Tag = "artists", Icon = "_content/OldiOS.Shared/images/icons/tab-artists.png" },
         new UITabBarItem { Title = "Songs", Tag = "songs", Icon = "_content/OldiOS.Shared/images/icons/tab-songs.png" },
         new UITabBarItem { Title = "Albums", Tag = "albums", Icon = "_content/OldiOS.Shared/images/icons/tab-albums.png" },
         new UITabBarItem { Title = "More", Tag = "more", Icon = "_content/OldiOS.Shared/images/icons/tab-more.png" }
     };
-    
-    private string GetCurrentTitle()
+
+    protected override async Task OnInitializedAsync()
     {
-        var selectedTab = TabBarItems.FirstOrDefault(t => t.Tag == CurrentTab);
-        return selectedTab?.Title ?? "Music";
+        await LoadLibrary();
     }
-    
+
+    private async Task LoadLibrary()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            Songs = await MediaService.GetAllSongsAsync();
+            Albums = await MediaService.GetAlbumsAsync();
+            Artists = await MediaService.GetArtistsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading library: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private RenderFragment GetRootViewForTab(string tab)
+    {
+        switch (tab)
+        {
+            case "albums":
+                return builder => { builder.OpenComponent<AlbumsRoot>(0); builder.CloseComponent(); };
+            case "songs":
+                return builder => { builder.OpenComponent<SongsRoot>(0); builder.CloseComponent(); };
+            case "artists":
+                // Placeholder for now, or reuse existing logic if we had a page
+                return builder => { 
+                    builder.OpenElement(0, "div"); 
+                    builder.AddAttribute(1, "class", "view-content");
+                    builder.OpenComponent<UINavigationBar>(2);
+                    builder.AddAttribute(3, "Title", "Artists");
+                    builder.CloseComponent();
+                    builder.OpenComponent<UITableView>(4);
+                    foreach(var artist in Artists) {
+                         builder.OpenComponent<UITableViewCell>(5);
+                         builder.AddAttribute(6, "Text", artist.Name);
+                         builder.AddAttribute(7, "Detail", $"{artist.Albums.Count} albums");
+                         builder.CloseComponent();
+                    }
+                    builder.CloseComponent();
+                    builder.CloseElement();
+                };
+            case "playlists":
+                 return builder => { 
+                    builder.OpenElement(0, "div"); 
+                    builder.AddAttribute(1, "class", "view-content");
+                    builder.OpenComponent<UINavigationBar>(2);
+                    builder.AddAttribute(3, "Title", "Playlists");
+                    builder.CloseComponent();
+                    builder.OpenElement(4, "div");
+                    builder.AddAttribute(5, "class", "playlists-list");
+                    builder.OpenElement(6, "div");
+                    builder.AddAttribute(7, "class", "empty-state");
+                    builder.AddMarkupContent(8, "<div class=\"empty-icon\"><img src=\"_content/OldiOS.Shared/images/icons/playlist-icon.png\" alt=\"Playlist\" /></div><div class=\"empty-text\">No Playlists</div>");
+                    builder.CloseElement();
+                    builder.CloseElement();
+                    builder.CloseElement();
+                };
+            default:
+                return builder => { 
+                    builder.OpenElement(0, "div"); 
+                    builder.AddAttribute(1, "class", "view-content");
+                    builder.OpenComponent<UINavigationBar>(2);
+                    builder.AddAttribute(3, "Title", "More");
+                    builder.CloseComponent();
+                    builder.AddMarkupContent(4, "<div style=\"padding: 20px; text-align: center; color: #666;\">Not Implemented</div>");
+                    builder.CloseElement();
+                };
+        }
+    }
+
     private void HandleTabSelected(UITabBarItem item)
     {
         CurrentTab = item.Tag;
         StateHasChanged();
+    }
+
+    public void ToggleCoverFlow()
+    {
+        IsCoverFlowVisible = !IsCoverFlowVisible;
+        StateHasChanged();
+    }
+
+    private void HandleCoverFlowSelection(Album album)
+    {
+        IsCoverFlowVisible = false;
+        // We need to navigate to the album. 
+        // Since we are resetting navigation on tab switch, we might need a way to deep link.
+        // For now, just play it.
+        _ = PlayAlbum(album);
+    }
+
+    // Playback Logic
+
+    public async Task PlaySong(Song song, List<Song> context)
+    {
+        CurrentSong = song;
+        PlayQueue = context.ToList();
+        CurrentQueueIndex = PlayQueue.IndexOf(song);
+
+        await StartPlayback();
+    }
+
+    public async Task PlayAlbum(Album album)
+    {
+        if (!album.Songs.Any()) return;
+        await PlaySong(album.Songs.First(), album.Songs);
+    }
+
+    private async Task StartPlayback()
+    {
+        if (CurrentSong == null) return;
+
+        try
+        {
+            var src = CurrentSong.FilePath;
+            try 
+            {
+                if (!src.StartsWith("http"))
+                {
+                    src = new Uri(src).AbsoluteUri;
+                }
+            }
+            catch
+            {
+                if (!src.StartsWith("http") && !src.StartsWith("file://"))
+                {
+                    src = "file://" + src;
+                }
+            }
+
+            await JS.InvokeVoidAsync("eval", $"document.querySelector('audio').src = '{src.Replace("\\", "\\\\")}';");
+            await JS.InvokeVoidAsync("eval", "document.querySelector('audio').play();");
+            IsPlaying = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Playback error: {ex.Message}");
+        }
+        
+        NotifyStateChanged();
+    }
+
+    public async Task TogglePlayback()
+    {
+        if (IsPlaying)
+        {
+            await JS.InvokeVoidAsync("eval", "document.querySelector('audio').pause();");
+            IsPlaying = false;
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("eval", "document.querySelector('audio').play();");
+            IsPlaying = true;
+        }
+        NotifyStateChanged();
+    }
+
+    public async Task PlayNext()
+    {
+        if (CurrentQueueIndex < PlayQueue.Count - 1)
+        {
+            CurrentQueueIndex++;
+            CurrentSong = PlayQueue[CurrentQueueIndex];
+            await StartPlayback();
+        }
+        else
+        {
+            IsPlaying = false;
+            NotifyStateChanged();
+        }
+    }
+
+    public async Task PlayPrevious()
+    {
+        if (CurrentTime > 3) 
+        {
+            await JS.InvokeVoidAsync("eval", "document.querySelector('audio').currentTime = 0;");
+        }
+        else if (CurrentQueueIndex > 0)
+        {
+            CurrentQueueIndex--;
+            CurrentSong = PlayQueue[CurrentQueueIndex];
+            await StartPlayback();
+        }
+    }
+
+    public async Task Seek(ChangeEventArgs e)
+    {
+        if (double.TryParse(e.Value?.ToString(), out double val))
+        {
+            await JS.InvokeVoidAsync("eval", $"document.querySelector('audio').currentTime = {val};");
+        }
+    }
+
+    public async Task SetVolume(ChangeEventArgs e)
+    {
+        if (double.TryParse(e.Value?.ToString(), out double val))
+        {
+            Volume = val;
+            await JS.InvokeVoidAsync("eval", $"document.querySelector('audio').volume = {val};");
+            NotifyStateChanged();
+        }
+    }
+
+    private async Task HandleTimeUpdate()
+    {
+        CurrentTime = await JS.InvokeAsync<double>("eval", "document.querySelector('audio').currentTime");
+        TotalDuration = await JS.InvokeAsync<double>("eval", "document.querySelector('audio').duration || 0");
+        NotifyStateChanged();
+    }
+
+    private void NotifyStateChanged()
+    {
+        StateHasChanged();
+        OnPlayerStateChanged?.Invoke();
     }
 }

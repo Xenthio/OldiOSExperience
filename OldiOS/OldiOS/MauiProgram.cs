@@ -31,6 +31,9 @@ namespace OldiOS
             builder.Services.AddSingleton<INativeBatteryService, MauiNativeBatteryService>();
             builder.Services.AddSingleton<BatteryService>();
 
+            // Register Media Library Service
+            builder.Services.AddSingleton<IMediaLibraryService, MauiMediaLibraryService>();
+
             // Register native haptic service for MAUI
 #if IOS
 				// iOS platform registration (in Platforms/iOS/HapticsRegistration_iOS.cs)
@@ -40,8 +43,8 @@ namespace OldiOS
 #endif
 
 #if DEBUG
-	        builder.Services.AddBlazorWebViewDeveloperTools();
-	        builder.Logging.AddDebug();
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Logging.AddDebug();
 #endif
 
             // Register WebView Service

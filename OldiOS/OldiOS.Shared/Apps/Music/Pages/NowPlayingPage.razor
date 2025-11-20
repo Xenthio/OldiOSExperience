@@ -1,0 +1,86 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="now-playing-page">
+    <UINavigationBar Title="Now Playing" BackButtonText="Back" OnBackClick="GoBack" />
+
+    <div class="navigation-view-content">
+        <div class="now-playing-art">
+            @if (MusicApp.CurrentSong != null && !string.IsNullOrEmpty(MusicApp.CurrentSong.CoverArtPath))
+            {
+                <img src="@MusicApp.CurrentSong.CoverArtPath" alt="Album Art" />
+            }
+            else
+            {
+                <div class="placeholder-art">🎵</div>
+            }
+            <div class="reflection-overlay"></div>
+        </div>
+
+        <div class="now-playing-info">
+            <div class="song-title">@(MusicApp.CurrentSong?.Title ?? "Unknown Title")</div>
+            <div class="song-artist">@(MusicApp.CurrentSong?.Artist ?? "Unknown Artist")</div>
+            <div class="song-album">@(MusicApp.CurrentSong?.Album ?? "Unknown Album")</div>
+        </div>
+
+        <div class="playback-controls">
+            <div class="progress-bar">
+                <span class="time-current">@FormatTime(MusicApp.CurrentTime)</span>
+                <input type="range" min="0" max="@MusicApp.TotalDuration" value="@MusicApp.CurrentTime"
+                    @oninput="Seek" />
+                <span class="time-total">@FormatTime(MusicApp.TotalDuration)</span>
+            </div>
+
+            <div class="media-buttons">
+                <button class="media-btn prev" @onclick="MusicApp.PlayPrevious">⏮</button>
+                <button class="media-btn play-pause" @onclick="MusicApp.TogglePlayback">
+                    @(MusicApp.IsPlaying ? "⏸" : "▶")
+                </button>
+                <button class="media-btn next" @onclick="MusicApp.PlayNext">⏭</button>
+            </div>
+
+            <div class="volume-control">
+                <span class="vol-icon">🔈</span>
+                <input type="range" min="0" max="1" step="0.1" value="@MusicApp.Volume" @oninput="SetVolume" />
+                <span class="vol-icon">🔊</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        MusicApp.OnPlayerStateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        MusicApp.OnPlayerStateChanged -= StateHasChanged;
+    }
+
+    private async Task GoBack()
+    {
+        await Navigator.Pop();
+    }
+
+    private async Task Seek(ChangeEventArgs e)
+    {
+        await MusicApp.Seek(e);
+    }
+
+    private async Task SetVolume(ChangeEventArgs e)
+    {
+        await MusicApp.SetVolume(e);
+    }
+
+    private string FormatTime(double seconds)
+    {
+        var ts = TimeSpan.FromSeconds(seconds);
+        return $"{(int)ts.TotalMinutes}:{ts.Seconds:D2}";
+    }
+}
