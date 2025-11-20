@@ -7,6 +7,27 @@
     flex-direction: column;
 }
 
+/* Music app specific table cell styling */
+.albums-root ::deep .uitableviewcell {
+    background-color: #FFFFFF;
+    min-height: 110px;
+    height: 112px;
+    box-shadow: none;
+}
+
+.albums-root ::deep .uitableviewcell:last-child {
+    height: 110px;
+}
+
+.albums-root ::deep .uitableviewcell.selectable:active {
+    background-size: 2px 110px;
+}
+
+.albums-root ::deep .cell-icon img {
+    width: 110px;
+    height: 110px;
+}
+
 .empty-state {
     display: flex;
     flex-direction: column;

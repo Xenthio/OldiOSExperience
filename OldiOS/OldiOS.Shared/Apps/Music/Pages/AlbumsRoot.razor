@@ -62,7 +62,9 @@
     {
         builder.OpenComponent<AlbumPage>(0);
         builder.AddAttribute(1, "Title", album.Title);
-        builder.AddAttribute(2, "Songs", album.Songs);
+        builder.AddAttribute(2, "ArtistName", album.Artist);
+        builder.AddAttribute(3, "AlbumArtPath", album.CoverArtPath);
+        builder.AddAttribute(4, "Songs", album.Songs);
         builder.CloseComponent();
     };
 }
