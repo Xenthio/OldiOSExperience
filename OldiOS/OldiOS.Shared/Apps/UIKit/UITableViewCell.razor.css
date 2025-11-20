@@ -22,6 +22,27 @@
     height: 86px;
 }
 
+/* Plain (non-grouped) table view cells - larger rows with white background */
+.uitableview.plain .uitableviewcell {
+    background-color: #FFFFFF;
+    min-height: 110px;
+    height: 112px;
+    box-shadow: none; /* No top highlight in plain tables */
+}
+
+.uitableview.plain .uitableviewcell:last-child {
+    height: 110px;
+}
+
+.uitableview.plain .uitableviewcell.selectable:active {
+    background-size: 2px 110px;
+}
+
+.uitableview.plain .cell-icon img {
+    width: 110px;
+    height: 110px;
+}
+
 .uitableviewcell.selectable {
     cursor: pointer;
 }

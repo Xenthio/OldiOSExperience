@@ -6,24 +6,3 @@
     display: flex;
     flex-direction: column;
 }
-
-/* Music app specific table cell styling */
-.artist-page ::deep .uitableviewcell {
-    background-color: #FFFFFF;
-    min-height: 110px;
-    height: 112px;
-    box-shadow: none;
-}
-
-.artist-page ::deep .uitableviewcell:last-child {
-    height: 110px;
-}
-
-.artist-page ::deep .uitableviewcell.selectable:active {
-    background-size: 2px 110px;
-}
-
-.artist-page ::deep .cell-icon img {
-    width: 110px;
-    height: 110px;
-}
