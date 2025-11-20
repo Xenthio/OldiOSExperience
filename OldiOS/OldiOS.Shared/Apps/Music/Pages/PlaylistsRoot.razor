@@ -1,0 +1,50 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="playlists-root">
+    <UINavigationBar Title="Playlists" />
+
+    <div class="navigation-view-content">
+        @if (MusicApp.Playlists.Any())
+        {
+            <UITableView>
+                @foreach (var playlist in MusicApp.Playlists)
+                {
+                    <UITableViewCell Text="@playlist.Name" 
+                        Detail="@($"{playlist.Songs.Count} song{(playlist.Songs.Count != 1 ? "s" : "")}")"
+                        Icon="_content/OldiOS.Shared/images/icons/tab-playlists.png"
+                        OnClick="() => ShowPlaylistDetail(playlist)" 
+                        ShowDisclosure="true" />
+                }
+            </UITableView>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <img src="_content/OldiOS.Shared/images/icons/playlist-icon.png" alt="Playlist" />
+                </div>
+                <div class="empty-text">No Playlists</div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    private async Task ShowPlaylistDetail(Playlist playlist)
+    {
+        await Navigator.Push(RenderPlaylistPage(playlist));
+    }
+
+    private RenderFragment RenderPlaylistPage(Playlist playlist) => builder =>
+    {
+        builder.OpenComponent<AlbumPage>(0);
+        builder.AddAttribute(1, "Title", playlist.Name);
+        builder.AddAttribute(2, "Songs", playlist.Songs);
+        builder.CloseComponent();
+    };
+}

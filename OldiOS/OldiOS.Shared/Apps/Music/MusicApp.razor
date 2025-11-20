@@ -50,6 +50,7 @@
     public List<Song> Songs { get; private set; } = new();
     public List<Album> Albums { get; private set; } = new();
     public List<Artist> Artists { get; private set; } = new();
+    public List<Playlist> Playlists { get; private set; } = new();
 
     // Playback State
     public Song? CurrentSong { get; private set; }
@@ -94,6 +95,7 @@
             Songs = await MediaService.GetAllSongsAsync();
             Albums = await MediaService.GetAlbumsAsync();
             Artists = await MediaService.GetArtistsAsync();
+            Playlists = await MediaService.GetPlaylistsAsync();
         }
         catch (Exception ex)
         {
@@ -115,39 +117,9 @@
             case "songs":
                 return builder => { builder.OpenComponent<SongsRoot>(0); builder.CloseComponent(); };
             case "artists":
-                // Placeholder for now, or reuse existing logic if we had a page
-                return builder => { 
-                    builder.OpenElement(0, "div"); 
-                    builder.AddAttribute(1, "class", "view-content");
-                    builder.OpenComponent<UINavigationBar>(2);
-                    builder.AddAttribute(3, "Title", "Artists");
-                    builder.CloseComponent();
-                    builder.OpenComponent<UITableView>(4);
-                    foreach(var artist in Artists) {
-                         builder.OpenComponent<UITableViewCell>(5);
-                         builder.AddAttribute(6, "Text", artist.Name);
-                         builder.AddAttribute(7, "Detail", $"{artist.Albums.Count} albums");
-                         builder.CloseComponent();
-                    }
-                    builder.CloseComponent();
-                    builder.CloseElement();
-                };
+                return builder => { builder.OpenComponent<ArtistsRoot>(0); builder.CloseComponent(); };
             case "playlists":
-                 return builder => { 
-                    builder.OpenElement(0, "div"); 
-                    builder.AddAttribute(1, "class", "view-content");
-                    builder.OpenComponent<UINavigationBar>(2);
-                    builder.AddAttribute(3, "Title", "Playlists");
-                    builder.CloseComponent();
-                    builder.OpenElement(4, "div");
-                    builder.AddAttribute(5, "class", "playlists-list");
-                    builder.OpenElement(6, "div");
-                    builder.AddAttribute(7, "class", "empty-state");
-                    builder.AddMarkupContent(8, "<div class=\"empty-icon\"><img src=\"_content/OldiOS.Shared/images/icons/playlist-icon.png\" alt=\"Playlist\" /></div><div class=\"empty-text\">No Playlists</div>");
-                    builder.CloseElement();
-                    builder.CloseElement();
-                    builder.CloseElement();
-                };
+                return builder => { builder.OpenComponent<PlaylistsRoot>(0); builder.CloseComponent(); };
             default:
                 return builder => { 
                     builder.OpenElement(0, "div"); 
