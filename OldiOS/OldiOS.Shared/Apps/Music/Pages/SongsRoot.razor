@@ -14,7 +14,7 @@
                 @foreach (var song in MusicApp.Songs)
                 {
                     <UITableViewCell Text="@song.Title" Detail="@song.Artist" 
-                        OnClick="() => PlaySong(song)" />
+                        OnClick="() => PlaySong(song)" ShowDisclosure="false" />
                 }
             </UITableView>
         }

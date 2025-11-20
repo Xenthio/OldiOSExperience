@@ -9,10 +9,15 @@
         @if (Songs.Any())
         {
             <UITableView>
-                @foreach (var song in Songs)
+                @for (int i = 0; i < Songs.Count; i++)
                 {
-                    <UITableViewCell Text="@song.Title" Detail="@FormatTime(song.Duration.TotalSeconds)"
-                    OnClick="() => PlaySong(song)" />
+                    var song = Songs[i];
+                    var trackNum = (i + 1).ToString();
+                    <UITableViewCell 
+                        TrackNumber="@trackNum"
+                        Text="@song.Title" 
+                        RightDetail="@FormatTime(song.Duration.TotalSeconds)"
+                        OnClick="() => PlaySong(song)" />
                 }
             </UITableView>
         }
