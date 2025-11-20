@@ -4,6 +4,9 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.navigation-view-content {
     background: #E8E8ED;
 }
 
