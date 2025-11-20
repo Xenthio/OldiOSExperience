@@ -1011,3 +1011,26 @@ This ensures:
 **Total:** 24 image path references fixed across 9 CSS files
 
 **Build Status:** ✅ Clean build with 0 errors, 0 warnings (except 1 existing unused field warning in GeneralSettings.razor)
+
+## Music App Improvements (November 2025)
+
+**Date:** November 20, 2025
+
+**Task:** Flesh out the Music app to make it look correct and fully usable like the Settings app.
+
+**Current State:**
+- Music app has experimental frame and navigation structure
+- Basic playback functionality exists but is heavily untested
+- Many UI elements are unstyled or missing
+- No mock/demo data service for web
+- CoverFlow component needs styling improvements
+- Now Playing screen needs polish
+
+**Planned Improvements:**
+- Add WebMediaLibraryService with mock data for web platform
+- Improve styling consistency with iOS 5 Music app
+- Add proper album art placeholders and styling
+- Enhance Now Playing screen with better controls
+- Improve CoverFlow styling and animations
+- Add mini player bar at bottom (like iOS 5)
+- Polish all navigation and transitions
