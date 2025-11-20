@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:OldiOS"
              xmlns:shared="clr-namespace:OldiOS.Shared;assembly=OldiOS.Shared"
              x:Class="OldiOS.MainPage"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             BackgroundColor="Black">
 
     <Grid>
         <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">

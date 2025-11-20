@@ -323,10 +323,13 @@ namespace OldiOS.Services.Platforms.iOS
         /// <summary>
         /// Gets the album artwork image for a given iOS media item ID
         /// </summary>
-        public static UIKit.UIImage? GetArtworkImage(ulong persistentId, nfloat size = 180)
+        public static UIKit.UIImage? GetArtworkImage(ulong persistentId, nfloat size = default(nfloat))
         {
             try
             {
+                if (size == default(nfloat))
+                    size = new nfloat(180);
+
                 var predicate = MPMediaPropertyPredicate.PredicateWithValue(
                     NSNumber.FromUInt64(persistentId),
                     MPMediaItem.PersistentIDProperty);
