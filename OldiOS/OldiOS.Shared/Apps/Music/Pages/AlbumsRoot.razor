@@ -6,16 +6,28 @@
     <UINavigationBar Title="Albums" RightButtonText="Cover Flow" OnRightButtonClick="ToggleCoverFlow" />
 
     <div class="navigation-view-content">
-        <UITableView>
-            <UITableViewCell Text="All Songs" Icon="_content/OldiOS.Shared/images/icons/tab-songs.png"
-                OnClick="ShowAllSongs" ShowDisclosure="true" />
-            @foreach (var album in MusicApp.Albums)
-            {
-                <UITableViewCell Text="@album.Title" Detail="@album.Artist"
-                Icon="@(string.IsNullOrEmpty(album.CoverArtPath) ? "_content/OldiOS.Shared/images/icons/album-icon.png" : album.CoverArtPath)"
-                OnClick="() => ShowAlbumDetail(album)" ShowDisclosure="true" />
-            }
-        </UITableView>
+        @if (MusicApp.Albums.Any())
+        {
+            <UITableView>
+                <UITableViewCell Text="All Songs" Icon="_content/OldiOS.Shared/images/icons/tab-songs.png"
+                    OnClick="ShowAllSongs" ShowDisclosure="true" />
+                @foreach (var album in MusicApp.Albums)
+                {
+                    <UITableViewCell Text="@album.Title" Detail="@album.Artist"
+                    Icon="@(string.IsNullOrEmpty(album.CoverArtPath) ? "_content/OldiOS.Shared/images/icons/album-icon.png" : album.CoverArtPath)"
+                    OnClick="() => ShowAlbumDetail(album)" ShowDisclosure="true" />
+                }
+            </UITableView>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <img src="_content/OldiOS.Shared/images/icons/album-icon.png" alt="Album" />
+                </div>
+                <div class="empty-text">No Albums</div>
+            </div>
+        }
     </div>
 </div>
 
@@ -50,7 +62,9 @@
     {
         builder.OpenComponent<AlbumPage>(0);
         builder.AddAttribute(1, "Title", album.Title);
-        builder.AddAttribute(2, "Songs", album.Songs);
+        builder.AddAttribute(2, "ArtistName", album.Artist);
+        builder.AddAttribute(3, "AlbumArtPath", album.CoverArtPath);
+        builder.AddAttribute(4, "Songs", album.Songs);
         builder.CloseComponent();
     };
 }

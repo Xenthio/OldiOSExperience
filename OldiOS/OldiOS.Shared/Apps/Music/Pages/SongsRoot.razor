@@ -3,16 +3,30 @@
 @using OldiOS.Shared.Apps.Music
 
 <div class="songs-root">
-    <UINavigationBar Title="Songs" LeftButtonText="@(MusicApp.CurrentSong != null ? "Now Playing" : "")"
+    <UINavigationBar Title="Songs" 
+        LeftButtonText="@(MusicApp.CurrentSong != null ? "Now Playing" : "")"
         OnLeftButtonClick="ShowNowPlaying" />
 
     <div class="navigation-view-content">
-        <UITableView>
-            @foreach (var song in MusicApp.Songs)
-            {
-                <UITableViewCell Text="@song.Title" Detail="@song.Artist" OnClick="() => PlaySong(song)" />
-            }
-        </UITableView>
+        @if (MusicApp.Songs.Any())
+        {
+            <UITableView>
+                @foreach (var song in MusicApp.Songs)
+                {
+                    <UITableViewCell Text="@song.Title" Detail="@song.Artist" 
+                        OnClick="() => PlaySong(song)" ShowDisclosure="false" />
+                }
+            </UITableView>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <img src="_content/OldiOS.Shared/images/icons/song-icon.png" alt="Song" />
+                </div>
+                <div class="empty-text">No Songs</div>
+            </div>
+        }
     </div>
 </div>
 

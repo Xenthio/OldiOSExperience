@@ -22,6 +22,27 @@
     height: 86px;
 }
 
+/* Plain (non-grouped) table view cells - larger rows with white background */
+.uitableview.plain .uitableviewcell {
+    background-color: #FFFFFF;
+    min-height: 110px;
+    height: 112px;
+    box-shadow: none; /* No top highlight in plain tables */
+}
+
+.uitableview.plain .uitableviewcell:last-child {
+    height: 110px;
+}
+
+.uitableview.plain .uitableviewcell.selectable:active {
+    background-size: 2px 110px;
+}
+
+.uitableview.plain .cell-icon img {
+    width: 110px;
+    height: 110px;
+}
+
 .uitableviewcell.selectable {
     cursor: pointer;
 }
@@ -35,18 +56,22 @@
 
 .cell-icon {
     margin-right: 20px;
+    flex-shrink: 0;
 }
 
-.cell-icon img {
-    width: 58px;
-    height: 58px;
+.cell-icon ::deep img {
+    width: 86px;
+    height: 86px;
     border-radius: 6px;
+    display: block;
 }
 
 .cell-content {
     flex: 1;
     display: flex;
-    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
 }
 
 .cell-text {
@@ -54,7 +79,10 @@
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 34px;
     font-weight: bold;
-    flex-grow: 1;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 .uitableviewcell.selectable:active .cell-text {
         color: white;
@@ -64,7 +92,10 @@
     color: #4c5c6c;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 28px;
-    margin-top: 4px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .cell-accessory {
@@ -86,4 +117,23 @@
 
 .cell-toggle {
     margin-left: 20px;
+}
+
+.cell-track-number {
+    color: #4c5c6c;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 34px;
+    font-weight: normal;
+    width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.cell-right-detail {
+    color: #4c5c6c;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 34px;
+    font-weight: normal;
+    margin-left: 20px;
+    flex-shrink: 0;
 }

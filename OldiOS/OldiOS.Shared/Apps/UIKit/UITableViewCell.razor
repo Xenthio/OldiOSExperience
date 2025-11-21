@@ -1,11 +1,17 @@
 @* iOS 5 UITableViewCell Component *@
 @using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Components
 
 <div class="uitableviewcell @(IsLast ? "last" : "") @(IsSelectable ? "selectable" : "")" @onclick="OnClick">
+    @if (!string.IsNullOrEmpty(TrackNumber))
+    {
+        <div class="cell-track-number">@TrackNumber</div>
+    }
+    
     @if (!string.IsNullOrEmpty(Icon))
     {
         <div class="cell-icon">
-            <img src="@Icon" alt="" />
+            <LocalImage ImageSrc="@Icon" Alt="" />
         </div>
     }
     
@@ -16,6 +22,11 @@
             <div class="cell-detail">@Detail</div>
         }
     </div>
+    
+    @if (!string.IsNullOrEmpty(RightDetail))
+    {
+        <div class="cell-right-detail">@RightDetail</div>
+    }
     
     @if (ShowDisclosure)
     {
@@ -44,6 +55,12 @@
     public string? Icon { get; set; }
     
     [Parameter]
+    public string? TrackNumber { get; set; }
+    
+    [Parameter]
+    public string? RightDetail { get; set; }
+    
+    [Parameter]
     public bool ShowDisclosure { get; set; } = false;
     
     [Parameter]
@@ -67,7 +84,7 @@
     [Parameter]
     public bool IsLast { get; set; } = false;
 
-    public bool IsSelectable => ShowDisclosure;
+    public bool IsSelectable => ShowDisclosure || OnClick.HasDelegate;
     
     private async Task HandleToggleChange(bool newValue)
     {
