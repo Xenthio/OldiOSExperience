@@ -47,22 +47,21 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedSongs.Any()) return _cachedSongs;
 
-            // Run the entire operation on a background thread
-            await Task.Run(async () =>
+            // MediaPlayer queries must run on the main thread
+            var items = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
             {
-                // MediaPlayer queries must run on the main thread, use MainThread.InvokeOnMainThreadAsync
-                var items = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    var query = MPMediaQuery.SongsQuery;
-                    return query.Items;
-                });
+                var query = MPMediaQuery.SongsQuery;
+                return query.Items;
+            });
 
-                if (items == null || items.Length == 0)
-                {
-                    return;
-                }
+            if (items == null || items.Length == 0)
+            {
+                return _cachedSongs;
+            }
 
-                // Process items on background thread
+            // Process items on background thread
+            await Task.Run(() =>
+            {
                 foreach (var item in items)
                 {
                     var song = ConvertToSong(item);
@@ -88,22 +87,21 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedAlbums.Any()) return _cachedAlbums;
 
-            // Run the entire operation on a background thread
-            await Task.Run(async () =>
+            // MediaPlayer queries must run on the main thread
+            var collections = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
             {
-                // MediaPlayer queries must run on the main thread, use MainThread.InvokeOnMainThreadAsync
-                var collections = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    var query = MPMediaQuery.AlbumsQuery;
-                    return query.Collections;
-                });
+                var query = MPMediaQuery.AlbumsQuery;
+                return query.Collections;
+            });
 
-                if (collections == null || collections.Length == 0)
-                {
-                    return;
-                }
+            if (collections == null || collections.Length == 0)
+            {
+                return _cachedAlbums;
+            }
 
-                // Process collections on background thread
+            // Process collections on background thread
+            await Task.Run(() =>
+            {
                 foreach (var collection in collections)
                 {
                     var album = ConvertToAlbum(collection);
@@ -129,22 +127,21 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedArtists.Any()) return _cachedArtists;
 
-            // Run the entire operation on a background thread
-            await Task.Run(async () =>
+            // MediaPlayer queries must run on the main thread
+            var collections = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
             {
-                // MediaPlayer queries must run on the main thread, use MainThread.InvokeOnMainThreadAsync
-                var collections = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    var query = MPMediaQuery.ArtistsQuery;
-                    return query.Collections;
-                });
+                var query = MPMediaQuery.ArtistsQuery;
+                return query.Collections;
+            });
 
-                if (collections == null || collections.Length == 0)
-                {
-                    return;
-                }
+            if (collections == null || collections.Length == 0)
+            {
+                return _cachedArtists;
+            }
 
-                // Process collections on background thread
+            // Process collections on background thread
+            await Task.Run(() =>
+            {
                 foreach (var collection in collections)
                 {
                     var artist = ConvertToArtist(collection);
@@ -170,22 +167,21 @@ namespace OldiOS.Services.Platforms.iOS
 
             if (_cachedPlaylists.Any()) return _cachedPlaylists;
 
-            // Run the entire operation on a background thread
-            await Task.Run(async () =>
+            // MediaPlayer queries must run on the main thread
+            var collections = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
             {
-                // MediaPlayer queries must run on the main thread, use MainThread.InvokeOnMainThreadAsync
-                var collections = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    var query = MPMediaQuery.PlaylistsQuery;
-                    return query.Collections;
-                });
+                var query = MPMediaQuery.PlaylistsQuery;
+                return query.Collections;
+            });
 
-                if (collections == null || collections.Length == 0)
-                {
-                    return;
-                }
+            if (collections == null || collections.Length == 0)
+            {
+                return _cachedPlaylists;
+            }
 
-                // Process collections on background thread
+            // Process collections on background thread
+            await Task.Run(() =>
+            {
                 foreach (var collection in collections)
                 {
                     if (collection is MPMediaPlaylist playlist)
