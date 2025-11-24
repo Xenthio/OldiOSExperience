@@ -1,5 +1,6 @@
 @using OldiOS.Shared.Services
 @inject ImagePreloadService ImagePreloadService
+@implements IDisposable
 
 @if (!ImagePreloadService.IsPreloaded)
 {
@@ -42,6 +43,13 @@
         InvokeAsync(StateHasChanged);
         
         // Unsubscribe from events
+        ImagePreloadService.OnProgressChanged -= OnProgressChanged;
+        ImagePreloadService.OnCompleted -= OnCompleted;
+    }
+    
+    public void Dispose()
+    {
+        // Ensure we unsubscribe even if disposed before completion
         ImagePreloadService.OnProgressChanged -= OnProgressChanged;
         ImagePreloadService.OnCompleted -= OnCompleted;
     }
