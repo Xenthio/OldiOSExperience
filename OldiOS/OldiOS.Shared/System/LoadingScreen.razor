@@ -1,0 +1,48 @@
+@using OldiOS.Shared.Services
+@inject ImagePreloadService ImagePreloadService
+
+@if (!ImagePreloadService.IsPreloaded)
+{
+    <div class="loading-overlay">
+        <div class="loading-content">
+            <div class="apple-logo-container">
+                <img src="images/apple-logo.png" alt="Apple" class="apple-logo" />
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: @(ImagePreloadService.Progress * 100)%"></div>
+            </div>
+            <div class="loading-text">Loading assets... @ImagePreloadService.LoadedCount / @ImagePreloadService.TotalCount</div>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Subscribe to progress updates
+            ImagePreloadService.OnProgressChanged += OnProgressChanged;
+            ImagePreloadService.OnCompleted += OnCompleted;
+            
+            // Start preloading
+            await ImagePreloadService.PreloadAllImagesAsync();
+        }
+    }
+    
+    private void OnProgressChanged(int loaded, int total)
+    {
+        // Trigger UI update
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnCompleted()
+    {
+        // Trigger final UI update to hide loading screen
+        InvokeAsync(StateHasChanged);
+        
+        // Unsubscribe from events
+        ImagePreloadService.OnProgressChanged -= OnProgressChanged;
+        ImagePreloadService.OnCompleted -= OnCompleted;
+    }
+}

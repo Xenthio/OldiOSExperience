@@ -1,6 +1,7 @@
 @using OldiOS.Shared.Services
 @inject BatteryService BatteryService
 @inject DisplaySettings DisplaySettings
+@inject PerformanceSettings PerformanceSettings
 @implements IDisposable
 
 <div class="debug-menu-container @(IsVisible ? "visible" : "")">
@@ -136,11 +137,17 @@
             
             <!-- Animation Debug Section -->
             <div class="debug-section">
-                <h4>Animation</h4>
+                <h4>Animation & Performance</h4>
                 <div class="debug-control-group">
                     <button class="debug-button-full" @onclick="ToggleIconsVisibility">
                         @(ShowIcons ? "Hide Icons" : "Show Icons")
                     </button>
+                </div>
+                <div class="debug-control-group">
+                    <label class="debug-checkbox">
+                        <input type="checkbox" @bind="ReducedMotion" />
+                        <span>⚡ Reduced Motion (Better Performance)</span>
+                    </label>
                 </div>
             </div>
             
@@ -204,6 +211,13 @@
     
     [Parameter]
     public EventCallback<bool> ShowIconsChanged { get; set; }
+    
+    // Performance settings
+    private bool ReducedMotion
+    {
+        get => PerformanceSettings.ReducedMotion;
+        set => PerformanceSettings.ReducedMotion = value;
+    }
     
     // Device state
     private bool IsAsleep = false;
