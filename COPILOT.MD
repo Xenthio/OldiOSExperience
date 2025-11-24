@@ -257,12 +257,22 @@ The animation system is designed for complex, multi-element animations:
 - **Image Preloading**: Eliminates 2-3 second delay when opening apps, ensures smooth experience
 - **Reduced Motion**: Provides 30% faster animations (0.7x multiplier) for better performance on older devices
 - **User Control**: Users can toggle performance settings based on their device capabilities
+- **Browser-Friendly**: Concurrency control (8 images at a time) prevents overwhelming the browser
+- **Proper Cleanup**: IDisposable pattern ensures no memory leaks
 
 **Implementation Notes:**
-- Image preloading happens in parallel using JavaScript Image objects
+- Image preloading happens in parallel using JavaScript Image objects with queue system
 - Loading screen displays while preloading (typically 1-2 seconds for all 109 images)
 - Reduced motion can be toggled in Debug Menu (⚙️ icon on right side)
 - All existing animations continue to work, just faster when reduced motion is enabled
+- Script references added to both OldiOS.Web and OldiOS.Shared index.html files
+
+**Quality Assurance:**
+- ✅ Build successful (0 errors, 7 pre-existing warnings)
+- ✅ Code review passed (addressed all feedback)
+- ✅ CodeQL security scan passed (0 alerts)
+- ✅ Proper error handling for failed image loads
+- ✅ Memory leak prevention with IDisposable
 
 ### GitHub Pages CSS Path Fix (November 2025)
 - ✅ **Fixed CSS and Razor image paths for GitHub Pages deployment**
@@ -766,6 +776,15 @@ All 17 implemented apps registered in SpringboardService:
   - Added GPU acceleration hints (will-change, translateZ)
   - Eliminated dynamic JavaScript scatter vector calculations
   - Significantly improved mobile performance (especially iPhone X)
+- [x] **Image preloading system** (November 2025)
+  - Preloads all 109 image assets at startup
+  - Prevents delayed image loading (2-3 second delays eliminated)
+  - Concurrency control (8 images at a time) to prevent browser overload
+  - Loading screen with progress indicator
+- [x] **Performance settings for older devices** (November 2025)
+  - Reduced Motion option in Debug Menu
+  - 30% faster animations (0.7x multiplier) for better performance
+  - User-controllable toggle for testing different devices
 - [ ] Virtualize app pages for many apps (only render visible pages)
 - [ ] Lazy load app components (load on-demand)
 
