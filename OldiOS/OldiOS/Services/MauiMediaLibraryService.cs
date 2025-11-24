@@ -178,7 +178,7 @@ namespace OldiOS.Services
                                 var coverPath = Path.Combine(parentDir.FullName, name + ext);
                                 if (File.Exists(coverPath))
                                 {
-                                    album.CoverArtPath = coverPath; // WebView might need file:// prefix or mapping
+                                    album.CoverArtPath = coverPath; // Store the actual file path
                                     break;
                                 }
                             }
@@ -194,7 +194,7 @@ namespace OldiOS.Services
 
                             if (firstImage != null)
                             {
-                                album.CoverArtPath = firstImage;
+                                album.CoverArtPath = firstImage; // Store the actual file path
                             }
                         }
                     }

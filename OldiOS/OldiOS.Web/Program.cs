@@ -22,4 +22,10 @@ builder.Services.AddSingleton<BatteryService>();
 // Register null haptic service for web
 builder.Services.AddSingleton<IHapticService, NullHapticService>();
 
+// Register media library service with mock data for web
+builder.Services.AddSingleton<IMediaLibraryService, WebMediaLibraryService>();
+
+// Register local file service for web
+builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
+
 await builder.Build().RunAsync();

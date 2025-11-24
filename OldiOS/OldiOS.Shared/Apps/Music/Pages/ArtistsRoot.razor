@@ -1,0 +1,49 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="artists-root">
+    <UINavigationBar Title="Artists" />
+
+    <div class="navigation-view-content">
+        @if (MusicApp.Artists.Any())
+        {
+            <UITableView>
+                @foreach (var artist in MusicApp.Artists)
+                {
+                    <UITableViewCell Text="@artist.Name" 
+                        Detail="@($"{artist.Albums.Count} album{(artist.Albums.Count != 1 ? "s" : "")}")"
+                        Icon="_content/OldiOS.Shared/images/icons/tab-artists.png"
+                        OnClick="() => ShowArtistDetail(artist)" 
+                        ShowDisclosure="true" />
+                }
+            </UITableView>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <img src="_content/OldiOS.Shared/images/icons/artist-icon.png" alt="Artist" />
+                </div>
+                <div class="empty-text">No Artists</div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    private async Task ShowArtistDetail(Artist artist)
+    {
+        await Navigator.Push(RenderArtistPage(artist));
+    }
+
+    private RenderFragment RenderArtistPage(Artist artist) => builder =>
+    {
+        builder.OpenComponent<ArtistPage>(0);
+        builder.AddAttribute(1, "Artist", artist);
+        builder.CloseComponent();
+    };
+}

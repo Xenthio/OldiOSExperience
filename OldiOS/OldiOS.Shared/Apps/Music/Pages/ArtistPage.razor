@@ -1,0 +1,68 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="artist-page">
+    <UINavigationBar Title="@Artist.Name" BackButtonText="Artists" OnBackClick="GoBack" />
+
+    <div class="navigation-view-content">
+        <UITableView>
+            <UITableViewCell Text="All Songs" 
+                Detail="@($"{Artist.Albums.Sum(a => a.Songs.Count)} songs")"
+                Icon="_content/OldiOS.Shared/images/icons/tab-songs.png"
+                OnClick="ShowAllArtistSongs" 
+                ShowDisclosure="true" />
+            
+            @foreach (var album in Artist.Albums)
+            {
+                <UITableViewCell Text="@album.Title" 
+                    Detail="@($"{album.Songs.Count} song{(album.Songs.Count != 1 ? "s" : "")}")"
+                    Icon="@(string.IsNullOrEmpty(album.CoverArtPath) ? "_content/OldiOS.Shared/images/icons/album-icon.png" : album.CoverArtPath)"
+                    OnClick="() => ShowAlbumDetail(album)" 
+                    ShowDisclosure="true" />
+            }
+        </UITableView>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Artist Artist { get; set; } = default!;
+
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+
+    private async Task GoBack()
+    {
+        await Navigator.Pop();
+    }
+
+    private async Task ShowAllArtistSongs()
+    {
+        var allSongs = Artist.Albums.SelectMany(a => a.Songs).ToList();
+        await Navigator.Push(RenderAlbumPage("All Songs", allSongs));
+    }
+
+    private async Task ShowAlbumDetail(Album album)
+    {
+        await Navigator.Push(RenderAlbumPageWithAlbum(album));
+    }
+
+    private RenderFragment RenderAlbumPage(string title, List<Song> songs) => builder =>
+    {
+        builder.OpenComponent<AlbumPage>(0);
+        builder.AddAttribute(1, "Title", title);
+        builder.AddAttribute(2, "ArtistName", Artist.Name);
+        builder.AddAttribute(3, "Songs", songs);
+        builder.CloseComponent();
+    };
+
+    private RenderFragment RenderAlbumPageWithAlbum(Album album) => builder =>
+    {
+        builder.OpenComponent<AlbumPage>(0);
+        builder.AddAttribute(1, "Title", album.Title);
+        builder.AddAttribute(2, "ArtistName", album.Artist);
+        builder.AddAttribute(3, "AlbumArtPath", album.CoverArtPath);
+        builder.AddAttribute(4, "Songs", album.Songs);
+        builder.CloseComponent();
+    };
+}

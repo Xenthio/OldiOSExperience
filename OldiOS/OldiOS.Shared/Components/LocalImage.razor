@@ -1,0 +1,54 @@
+@using OldiOS.Shared.Services
+@inject ILocalFileService LocalFileService
+
+@if (!string.IsNullOrEmpty(ImageSrc))
+{
+    @if (IsLocalFile)
+    {
+        @if (_dataUrl != null)
+        {
+            <img src="@_dataUrl" alt="@Alt" class="@Class" style="@Style" />
+        }
+        else if (_isLoading)
+        {
+            <div class="@Class" style="@Style; background: #333; display: flex; align-items: center; justify-content: center;">
+                <span style="opacity: 0.5;">📷</span>
+            </div>
+        }
+    }
+    else
+    {
+        <img src="@ImageSrc" alt="@Alt" class="@Class" style="@Style" />
+    }
+}
+
+@code {
+    [Parameter] public string? ImageSrc { get; set; }
+    [Parameter] public string? Alt { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string? _dataUrl;
+    private bool _isLoading;
+    private bool IsLocalFile => !string.IsNullOrEmpty(ImageSrc) && 
+                                !ImageSrc.StartsWith("http://") && 
+                                !ImageSrc.StartsWith("https://") &&
+                                !ImageSrc.StartsWith("_content/") &&
+                                !ImageSrc.StartsWith("data:");
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsLocalFile && ImageSrc != null)
+        {
+            _isLoading = true;
+            try
+            {
+                _dataUrl = await LocalFileService.GetDataUrlAsync(ImageSrc);
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+        }
+    }
+}

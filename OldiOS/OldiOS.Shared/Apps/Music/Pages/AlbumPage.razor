@@ -1,23 +1,67 @@
 @using OldiOS.Shared.Apps.UIKit
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Apps.Music
+@using OldiOS.Shared.Components
 
 <div class="album-page">
     <UINavigationBar Title="@Title" BackButtonText="Albums" OnBackClick="GoBack" />
 
     <div class="navigation-view-content">
-        <UITableView>
-            @foreach (var song in Songs)
-            {
-                <UITableViewCell Text="@song.Title" Detail="@FormatTime(song.Duration.TotalSeconds)"
-                OnClick="() => PlaySong(song)" />
-            }
-        </UITableView>
+        @if (Songs.Any())
+        {
+            <!-- Album Header -->
+            <div class="album-header">
+                <div class="album-artwork">
+                    @if (!string.IsNullOrEmpty(AlbumArtPath))
+                    {
+                        <LocalImage ImageSrc="@AlbumArtPath" Alt="@Title" />
+                    }
+                    else
+                    {
+                        <div class="placeholder-artwork">🎵</div>
+                    }
+                </div>
+                <div class="album-info">
+                    <div class="album-artist">@ArtistName</div>
+                    <div class="album-title">@Title</div>
+                    @if (!string.IsNullOrEmpty(ReleaseInfo))
+                    {
+                        <div class="album-release">@ReleaseInfo</div>
+                    }
+                    <div class="album-meta">@Songs.Count Song@(Songs.Count != 1 ? "s" : ""), @FormatTotalTime()</div>
+                </div>
+            </div>
+            
+            <UITableView>
+                @for (int i = 0; i < Songs.Count; i++)
+                {
+                    var song = Songs[i];
+                    var trackNum = (i + 1).ToString();
+                    <UITableViewCell 
+                        TrackNumber="@trackNum"
+                        Text="@song.Title" 
+                        RightDetail="@FormatTime(song.Duration.TotalSeconds)"
+                        OnClick="() => PlaySong(song)" />
+                }
+            </UITableView>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <img src="_content/OldiOS.Shared/images/icons/song-icon.png" alt="Song" />
+                </div>
+                <div class="empty-text">No Songs</div>
+            </div>
+        }
     </div>
 </div>
 
 @code {
     [Parameter] public string Title { get; set; } = "Album";
+    [Parameter] public string ArtistName { get; set; } = "Unknown Artist";
+    [Parameter] public string? AlbumArtPath { get; set; }
+    [Parameter] public string? ReleaseInfo { get; set; }
     [Parameter] public List<Song> Songs { get; set; } = new();
 
     [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
@@ -44,5 +88,12 @@
     {
         var ts = TimeSpan.FromSeconds(seconds);
         return $"{(int)ts.TotalMinutes}:{ts.Seconds:D2}";
+    }
+
+    private string FormatTotalTime()
+    {
+        var totalSeconds = Songs.Sum(s => s.Duration.TotalSeconds);
+        var ts = TimeSpan.FromSeconds(totalSeconds);
+        return $"{(int)ts.TotalMinutes} Mins.";
     }
 }

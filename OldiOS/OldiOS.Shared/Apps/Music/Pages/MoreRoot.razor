@@ -1,0 +1,30 @@
+@using OldiOS.Shared.Apps.UIKit
+@using OldiOS.Shared.Models
+@using OldiOS.Shared.Apps.Music
+
+<div class="more-root">
+    <UINavigationBar Title="More" />
+
+    <div class="navigation-view-content">
+        <UITableView>
+            <UITableViewCell Text="Genres" 
+                Icon="_content/OldiOS.Shared/images/icons/genre-icon.png"
+                ShowDisclosure="true" />
+            <UITableViewCell Text="Composers" 
+                Icon="_content/OldiOS.Shared/images/icons/composer-icon.png"
+                ShowDisclosure="true" />
+            <UITableViewCell Text="Compilations" 
+                Icon="_content/OldiOS.Shared/images/icons/compilation-icon.png"
+                ShowDisclosure="true" />
+        </UITableView>
+        
+        <div class="more-footer">
+            <div class="footer-text">Additional music options and features will appear here</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public MusicApp MusicApp { get; set; } = default!;
+    [CascadingParameter] public ViewNavigator Navigator { get; set; } = default!;
+}
