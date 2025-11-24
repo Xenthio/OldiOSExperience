@@ -14,6 +14,8 @@ builder.Services.AddSingleton<DisplaySettings>();
 builder.Services.AddSingleton<AnimationService>();
 builder.Services.AddSingleton<BackgroundAppManager>();
 builder.Services.AddSingleton<SpringboardService>();
+builder.Services.AddSingleton<ImagePreloadService>();
+builder.Services.AddSingleton<PerformanceSettings>();
 
 // Register null native battery service for web (uses JavaScript API instead)
 builder.Services.AddSingleton<INativeBatteryService, NullNativeBatteryService>();

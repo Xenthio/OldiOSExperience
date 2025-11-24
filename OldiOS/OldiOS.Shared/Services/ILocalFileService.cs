@@ -45,7 +45,7 @@ namespace OldiOS.Shared.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to convert file to data URL '{filePath}': {ex.Message}");
+                global::System.Diagnostics.Debug.WriteLine($"Failed to convert file to data URL '{filePath}': {ex.Message}");
                 return string.Empty;
             }
         }
