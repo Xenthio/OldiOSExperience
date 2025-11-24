@@ -15,10 +15,10 @@ namespace OldiOS.Services.Platforms.iOS
     public class iOSMediaLibraryService : IMediaLibraryService
     {
         private bool _hasPermission = false;
-        private List<Song> _cachedSongs = new();
-        private List<Album> _cachedAlbums = new();
-        private List<Artist> _cachedArtists = new();
-        private List<Playlist> _cachedPlaylists = new();
+        private readonly List<Song> _cachedSongs = new();
+        private readonly List<Album> _cachedAlbums = new();
+        private readonly List<Artist> _cachedArtists = new();
+        private readonly List<Playlist> _cachedPlaylists = new();
 
         public bool HasPermission => _hasPermission;
 
@@ -226,8 +226,9 @@ namespace OldiOS.Services.Platforms.iOS
 
                 return song;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to convert media item to song: {ex.Message}");
                 return null;
             }
         }
@@ -268,8 +269,9 @@ namespace OldiOS.Services.Platforms.iOS
 
                 return album;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to convert media collection to album: {ex.Message}");
                 return null;
             }
         }
@@ -304,8 +306,9 @@ namespace OldiOS.Services.Platforms.iOS
 
                 return artist;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to convert media collection to artist: {ex.Message}");
                 return null;
             }
         }
@@ -334,8 +337,9 @@ namespace OldiOS.Services.Platforms.iOS
 
                 return pl;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to convert media playlist to playlist: {ex.Message}");
                 return null;
             }
         }
@@ -369,8 +373,9 @@ namespace OldiOS.Services.Platforms.iOS
 
                 return null;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to get artwork image for persistent ID {persistentId}: {ex.Message}");
                 return null;
             }
         }

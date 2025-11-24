@@ -44,7 +44,8 @@
     {
         builder.OpenComponent<AlbumPage>(0);
         builder.AddAttribute(1, "Title", playlist.Name);
-        builder.AddAttribute(2, "Songs", playlist.Songs);
+        builder.AddAttribute(2, "ArtistName", "Playlist");
+        builder.AddAttribute(3, "Songs", playlist.Songs);
         builder.CloseComponent();
     };
 }

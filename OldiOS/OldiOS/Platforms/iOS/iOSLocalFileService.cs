@@ -28,42 +28,55 @@ namespace OldiOS.Shared.Services
                 // Otherwise treat as regular file
                 return await GetFileAsDataUrl(filePath);
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to get data URL for file path '{filePath}': {ex.Message}");
                 return string.Empty;
             }
         }
 
         private async Task<string> GetMediaLibraryImageAsDataUrl(string mediaUri)
         {
-            return await Task.Run(() =>
+            try
             {
-                try
-                {
-                    // Extract persistent ID from uri (format: ios-media://123456789)
-                    var idString = mediaUri.Replace("ios-media://", "");
-                    if (!ulong.TryParse(idString, out var persistentId))
-                        return string.Empty;
-
-                    // Get artwork image from iOS media library
-                    var image = iOSMediaLibraryService.GetArtworkImage(persistentId, 180);
-                    if (image == null)
-                        return string.Empty;
-
-                    // Convert UIImage to PNG data
-                    var pngData = image.AsPNG();
-                    if (pngData == null)
-                        return string.Empty;
-
-                    // Convert to base64
-                    var base64 = pngData.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
-                    return $"data:image/png;base64,{base64}";
-                }
-                catch
-                {
+                // Extract persistent ID from uri (format: ios-media://123456789)
+                var idString = mediaUri.Replace("ios-media://", "");
+                if (!ulong.TryParse(idString, out var persistentId))
                     return string.Empty;
-                }
-            });
+
+                // Get artwork image from iOS media library on main thread (MediaPlayer requirement)
+                var image = await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    return iOSMediaLibraryService.GetArtworkImage(persistentId, 180);
+                });
+                
+                if (image == null)
+                    return string.Empty;
+
+                // Convert UIImage to PNG data on background thread
+                return await Task.Run(() =>
+                {
+                    try
+                    {
+                        var pngData = image.AsPNG();
+                        if (pngData == null)
+                            return string.Empty;
+
+                        var base64 = pngData.GetBase64EncodedString(NSDataBase64EncodingOptions.None);
+                        return $"data:image/png;base64,{base64}";
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to convert UIImage to PNG for media URI '{mediaUri}': {ex.Message}");
+                        return string.Empty;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to get media library image for URI '{mediaUri}': {ex.Message}");
+                return string.Empty;
+            }
         }
 
         private async Task<string> GetFileAsDataUrl(string filePath)
@@ -80,8 +93,9 @@ namespace OldiOS.Shared.Services
                 var base64 = Convert.ToBase64String(fileBytes);
                 return $"data:{mimeType};base64,{base64}";
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to read file as data URL '{filePath}': {ex.Message}");
                 return string.Empty;
             }
         }

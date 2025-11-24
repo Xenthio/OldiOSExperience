@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.WebView;
-
-namespace OldiOS
+﻿namespace OldiOS
 {
 	public partial class MainPage : ContentPage
 	{

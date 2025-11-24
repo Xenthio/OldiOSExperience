@@ -38,7 +38,7 @@
     background-size: 2px 110px;
 }
 
-.uitableview.plain .cell-icon img {
+.uitableview.plain .cell-icon ::deep img {
     width: 110px;
     height: 110px;
 }
