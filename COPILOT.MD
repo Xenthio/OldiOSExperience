@@ -57,7 +57,7 @@ This project follows the same **architectural philosophy** as [xgui-3_test](http
 
 ### Conceptual Mapping
 
-The core concepts are the same, just with iOS-appropriate naming:
+The core concepts are the same, just with iOS-appropriate naming. Paths shown are relative to `OldiOS.Shared/`:
 
 | Windows Concept (XGUI-3) | iOS Concept (OldiOSExperience) | Location |
 |--------------------------|--------------------------------|----------|
