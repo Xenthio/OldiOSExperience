@@ -1,5 +1,6 @@
 @page "/"
 @using OldiOS.Shared.Services
+@using OldiOS.Shared.CoreServices
 @inject IJSRuntime JSRuntime
 @inject DisplaySettings DisplaySettings
 @inject IHapticService HapticService
@@ -9,7 +10,7 @@
     <div class="phone-container" style="--phone-scale: @DisplaySettings.SCALEFACTOR.ToString(); width: @(DisplaySettings.RESOLUTION_X)px;">
         <div class="screen-viewport" style="width: @(DisplaySettings.RESOLUTION_X)px; height: @(DisplaySettings.RESOLUTION_Y)px;">
             <div class="screen-content">
-                <OldiOS.Shared.Pages.Springboard.Springboard @ref="springboard" DebugAnimationActive="@debugAnimationActive" />
+                <OldiOS.Shared.Apps.Springboard.Springboard @ref="springboard" DebugAnimationActive="@debugAnimationActive" />
             </div>
         </div>
         <div class="home-button @(isHomeButtonPressed ? "pressed" : "")" 
@@ -32,7 +33,7 @@
 @code {
     private ElementReference simulationWrapperElement;
     private ElementReference homeButtonElement;
-    private OldiOS.Shared.Pages.Springboard.Springboard? springboard;
+    private OldiOS.Shared.Apps.Springboard.Springboard? springboard;
     private DotNetObjectReference<Index>? objRef;
     private bool debugAnimationActive = false;
     private bool isHomeButtonPressed = false;

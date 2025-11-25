@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using OldiOS.Shared.Services;
+using OldiOS.Shared.CoreServices;
 using OldiOS.Web;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -9,7 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-// Register iOS system services
+// Register iOS system services (CoreServices)
 builder.Services.AddSingleton<DisplaySettings>();
 builder.Services.AddSingleton<AnimationService>();
 builder.Services.AddSingleton<BackgroundAppManager>();

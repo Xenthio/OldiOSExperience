@@ -1,4 +1,6 @@
-namespace OldiOS.Shared.Services
+using OldiOS.Shared.Services;
+
+namespace OldiOS.Shared.CoreServices
 {
     /// <summary>
     /// Service to manage battery state for debug and simulation purposes.

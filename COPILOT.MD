@@ -61,17 +61,55 @@ The core concepts are the same, just with iOS-appropriate naming. Paths shown ar
 
 | Windows Concept (XGUI-3) | iOS Concept (OldiOSExperience) | Location |
 |--------------------------|--------------------------------|----------|
-| ProcessManager | BackgroundAppManager | Services/ |
+| ProcessManager | BackgroundAppManager | CoreServices/ |
 | BaseProcess | AppState | Models/ |
-| Shell/Explorer | Springboard | Pages/Springboard/ |
+| Shell/Explorer | Springboard | Apps/Springboard/ |
 | Programs | Apps | Apps/ |
 | ControlPanel | Settings App | Apps/Settings/ |
-| Logon Screen | Lock Screen | Pages/Springboard/Components/ |
-| Registry | UserDefaults (Future) | Services/ |
-| FileSystem | Sandbox (Future) | Services/ |
+| Logon Screen | Lock Screen | Apps/Springboard/Components/ |
+| FakeExecutable | FakeApp | CoreServices/ |
+| ProgramDescriptor | AppDescriptor | CoreServices/ |
+| FileSystem | VirtualFileSystem | CoreServices/FileSystem/ |
+| Registry | UserDefaults (Future) | CoreServices/ |
 | MessageBox | UIAlertController (Future) | Apps/UIKit/ |
-| NativeProgram | App Components | Apps/*/ |
-| ProgramDescriptor | AppInfo | Models/ |
+
+### Core Services (CoreServices/)
+
+The `CoreServices` folder contains the fundamental system services:
+
+- **AnimationService** - Coordinated animations for app transitions
+- **BackgroundAppManager** - App lifecycle and multitasking
+- **BatteryService** - Battery state simulation
+- **DisplaySettings** - Screen resolution and scaling
+- **GestureService** - Touch/gesture recognition
+- **SpringboardService** - Home screen layout and app organization
+- **AppDescriptor** - iOS equivalent of ProgramDescriptor for .app bundles
+- **FakeApp** - Creates and reads .app bundles (like FakeExecutable for .exe)
+- **SystemSetup** - Initializes the file system with all apps
+
+### Virtual File System (CoreServices/FileSystem/)
+
+Implements iOS-like sandboxed file system:
+
+```
+/                           # Root
+├── Applications/           # System apps (.app bundles)
+├── System/
+│   └── Library/
+│       ├── CoreServices/
+│       │   └── SpringBoard.app/
+│       ├── Frameworks/
+│       └── PrivateFrameworks/
+└── var/
+    └── mobile/
+        ├── Applications/   # User apps and sandboxes
+        ├── Library/
+        │   └── Preferences/    # UserDefaults storage
+        ├── Documents/
+        └── Media/
+            ├── DCIM/       # Camera roll
+            └── iTunes_Control/
+```
 
 ### Design Principles (Shared with XGUI-3)
 
@@ -83,9 +121,13 @@ The core concepts are the same, just with iOS-appropriate naming. Paths shown ar
 
 ### Future Enhancements (Aligned with XGUI-3 Goals)
 
-- [ ] Add `UserDefaultsService` (iOS equivalent of Registry)
-- [ ] Add `SandboxService` for app data isolation (iOS equivalent of FileSystem)
-- [ ] Add `SetupWizard` for first-time setup (iOS equivalent of OOBE/Setup)
+- [x] Add `CoreServices` folder for core system services
+- [x] Move Springboard to Apps/ (it's an app like Explorer is in Windows)
+- [x] Add `VirtualFileSystem` (iOS equivalent of FileSystem)
+- [x] Add `FakeApp` for .app bundles (iOS equivalent of FakeExecutable for .exe)
+- [x] Add `AppDescriptor` (iOS equivalent of ProgramDescriptor)
+- [x] Add `SystemSetup` to initialize file system with apps
+- [ ] Add `UserDefaultsService` for settings persistence
 - [ ] Add `NotificationService` for push notifications
 - [ ] Add theme/resource system for customization
 

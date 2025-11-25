@@ -1,5 +1,6 @@
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Services
+@using OldiOS.Shared.CoreServices
 @using Microsoft.JSInterop
 @inject SpringboardService SpringboardService
 @inject BackgroundAppManager AppManager
@@ -29,7 +30,7 @@
         <div class="springboard-pages-filmstrip" @ref="filmstripRef">
             <!-- Spotlight Page (index -1) -->
             <div class="springboard-page spotlight-container">
-                <OldiOS.Shared.Pages.Springboard.Components.Spotlight AllApps="AllApps" />
+                <OldiOS.Shared.Apps.Springboard.Components.Spotlight AllApps="AllApps" />
             </div>
 
             <!-- Regular App Pages -->
@@ -38,7 +39,7 @@
                 <div class="springboard-page">
                     @foreach (var app in page)
                     {
-                        <OldiOS.Shared.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
+                        <OldiOS.Shared.Apps.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" />
                     }
                 </div>
             }
@@ -59,21 +60,21 @@
         <div class="dock-icons">
             @foreach (var app in DockApps)
             {
-                <OldiOS.Shared.Pages.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" InDock="true" />
+                <OldiOS.Shared.Apps.Springboard.Components.AppIcon App="app" OnAppClick="HandleAppClick" InDock="true" />
             }
         </div>
     </div>
 
     <!-- App Container for launching apps -->
-    <OldiOS.Shared.Pages.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" @ref="appContainerRef" />
+    <OldiOS.Shared.Apps.Springboard.Components.AppContainer CurrentApp="@openedApp" OnClose="CloseApp" @ref="appContainerRef" />
 
     <!-- App Switcher (multitasking tray) -->
-    <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
+    <OldiOS.Shared.Apps.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
                                                             OnClose="HandleAppSwitcherClose"
                                                             OnAppSelected="HandleAppSwitcherSelect" />
 
     <!-- Lock Screen -->
-    <OldiOS.Shared.Pages.Springboard.Components.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
+    <OldiOS.Shared.Apps.Springboard.Components.LockScreen IsLocked="@isLocked" OnUnlocked="HandleUnlocked" />
 </div>
 
 @code {
@@ -113,7 +114,7 @@
     private bool isUnlocking = false;
 
     private ElementReference filmstripRef;
-    private OldiOS.Shared.Pages.Springboard.Components.AppContainer? appContainerRef;
+    private OldiOS.Shared.Apps.Springboard.Components.AppContainer? appContainerRef;
     private IJSObjectReference? _animModule;
     private bool _suppressRender = false;
     private int _animModuleVersion = 1;
