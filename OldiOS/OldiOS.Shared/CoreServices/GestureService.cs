@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 
-namespace OldiOS.Shared.Services
+namespace OldiOS.Shared.CoreServices
 {
     /// <summary>
     /// Service for handling touch and mouse gestures

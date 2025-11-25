@@ -1,6 +1,6 @@
 using OldiOS.Shared.Models;
 
-namespace OldiOS.Shared.Services
+namespace OldiOS.Shared.CoreServices
 {
     /// <summary>
     /// Service for coordinating complex multi-element animations

@@ -1,4 +1,4 @@
-namespace OldiOS.Shared.Services
+namespace OldiOS.Shared.CoreServices
 {
     /// <summary>
     /// Device preset configurations

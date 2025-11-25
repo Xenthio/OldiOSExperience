@@ -2,6 +2,8 @@
 
 An authentic iOS 5 replica built with Blazor, simulating an iPhone 4 experience in your browser.
 
+> **Sister Project**: This is the iOS equivalent of [XGUI-3](https://github.com/Xenthio/XGUI-3) / [xgui-3_test](https://github.com/Xenthio/xgui-3_test) - a FakeOS simulator that replicates iOS instead of Windows.
+
 ## 🌐 Live Demo
 
 **[Try it live on GitHub Pages](https://xenthio.github.io/OldiOSExperience/)**
@@ -26,6 +28,16 @@ The project uses a modern .NET MAUI Blazor Hybrid and Web App architecture:
 - **OldiOS** - .NET MAUI project (for native iOS, Android, Windows, macOS apps)
 
 All iOS 5 replica code lives in `OldiOS.Shared` and is shared across platforms.
+
+### Architectural Parallels with XGUI-3
+
+| Windows (XGUI-3) | iOS (OldiOSExperience) | Purpose |
+|------------------|------------------------|---------|
+| Shell/Explorer | Springboard | Home screen/desktop |
+| Programs/ | Apps/ | User applications |
+| ProcessManager | BackgroundAppManager | App lifecycle |
+| ControlPanel | Settings App | System config |
+| Logon | LockScreen | Authentication |
 
 ## 🚀 Getting Started
 

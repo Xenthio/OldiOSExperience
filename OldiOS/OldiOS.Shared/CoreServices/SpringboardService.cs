@@ -1,7 +1,7 @@
 using OldiOS.Shared.Models;
 using OldiOS.Shared.System;
 
-namespace OldiOS.Shared.Services
+namespace OldiOS.Shared.CoreServices
 {
     /// <summary>
     /// Service managing the springboard (home screen) state and app layout

@@ -1,5 +1,6 @@
 @using OldiOS.Shared.Models
 @using OldiOS.Shared.Services
+@using OldiOS.Shared.CoreServices
 @inject AnimationService AnimationService
 @inject BackgroundAppManager AppManager
 @implements IDisposable
@@ -32,7 +33,7 @@
         </div>
 
         <!-- App Switcher (multitasking tray) specific to this app container -->
-        <OldiOS.Shared.Pages.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
+        <OldiOS.Shared.Apps.Springboard.Components.AppSwitcher IsVisible="@isAppSwitcherVisible"
                                                                 OnClose="HandleAppSwitcherClose"
                                                                 OnAppSelected="HandleAppSwitcherSelect" />
     }
