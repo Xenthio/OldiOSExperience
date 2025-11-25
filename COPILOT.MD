@@ -1,22 +1,95 @@
 # OldiOSExperience - Architecture Notes
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [Project Structure](#project-structure-post-migration)
-3. [Architecture](#architecture)
-4. [Animation Framework](#animation-framework)
-5. [Recent Improvements (Current Session)](#recent-improvements-current-session)
-6. [Recent Improvements (Previous Session)](#recent-improvements-previous-session)
-7. [Future Improvements](#future-improvements)
-8. [Design Patterns](#design-patterns)
-9. [Implementation Details](#implementation-details)
-10. [Known Issues](#known-issues)
-11. [Testing Notes](#testing-notes)
-12. [Deployment](#deployment)
-13. [Contributing Guidelines](#contributing-guidelines)
-14. [Migration to MAUI](#migration-to-maui-blazor-hybrid-and-web-app-november-2025)
-15. [Bug Fixes](#bug-fixes)
-16. [References](#references)
+1. [Project Vision & Goals](#project-vision--goals)
+2. [Architectural Alignment with XGUI-3](#architectural-alignment-with-xgui-3)
+3. [Overview](#overview)
+4. [Project Structure](#project-structure-post-migration)
+5. [Architecture](#architecture)
+6. [Animation Framework](#animation-framework)
+7. [Recent Improvements (Current Session)](#recent-improvements-current-session)
+8. [Recent Improvements (Previous Session)](#recent-improvements-previous-session)
+9. [Future Improvements](#future-improvements)
+10. [Design Patterns](#design-patterns)
+11. [Implementation Details](#implementation-details)
+12. [Known Issues](#known-issues)
+13. [Testing Notes](#testing-notes)
+14. [Deployment](#deployment)
+15. [Contributing Guidelines](#contributing-guidelines)
+16. [Migration to MAUI](#migration-to-maui-blazor-hybrid-and-web-app-november-2025)
+17. [Bug Fixes](#bug-fixes)
+18. [References](#references)
+
+---
+
+## Project Vision & Goals
+
+This project is the **iOS equivalent of [XGUI-3](https://github.com/Xenthio/XGUI-3)** - a FakeOS simulator that replicates iOS instead of Windows. While XGUI-3 recreates the Windows experience in s&box, OldiOSExperience recreates iOS 5 using Blazor.
+
+### Project Roadmap
+
+- [x] Layout Designer equivalent (UIKit components library)
+- [x] Core system services (SpringBoard, BackgroundAppManager)
+- [x] App lifecycle management
+- [x] Lock screen with slide-to-unlock
+- [x] App switcher (multitasking)
+- [x] 22+ built-in apps
+- [ ] Resource files for themes/customization
+- [ ] Notification Center
+- [ ] Control Center (iOS 7+ style option)
+- [ ] iCloud simulation / data persistence
+- [ ] App installation simulation
+- [ ] Push notification simulation
+
+### Key Parallels with XGUI-3
+
+Both projects share the same goals:
+- Authentic replication of an operating system (Windows for XGUI-3, iOS for OldiOSExperience)
+- Component-based UI framework (XGUI components ≈ UIKit components)
+- Service-oriented architecture mimicking real OS services
+- Support for multiple apps/programs with lifecycle management
+
+---
+
+## Architectural Alignment with XGUI-3
+
+This project follows the same **architectural philosophy** as [xgui-3_test](https://github.com/Xenthio/xgui-3_test) - both are FakeOS simulators that authentically replicate an operating system. While XGUI-3 replicates Windows, OldiOSExperience replicates iOS.
+
+### Conceptual Mapping
+
+The core concepts are the same, just with iOS-appropriate naming:
+
+| Windows Concept (XGUI-3) | iOS Concept (OldiOSExperience) | Location |
+|--------------------------|--------------------------------|----------|
+| ProcessManager | BackgroundAppManager | Services/ |
+| BaseProcess | AppState | Models/ |
+| Shell/Explorer | Springboard | Pages/Springboard/ |
+| Programs | Apps | Apps/ |
+| ControlPanel | Settings App | Apps/Settings/ |
+| Logon Screen | Lock Screen | Pages/Springboard/Components/ |
+| Registry | UserDefaults (Future) | Services/ |
+| FileSystem | Sandbox (Future) | Services/ |
+| MessageBox | UIAlertController (Future) | Apps/UIKit/ |
+| NativeProgram | App Components | Apps/*/ |
+| ProgramDescriptor | AppInfo | Models/ |
+
+### Design Principles (Shared with XGUI-3)
+
+1. **Authentic Replication**: Faithfully recreate the original OS experience
+2. **Component-Based Architecture**: Modular, reusable UI components (UIKit ≈ XGUI)
+3. **Service Layer**: System services mirror real OS daemons/services
+4. **Event-Driven**: Use events for inter-component communication
+5. **Platform Abstraction**: Support multiple platforms (Web, MAUI native)
+
+### Future Enhancements (Aligned with XGUI-3 Goals)
+
+- [ ] Add `UserDefaultsService` (iOS equivalent of Registry)
+- [ ] Add `SandboxService` for app data isolation (iOS equivalent of FileSystem)
+- [ ] Add `SetupWizard` for first-time setup (iOS equivalent of OOBE/Setup)
+- [ ] Add `NotificationService` for push notifications
+- [ ] Add theme/resource system for customization
+
+---
 
 ## Overview
 This project is an iOS 5 replica built with Blazor, simulating an iPhone 4. The architecture is designed to mirror real iOS components and services for authenticity and maintainability.
